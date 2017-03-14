@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">My Taxi</string>
+    <string name="register_header">Welcome, please enter your mobile number below to register.</string>
+    <string name="mobile_number_text">Mobile Number</string>
+    <string name="regsiter_button_text">Register</string>
+
+
+</resources>
