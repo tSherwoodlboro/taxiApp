@@ -33,6 +33,7 @@ public class AddBookingActivity  extends AppCompatActivity {
         pickUpButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
+                // load map activity
                 Intent mapLoadIntent = new Intent(AddBookingActivity.this, MapActivity.class);
                 EditText pickUpNameText = (EditText) AddBookingActivity.this.findViewById(R.id.editPickUpLocation);
                 mapLoadIntent.putExtra("type",TaxiConstants.PICK_UP);
@@ -46,6 +47,7 @@ public class AddBookingActivity  extends AppCompatActivity {
         destButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
+                // load map activity
                 Intent mapLoadIntent = new Intent(AddBookingActivity.this, MapActivity.class);
                 EditText destNameText = (EditText) AddBookingActivity.this.findViewById(R.id.editDestLocation);
                 mapLoadIntent.putExtra("type",TaxiConstants.DEST);
