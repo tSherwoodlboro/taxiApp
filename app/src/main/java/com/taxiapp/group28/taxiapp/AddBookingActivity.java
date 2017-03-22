@@ -24,6 +24,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class AddBookingActivity  extends AppCompatActivity {
     private boolean useCurrentLocation=false;
+    private String destLocation;
+    private String pickUpLocation;
+    private Double pickUpLatitude;
+    private Double pickUpLongitude;
+    private Double destLatitude;
+    private Double destLongitude;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +68,10 @@ public class AddBookingActivity  extends AppCompatActivity {
         calculateButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
+                Toast toast = Toast.makeText(AddBookingActivity.this,"Calculate: Pickup "+pickUpLocation+ " Coords: "+pickUpLatitude+","+pickUpLongitude+ " Destination "+destLocation+ " Coords: "+destLatitude+","+destLongitude, Toast.LENGTH_LONG);
+                toast.show();
+                // do calculations on route
+                // call google api over http/https output driving distance estimate price e.g. 2.5 per mile.
             }
         });
 
@@ -87,16 +97,21 @@ public class AddBookingActivity  extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if(requestCode == TaxiConstants.MAP_START_ACTIVITY_PICK_UP && resultCode == TaxiConstants.MAP_PICKUP_SET_POINT_DONE){
-            String pickupLocation = data.getStringExtra("pickUpLocation");
-            Toast toast = Toast.makeText(this,"Pick up location: "+pickupLocation, Toast.LENGTH_SHORT);
+            pickUpLocation = data.getStringExtra("pickUpLocation");
+            pickUpLatitude = data.getDoubleExtra("pickUpLocationLatitude",0);
+            pickUpLongitude = data.getDoubleExtra("pickUpLocationLongitude",0);
+
+            Toast toast = Toast.makeText(this,"Pick up location: "+pickUpLocation, Toast.LENGTH_SHORT);
             toast.show();
-            EditText resultText = (EditText)this.findViewById(R.id.pickUpResultAddress);
-            resultText.setText(pickupLocation);
+            TextView resultText = (TextView)this.findViewById(R.id.pickUpResultAddress);
+            resultText.setText(pickUpLocation);
         }else if (requestCode == TaxiConstants.MAP_START_ACTIVITY_DEST && resultCode == TaxiConstants.MAP_DEST_POINT_DONE){
-            String destLocation = data.getStringExtra("destLocation").toString();
+            destLocation = data.getStringExtra("destLocation").toString();
+            destLatitude = data.getDoubleExtra("destLocationLatitude",0);
+            destLongitude = data.getDoubleExtra("destLocationLongitude",0);
             Toast toast = Toast.makeText(this,"Destination location: "+destLocation, Toast.LENGTH_SHORT);
             toast.show();
-            EditText resultText = (EditText)this.findViewById(R.id.destResultAddress);
+            TextView resultText = (TextView)this.findViewById(R.id.destResultAddress);
             resultText.setText(destLocation);
         }
 

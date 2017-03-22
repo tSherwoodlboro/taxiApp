@@ -24,11 +24,11 @@ import java.util.List;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
     private String locationName=null;
-    private Address currentAddress;
+    private Address currentAddress = null;
     private String returnIntentKey = null;
     private int returnIntentResultCode;
     private static String NO_LOCATION_MESSAGE = "Warning no location!";
-
+    private String markerText;
     @Override
     public void onMapReady(final GoogleMap map) {
         addInitialMarker(map);
@@ -95,10 +95,12 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             locationName = this.getIntent().getStringExtra("pickUpName").toString();
             returnIntentResultCode= TaxiConstants.MAP_PICKUP_SET_POINT_DONE;
             returnIntentKey = "pickUpLocation";
+            markerText = "Pick Up Point";
         }else if(type == TaxiConstants.DEST){
             locationName = this.getIntent().getStringExtra("destName").toString();
             returnIntentResultCode= TaxiConstants.MAP_DEST_POINT_DONE;
             returnIntentKey="destLocation";
+            markerText = "Destination Point";
         }
 
 
@@ -122,19 +124,22 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             @Override
             public void onClick(View view) {
                 Intent addBooking = new Intent(MapActivity.this, AddBookingActivity.class);
-                Log.d("Test", "Test button onclick");
                 String locationDetails ="";
                 int i=0;
-                do{
-                    locationDetails += currentAddress.getAddressLine(i);
-                    ++i;
-                    if(i<=currentAddress.getMaxAddressLineIndex()){
-                        locationDetails+=", ";
-                    }
-                }while(i<=currentAddress.getMaxAddressLineIndex());
-                addBooking.putExtra(returnIntentKey,locationDetails);
-                setResult(returnIntentResultCode,addBooking);
-                finish();
+                if(currentAddress != null) {
+                    do {
+                        locationDetails += currentAddress.getAddressLine(i);
+                        ++i;
+                        if (i <= currentAddress.getMaxAddressLineIndex()) {
+                            locationDetails += ", ";
+                        }
+                    } while (i <= currentAddress.getMaxAddressLineIndex());
+                    addBooking.putExtra(returnIntentKey+"Latitude",currentAddress.getLatitude());
+                    addBooking.putExtra(returnIntentKey+"Longitude",currentAddress.getLongitude());
+                    addBooking.putExtra(returnIntentKey, locationDetails);
+                    setResult(returnIntentResultCode, addBooking);
+                    finish();
+                }
             }
 
         });
