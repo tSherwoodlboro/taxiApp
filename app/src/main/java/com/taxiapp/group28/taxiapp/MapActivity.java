@@ -24,6 +24,7 @@ import java.util.List;
 
 public class MapActivity extends FragmentActivity implements OnMapReadyCallback {
     private String locationName=null;
+    private Address currentAddress;
     private String returnIntentKey = null;
     private int returnIntentResultCode;
     private static String NO_LOCATION_MESSAGE = "Warning no location!";
@@ -50,8 +51,8 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             Geocoder geoCoder = new Geocoder(this);
             List<Address> locationList;
             locationList = geoCoder.getFromLocation(location.latitude,location.longitude,1);
-            Address mapAddress = locationList.get(0);
-            locationName = mapAddress.getAddressLine(0);
+            currentAddress= locationList.get(0);
+            locationName = currentAddress.getAddressLine(0);
             setLocationNameText();
         } catch (Exception e) {
             return;
@@ -62,9 +63,11 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         try {
             if (!locationName.isEmpty()) {
                 List<Address> locationList;
-                locationList = geoCoder.getFromLocationName(locationName, 1);
-                Address mapAddress = locationList.get(0);
-                LatLng currentLocation = new LatLng(mapAddress.getLatitude(), mapAddress.getLongitude());
+                locationList = geoCoder.getFromLocationName(locationName+" UK", 10);
+                currentAddress= locationList.get(0);
+                locationName = currentAddress.getAddressLine(0);
+                setLocationNameText();
+                LatLng currentLocation = new LatLng(currentAddress.getLatitude(), currentAddress.getLongitude());
                 map.addMarker(new MarkerOptions()
                         .position(currentLocation)
                         .title("Pick Up Point"));
@@ -120,7 +123,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             public void onClick(View view) {
                 Intent addBooking = new Intent(MapActivity.this, AddBookingActivity.class);
                 Log.d("Test", "Test button onclick");
-                addBooking.putExtra(returnIntentKey, locationName);
+                String locationDetails ="";
+                int i=0;
+                do{
+                    locationDetails += currentAddress.getAddressLine(i);
+                    ++i;
+                    if(i<=currentAddress.getMaxAddressLineIndex()){
+                        locationDetails+=", ";
+                    }
+                }while(i<=currentAddress.getMaxAddressLineIndex());
+                addBooking.putExtra(returnIntentKey,locationDetails);
                 setResult(returnIntentResultCode,addBooking);
                 finish();
             }
