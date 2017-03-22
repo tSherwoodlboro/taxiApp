@@ -8,6 +8,15 @@
     tools:context="com.taxiapp.group28.taxiapp.AddBookingActivity">
 
 
+    <TextView
+        android:id="@+id/pickUpResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/add_booking_pick_up_button"
+        android:layout_marginTop="23dp"
+        android:text="@string/addBookingResultText" />
 
     <TextView
         android:id="@+id/pick_up_text"
@@ -100,6 +109,41 @@
         android:layout_toLeftOf="@+id/add_booking_pick_up_button"
         android:layout_toStartOf="@+id/add_booking_pick_up_button" />
 
+    <TextView
+        android:id="@+id/DestResult"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/addBookingResultText"
+        android:layout_below="@+id/add_booking_destination_button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="19dp" />
+
+    <EditText
+        android:id="@+id/pickUpResultAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="11dp"
+        android:ems="10"
+        android:inputType="textPostalAddress"
+        android:layout_below="@+id/pickUpResult"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:id="@+id/destResultAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/DestResult"
+        android:layout_marginTop="21dp"
+        android:ems="10"
+        android:inputType="textPostalAddress"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 
 </RelativeLayout>

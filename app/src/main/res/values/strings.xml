@@ -13,6 +13,7 @@
     <string name="add_booking_switch">Current location</string>
     <string name="map_location_confirm_button">Confrim</string>
     <string name="map_current_location">Current address:</string>
+    <string name="addBookingResultText">Result</string>
 
 
 </resources>

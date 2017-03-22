@@ -15,6 +15,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.identity.intents.Address;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -86,13 +87,17 @@ public class AddBookingActivity  extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         if(requestCode == TaxiConstants.MAP_START_ACTIVITY_PICK_UP && resultCode == TaxiConstants.MAP_PICKUP_SET_POINT_DONE){
-            String pickupLocation = data.getStringExtra("pickUpLocation").toString();
+            String pickupLocation = data.getStringExtra("pickUpLocation");
             Toast toast = Toast.makeText(this,"Pick up location: "+pickupLocation, Toast.LENGTH_SHORT);
             toast.show();
+            EditText resultText = (EditText)this.findViewById(R.id.pickUpResultAddress);
+            resultText.setText(pickupLocation);
         }else if (requestCode == TaxiConstants.MAP_START_ACTIVITY_DEST && resultCode == TaxiConstants.MAP_DEST_POINT_DONE){
             String destLocation = data.getStringExtra("destLocation").toString();
             Toast toast = Toast.makeText(this,"Destination location: "+destLocation, Toast.LENGTH_SHORT);
             toast.show();
+            EditText resultText = (EditText)this.findViewById(R.id.destResultAddress);
+            resultText.setText(destLocation);
         }
 
     }
