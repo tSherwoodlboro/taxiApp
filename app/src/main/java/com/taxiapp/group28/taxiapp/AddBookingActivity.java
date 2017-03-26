@@ -2,6 +2,7 @@ package com.taxiapp.group28.taxiapp;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -21,6 +22,12 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 public class AddBookingActivity  extends AppCompatActivity {
     private boolean useCurrentLocation=false;
@@ -68,10 +75,13 @@ public class AddBookingActivity  extends AppCompatActivity {
         calculateButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                Toast toast = Toast.makeText(AddBookingActivity.this,"Calculate: Pickup "+pickUpLocation+ " Coords: "+pickUpLatitude+","+pickUpLongitude+ " Destination "+destLocation+ " Coords: "+destLatitude+","+destLongitude, Toast.LENGTH_LONG);
+                Toast toast = Toast.makeText(AddBookingActivity.this, "Calculate: Pickup " + pickUpLocation + " Coords: " + pickUpLatitude + "," + pickUpLongitude + " Destination " + destLocation + " Coords: " + destLatitude + "," + destLongitude, Toast.LENGTH_LONG);
                 toast.show();
+
+
                 // do calculations on route
                 // call google api over http/https output driving distance estimate price e.g. 2.5 per mile.
+
             }
         });
 
