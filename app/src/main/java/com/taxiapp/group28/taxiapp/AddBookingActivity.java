@@ -16,18 +16,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.identity.intents.Address;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+
 
 public class AddBookingActivity  extends AppCompatActivity {
     private boolean useCurrentLocation=false;
@@ -41,7 +31,16 @@ public class AddBookingActivity  extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_booking);
+        new Thread(new Runnable() {
+            public void run() {
+                TaxiAppRequestHandler requestHandler = new TaxiAppRequestHandler();
+                HashMap<String,String> dataMap = new HashMap<>();
 
+                dataMap.put("user_id","1");
+                String result = requestHandler.getBookings(dataMap);
+                Log.d("RESUTT",result);
+            }
+        }).start();
         // onclick listener for pick up button
         final Button pickUpButton = (Button) findViewById(R.id.add_booking_pick_up_button);
         pickUpButton.setOnClickListener(new View.OnClickListener() {
@@ -77,7 +76,6 @@ public class AddBookingActivity  extends AppCompatActivity {
                 // Perform action on click
                 Toast toast = Toast.makeText(AddBookingActivity.this, "Calculate: Pickup " + pickUpLocation + " Coords: " + pickUpLatitude + "," + pickUpLongitude + " Destination " + destLocation + " Coords: " + destLatitude + "," + destLongitude, Toast.LENGTH_LONG);
                 toast.show();
-
 
                 // do calculations on route
                 // call google api over http/https output driving distance estimate price e.g. 2.5 per mile.

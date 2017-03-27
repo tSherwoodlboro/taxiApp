@@ -6,7 +6,7 @@
     tools:context="com.taxiapp.group28.taxiapp.RegisterActivity"
     tools:layout_editor_absoluteY="81dp"
     tools:layout_editor_absoluteX="0dp"
-    android:background="@mipmap/white">
+    >
 
     <TextView
         android:id="@+id/welcomeTextView"
