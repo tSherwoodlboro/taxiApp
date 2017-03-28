@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.taxiapp.group28.taxiapp.AddBookingActivity"
-    android:background="@mipmap/white">
+    >
 
     <TextView
         android:id="@+id/pickUpResultAddress"
