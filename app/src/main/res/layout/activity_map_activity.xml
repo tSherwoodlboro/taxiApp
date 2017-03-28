@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:id="@+id/map_activity"
     tools:context="com.taxiapp.group28.taxiapp.MapActivity">
+
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         android:name="com.google.android.gms.maps.MapFragment"
         android:id="@+id/current_map"

@@ -140,4 +140,13 @@
         android:layout_below="@+id/DestResult"
         android:layout_marginTop="28dp" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/add_booking_calculate_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="27dp" />
+
 </RelativeLayout>
