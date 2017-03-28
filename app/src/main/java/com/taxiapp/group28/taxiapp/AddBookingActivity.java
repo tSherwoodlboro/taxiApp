@@ -31,16 +31,12 @@ public class AddBookingActivity  extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_booking);
-        new Thread(new Runnable() {
-            public void run() {
-                TaxiAppRequestHandler requestHandler = new TaxiAppRequestHandler();
-                HashMap<String,String> dataMap = new HashMap<>();
+        TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase();
+        HashMap<String,String> data = new HashMap<>();
+        data.put("user_id","1");
+        //conn.getBookings(data);
 
-                dataMap.put("user_id","1");
-                String result = requestHandler.getBookings(dataMap);
-                Log.d("RESUTT",result);
-            }
-        }).start();
+        // Log.d("Result",conn.getResult().toString());
         // onclick listener for pick up button
         final Button pickUpButton = (Button) findViewById(R.id.add_booking_pick_up_button);
         pickUpButton.setOnClickListener(new View.OnClickListener() {
