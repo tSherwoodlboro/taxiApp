@@ -2,17 +2,36 @@ package com.taxiapp.group28.taxiapp;
 
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashMap;
 
 /**
  * Created by Tom on 28/03/2017.
+ *
+ * Example cde for activity classes
+ *           final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase();
+             HashMap<String,String> data = new HashMap<>(); // hash map for parameters
+             data.put("user_id","1"); // add the parameter key and value
+             conn.getBookings(data); // call the method
+             // set an onclick listener for result
+             conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
+                    @Override
+                    public void onGetResult() {
+                        // check result isn't null
+                        if(conn.getResult() !=null){
+                            Log.d("RESULT",conn.getResult().toString()); // log the result
+                        }
+                    }
+             });
  */
 
-public class TaxiAppOnlineDatabase extends AppCompatActivity{
+public class TaxiAppOnlineDatabase {
     private static final String TYPE_GET_DRIVER_INFORMATION = "getDriverInfo";
     private static final String TYPE_POST_UPDATE_DRIVER_LOCATION = "updateDriverLocation";
 
@@ -39,28 +58,43 @@ public class TaxiAppOnlineDatabase extends AppCompatActivity{
     private static final String[] DELETE_ROUTE_PARAMS = {"id"};
     private static final String[] GET_ROUTE_PARAMS = {"user_id"};
 
-    private JSONObject PARAMS_INVALID = null;
-    private JSONObject PARAMS_VALID=null;
-    private JSONObject result =null;
+    private JSONArray PARAMS_INVALID = null;
+    private JSONArray PARAMS_VALID=null;
+    private JSONArray result =null;
+
+    private onGetResultListener getResultListener;
+    public interface onGetResultListener{
+         void onGetResult();
+    }
+    public void setOnGetResultListener(onGetResultListener listener){
+        getResultListener = listener;
+    }
     public TaxiAppOnlineDatabase(){
         try{
-            PARAMS_INVALID = new JSONObject("[{error: 'Params Invalid'}]");
-            PARAMS_VALID  = new JSONObject("[{success: 'Params Valid'}]");
+            PARAMS_INVALID = new JSONArray("[{error: 'Params Invalid'}]");
+            PARAMS_VALID  = new JSONArray("[{success: 'Params Valid'}]");
         }catch(JSONException e){
-            this.finish();
+            try {
+                this.finalize();
+            }catch(Throwable e1){
+                Log.d("ERROR","Failed to convert JSON");
+            }
         }
     }
     private void setResult(String result){
         try{
-            this.result = new JSONObject(result);
+            this.result = new JSONArray(result);
         }catch(JSONException e){
+            Log.d("JSON ERROR",e.getMessage());
             this.result =null;
         }
     }
-    public JSONObject getResult(){
+
+    public JSONArray getResult(){
         return result;
     }
-    public JSONObject getDriverInformation(HashMap<String,String> dataParams){
+
+    public JSONArray getDriverInformation(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,GET_DRIVER_INFORMATION_PARAMS)) {
              requestData("GET",TYPE_GET_DRIVER_INFORMATION, dataParams);
         }else{
@@ -68,7 +102,7 @@ public class TaxiAppOnlineDatabase extends AppCompatActivity{
         }
         return PARAMS_VALID;
     }
-    public JSONObject updateDriverLocation(HashMap<String,String> dataParams){
+    public JSONArray updateDriverLocation(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,UPDATE_DRIVER_LOCATION_PARAMS)) {
              requestData("POST",TYPE_POST_UPDATE_DRIVER_LOCATION, dataParams);
         }else{
@@ -76,7 +110,7 @@ public class TaxiAppOnlineDatabase extends AppCompatActivity{
         }
         return PARAMS_VALID;
     }
-    public JSONObject addBooking(HashMap<String,String> dataParams){
+    public JSONArray addBooking(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,ADD_BOOKING_PARAMS)) {
              requestData("POST",TYPE_POST_ADD_BOOKING, dataParams);
         }else{
@@ -84,7 +118,7 @@ public class TaxiAppOnlineDatabase extends AppCompatActivity{
         }
         return PARAMS_VALID;
     }
-    public JSONObject updateBooking(HashMap<String,String> dataParams){
+    public JSONArray updateBooking(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,UPDATE_BOOKING_PARAMS)) {
              requestData("POST",TYPE_POST_UPDATE_BOOKING, dataParams);
         }else{
@@ -92,7 +126,7 @@ public class TaxiAppOnlineDatabase extends AppCompatActivity{
         }
         return PARAMS_VALID;
     }
-    public JSONObject deleteBooking(HashMap<String,String> dataParams){
+    public JSONArray deleteBooking(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,DELETE_BOOKING_PARAMS)) {
              requestData("POST",TYPE_POST_DELETE_BOOKING, dataParams);
         }else{
@@ -100,7 +134,7 @@ public class TaxiAppOnlineDatabase extends AppCompatActivity{
         }
         return PARAMS_VALID;
     }
-    public JSONObject getBookings(HashMap<String,String> dataParams){
+    public JSONArray getBookings(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,GET_BOOKINGS_PARAMS)) {
              requestData("GET",TYPE_GET_BOOKINGS, dataParams);
         }else{
@@ -108,7 +142,7 @@ public class TaxiAppOnlineDatabase extends AppCompatActivity{
         }
         return PARAMS_VALID;
     }
-    public JSONObject addRoute(HashMap<String,String> dataParams){
+    public JSONArray addRoute(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,ADD_ROUTE_PARAMS)) {
              requestData("POST",TYPE_POST_ADD_ROUTE, dataParams);
         }else{
@@ -116,7 +150,7 @@ public class TaxiAppOnlineDatabase extends AppCompatActivity{
         }
         return PARAMS_VALID;
     }
-    public JSONObject updateRoute(HashMap<String,String> dataParams){
+    public JSONArray updateRoute(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,UPDATE_ROUTE_PARAMS)) {
              requestData("POST",TYPE_POST_UPDATE_ROUTE, dataParams);
         }else{
@@ -124,7 +158,7 @@ public class TaxiAppOnlineDatabase extends AppCompatActivity{
         }
         return PARAMS_VALID;
     }
-    public JSONObject deleteRoute(HashMap<String,String> dataParams){
+    public JSONArray deleteRoute(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,DELETE_ROUTE_PARAMS)) {
              requestData("POST",TYPE_POST_DELETE_ROUTE, dataParams);
         }else{
@@ -132,7 +166,7 @@ public class TaxiAppOnlineDatabase extends AppCompatActivity{
         }
         return PARAMS_VALID;
     }
-    public JSONObject getRoutes(HashMap<String,String> dataParams){
+    public JSONArray getRoutes(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,GET_ROUTE_PARAMS)){
              requestData("GET",TYPE_GET_ROUTES, dataParams);
         }else{
@@ -148,18 +182,13 @@ public class TaxiAppOnlineDatabase extends AppCompatActivity{
             private HashMap<String,String> params;
             private String result;
             private static final String ERROR = "[{error: 'true'}]";
+
             public GetJSONData(String method,String type,HashMap<String,String> params){
                 this.method = method;
                 this.type = type;
                 this.params = params;
             }
-            public JSONObject getResult(){
-                try{
-                    return new JSONObject(result);
-                }catch (JSONException e){
-                    return null;
-                }
-            }
+
             @Override
             protected void onPreExecute() {
                 super.onPreExecute();
@@ -168,6 +197,7 @@ public class TaxiAppOnlineDatabase extends AppCompatActivity{
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
                 setResult(result);
+                getResultListener.onGetResult();
             }
             @Override
             protected String doInBackground(Void... parameters) {
