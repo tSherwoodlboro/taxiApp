@@ -5,8 +5,8 @@
     android:layout_height="match_parent"
     android:background="@mipmap/white"
     tools:context="com.taxiapp.group28.taxiapp.RegisterActivity"
-    tools:layout_editor_absoluteY="81dp"
-    tools:layout_editor_absoluteX="0dp"
+    tools:layout_editor_absoluteY="5.0625em"
+    tools:layout_editor_absoluteX="0em"
     >
 
     <TextView
