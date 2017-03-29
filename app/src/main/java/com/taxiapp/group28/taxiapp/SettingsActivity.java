@@ -3,12 +3,14 @@ package com.taxiapp.group28.taxiapp;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-public class EditBookingActivity extends AppCompatActivity {
+/**
+ * Created by user on 3/29/2017.
+ */
 
+public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_edit_booking);
-        //
+        setContentView(R.layout.activity_settings);
     }
 }
