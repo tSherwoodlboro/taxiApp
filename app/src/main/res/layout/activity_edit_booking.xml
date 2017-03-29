@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@mipmap/white">
+    android:background="@mipmap/white"
+    >
 
     <TextView
         android:id="@+id/fromLoc"
@@ -102,4 +103,5 @@
         android:text="Update"
         tools:layout_editor_absoluteX="16dp"
         tools:layout_editor_absoluteY="442dp" />
+
 </android.support.constraint.ConstraintLayout>

@@ -5,8 +5,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@mipmap/white"
     tools:context="com.taxiapp.group28.taxiapp.AddBookingActivity"
-    android:background="@mipmap/white">
+    >
 
     <TextView
         android:id="@+id/pickUpResultAddress"
@@ -139,5 +140,14 @@
         android:layout_alignParentStart="true"
         android:layout_below="@+id/DestResult"
         android:layout_marginTop="28dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/add_booking_calculate_button"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="27dp" />
 
 </RelativeLayout>
