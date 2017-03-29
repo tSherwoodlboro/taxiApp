@@ -25,25 +25,24 @@
         android:text="@string/addBookingResultText"
         android:textColor="@color/cast_expanded_controller_background_color"
         android:textStyle="bold"
-        android:layout_below="@+id/editPickUpLocation"
-        android:layout_toRightOf="@+id/pickUpResultAddress"
-        android:layout_toEndOf="@+id/pickUpResultAddress"
-        android:layout_marginLeft="7dp"
-        android:layout_marginStart="7dp" />
+        android:layout_marginTop="55dp"
+        android:layout_below="@+id/add_booking_pick_up_button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <TextView
         android:id="@+id/pick_up_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="59dp"
         android:text="@string/add_booking_pick_up"
         android:textColor="@color/cast_expanded_controller_background_color"
         android:textStyle="bold"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_alignParentTop="true"
+        android:layout_toRightOf="@+id/pickUpResultAddress"
+        android:layout_toEndOf="@+id/pickUpResultAddress"
+        android:layout_marginTop="13dp" />
 
     <TextView
         android:id="@+id/dest_text"
@@ -53,20 +52,21 @@
         android:textColor="@color/cast_expanded_controller_background_color"
         android:layout_above="@+id/add_booking_destination_button"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="9dp" />
+        android:layout_alignParentStart="true" />
 
     <EditText
         android:id="@+id/editPickUpLocation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/pick_up_text"
+        android:layout_marginTop="17dp"
+        android:layout_toLeftOf="@+id/add_booking_pick_up_button"
+        android:layout_toStartOf="@+id/add_booking_pick_up_button"
         android:ems="10"
         android:hint="@string/pick_up_location_hint"
-        android:inputType="textPersonName"
-        android:layout_marginTop="17dp"
-        android:layout_below="@+id/pick_up_text"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:inputType="textPersonName" />
 
     <EditText
         android:id="@+id/editDestLocation"
@@ -75,10 +75,11 @@
         android:ems="10"
         android:hint="@string/add_booking_dest_name"
         android:inputType="textPersonName"
-        android:layout_marginTop="141dp"
-        android:layout_below="@+id/pickUpResultAddress"
+        android:layout_above="@+id/DestResult"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:layout_toLeftOf="@+id/add_booking_destination_button"
+        android:layout_toStartOf="@+id/add_booking_destination_button" />
 
     <Button
         android:id="@+id/add_booking_pick_up_button"
@@ -117,10 +118,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/add_booking_switch"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="6dp" />
+        android:layout_alignBaseline="@+id/pick_up_text"
+        android:layout_alignBottom="@+id/pick_up_text"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:id="@+id/DestResult"
@@ -129,8 +129,10 @@
         android:text="@string/addBookingResultText"
         android:textColor="@color/cast_expanded_controller_background_color"
         android:textStyle="bold"
-        android:layout_below="@+id/add_booking_destination_button"
-        android:layout_toRightOf="@+id/destResultAddress" />
+        android:layout_above="@+id/add_booking_calculate_button"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="105dp" />
 
     <TextView
         android:id="@+id/destResultAddress"
@@ -141,13 +143,16 @@
         android:layout_below="@+id/DestResult"
         android:layout_marginTop="28dp" />
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
+    <EditText
+        android:id="@+id/noteText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/add_booking_calculate_button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="27dp" />
+        android:layout_below="@+id/add_booking_pick_up_button"
+        android:layout_toRightOf="@+id/pickUpResultAddress"
+        android:ems="10"
+        android:hint="@string/addBookingNote"
+        android:inputType="textPersonName"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>

@@ -6,14 +6,15 @@
     <string name="mobile_hint">Enter Mobile Number</string>
     <string name="add_booking_pick_up">Pick  up location</string>
     <string name="add_booking_dest">Destination location</string>
-    <string name="pick_up_location_hint">Location name</string>
-    <string name="add_booking_dest_name">Location name</string>
+    <string name="pick_up_location_hint">Pick up location </string>
+    <string name="add_booking_dest_name">Destination location </string>
     <string name="add_booking_pick_up_button">Search</string>
     <string name="add_booking_calculate_button">Calculate</string>
     <string name="add_booking_switch">Current location</string>
-    <string name="map_location_confirm_button">Confrim</string>
+    <string name="map_location_confirm_button">Confirm</string>
     <string name="map_current_location">Current address:</string>
     <string name="addBookingResultText">Result</string>
+    <string name="addBookingNote">Note (Pick up description)</string>
 
 
 </resources>

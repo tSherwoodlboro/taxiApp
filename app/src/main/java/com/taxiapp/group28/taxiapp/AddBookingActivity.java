@@ -2,8 +2,11 @@ package com.taxiapp.group28.taxiapp;
 
 import android.app.FragmentTransaction;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,11 +30,19 @@ public class AddBookingActivity  extends AppCompatActivity {
     private Double pickUpLongitude;
     private Double destLatitude;
     private Double destLongitude;
+    private static final int  MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION =123;
+    private boolean locationAccess = false;
+    private boolean pickUplocationSet = false;
+    private boolean destLocationSet = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_booking);
-
+        TaxiAppOnlineDatabase databaseConn = new TaxiAppOnlineDatabase();
+        HashMap<String, String> data = new HashMap<>();
+        data.put("tel_no", "074258128");
+        data.put("user_name", "tom");
+        databaseConn.addUser(data);
 
         // onclick listener for pick up button
         final Button pickUpButton = (Button) findViewById(R.id.add_booking_pick_up_button);
@@ -39,11 +50,12 @@ public class AddBookingActivity  extends AppCompatActivity {
             public void onClick(View v) {
                 // Perform action on click
                 // load map activity
+                pickUplocationSet = false;
                 Intent mapLoadIntent = new Intent(AddBookingActivity.this, MapActivity.class);
                 EditText pickUpNameText = (EditText) AddBookingActivity.this.findViewById(R.id.editPickUpLocation);
-                mapLoadIntent.putExtra("type",TaxiConstants.PICK_UP);
+                mapLoadIntent.putExtra("type", TaxiConstants.PICK_UP);
                 mapLoadIntent.putExtra("pickUpName", pickUpNameText.getText().toString());
-                startActivityForResult(mapLoadIntent,TaxiConstants.MAP_START_ACTIVITY_PICK_UP);
+                startActivityForResult(mapLoadIntent, TaxiConstants.MAP_START_ACTIVITY_PICK_UP);
             }
         });
 
@@ -53,11 +65,12 @@ public class AddBookingActivity  extends AppCompatActivity {
             public void onClick(View v) {
                 // Perform action on click
                 // load map activity
+                destLocationSet = false;
                 Intent mapLoadIntent = new Intent(AddBookingActivity.this, MapActivity.class);
                 EditText destNameText = (EditText) AddBookingActivity.this.findViewById(R.id.editDestLocation);
-                mapLoadIntent.putExtra("type",TaxiConstants.DEST);
+                mapLoadIntent.putExtra("type", TaxiConstants.DEST);
                 mapLoadIntent.putExtra("destName", destNameText.getText().toString());
-                startActivityForResult(mapLoadIntent,TaxiConstants.MAP_START_ACTIVITY_DEST);
+                startActivityForResult(mapLoadIntent, TaxiConstants.MAP_START_ACTIVITY_DEST);
             }
         });
 
@@ -66,9 +79,14 @@ public class AddBookingActivity  extends AppCompatActivity {
         calculateButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                Toast toast = Toast.makeText(AddBookingActivity.this, "Calculate: Pickup " + pickUpLocation + " Coords: " + pickUpLatitude + "," + pickUpLongitude + " Destination " + destLocation + " Coords: " + destLatitude + "," + destLongitude, Toast.LENGTH_LONG);
+                String toastText = null;
+                if(destLocationSet && (pickUplocationSet || locationAccess)) {
+                    toastText = "Calculate: Pickup " + pickUpLocation + " Coords: " + pickUpLatitude + "," + pickUpLongitude + " Destination " + destLocation + " Coords: " + destLatitude + "," + destLongitude;
+                }else {
+                    toastText= "Required information not entered!";
+                }
+                Toast toast = Toast.makeText(AddBookingActivity.this, toastText, Toast.LENGTH_SHORT);
                 toast.show();
-
                 // do calculations on route
                 // call google api over http/https output driving distance estimate price e.g. 2.5 per mile.
 
@@ -76,15 +94,43 @@ public class AddBookingActivity  extends AppCompatActivity {
         });
 
         // switch listener
-        final Switch currentLocationSwitch = (Switch)findViewById(R.id.add_booking_cLocation_switch);
+        final Switch currentLocationSwitch = (Switch) findViewById(R.id.add_booking_cLocation_switch);
         currentLocationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 useCurrentLocation = isChecked;
                 disablePickupLocation(!useCurrentLocation);
+                if (isChecked) {
+                    if (ContextCompat.checkSelfPermission(AddBookingActivity.this,
+                            android.Manifest.permission.ACCESS_FINE_LOCATION)
+                            != PackageManager.PERMISSION_GRANTED) {
+
+                         ActivityCompat.requestPermissions(AddBookingActivity.this,
+                                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                                MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                    }
+                }
             }
         });
 
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    locationAccess = true;
+                } else {
+                    locationAccess = false;
+                    Switch locationSwitch = (Switch)AddBookingActivity.this.findViewById(R.id.add_booking_cLocation_switch);
+                    locationSwitch.setChecked(false);
+                }
+                return;
+            }
+        }
     }
     private void disablePickupLocation(boolean  val){
         EditText pickUpEdit = (EditText) AddBookingActivity.this.findViewById(R.id.editPickUpLocation);
@@ -105,6 +151,8 @@ public class AddBookingActivity  extends AppCompatActivity {
             toast.show();
             TextView resultText = (TextView)this.findViewById(R.id.pickUpResultAddress);
             resultText.setText(pickUpLocation);
+            pickUplocationSet = true;
+
         }else if (requestCode == TaxiConstants.MAP_START_ACTIVITY_DEST && resultCode == TaxiConstants.MAP_DEST_POINT_DONE){
             destLocation = data.getStringExtra("destLocation").toString();
             destLatitude = data.getDoubleExtra("destLocationLatitude",0);
@@ -113,6 +161,7 @@ public class AddBookingActivity  extends AppCompatActivity {
             toast.show();
             TextView resultText = (TextView)this.findViewById(R.id.destResultAddress);
             resultText.setText(destLocation);
+            pickUplocationSet = true;
         }
 
     }

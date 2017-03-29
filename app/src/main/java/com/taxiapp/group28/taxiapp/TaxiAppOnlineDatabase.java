@@ -43,8 +43,8 @@ public class TaxiAppOnlineDatabase {
     private static final String TYPE_POST_UPDATE_BOOKING = "editBooking";
     private static final String TYPE_POST_DELETE_BOOKING = "deleteBooking";
 
-    private static final String[] ADD_BOOKING_PARAMS = {"user_id","assigned_driver_id","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","price","est_arrival_time","est_dest_time","confirmed_arrival_time","confirmed_dest_time","booking_complete"};
-    private static final String[] UPDATE_BOOKING_PARAMS =  {"id","user_id","assigned_driver_id","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","price","est_arrival_time","est_dest_time","confirmed_arrival_time","confirmed_dest_time","booking_complete"};
+    private static final String[] ADD_BOOKING_PARAMS = {"user_id","assigned_driver_id","note","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","price","est_arrival_time","est_dest_time","confirmed_arrival_time","confirmed_dest_time","booking_complete"};
+    private static final String[] UPDATE_BOOKING_PARAMS =  {"id","user_id","note","assigned_driver_id","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","price","est_arrival_time","est_dest_time","confirmed_arrival_time","confirmed_dest_time","booking_complete"};
     private static final String[] DELETE_BOOKING_PARAMS = {"id"};
     private static final String[] GET_BOOKINGS_PARAMS = {"user_id"};
 
@@ -53,10 +53,20 @@ public class TaxiAppOnlineDatabase {
     private static final String TYPE_POST_UPDATE_ROUTE = "editRoute";
     private static final String TYPE_POST_DELETE_ROUTE= "deleteRoute";
 
-    private static final String[] ADD_ROUTE_PARAMS = {"user_id","assigned_driver_id","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","name"};
-    private static final String[] UPDATE_ROUTE_PARAMS = {"id","times_used","user_id","assigned_driver_id","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","name"};
+    private static final String[] ADD_ROUTE_PARAMS = {"user_id","assigned_driver_id","note","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","name"};
+    private static final String[] UPDATE_ROUTE_PARAMS = {"id","times_used","user_id","note","assigned_driver_id","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","name"};
     private static final String[] DELETE_ROUTE_PARAMS = {"id"};
     private static final String[] GET_ROUTE_PARAMS = {"user_id"};
+
+    private static final String TYPE_GET_USER = "getUser";
+    private static final String TYPE_POST_ADD_USER = "addUser";
+    private static final String TYPE_POST_UPDATE_USER = "editUser";
+    private static final String TYPE_POST_DELETE_USER = "deleteUser";
+
+    private static final String[] ADD_USER_PARAMS = {"tel_no","user_name"};
+    private static final String[] UPDATE_USER_PARAMS =  {"user_name","tel_no","preferred_driver_id"};
+    private static final String[] DELETE_USER_PARAMS = {"id"};
+    private static final String[] GET_USER_PARAMS = {"id"};
 
     private JSONArray PARAMS_INVALID = null;
     private JSONArray PARAMS_VALID=null;
@@ -142,6 +152,38 @@ public class TaxiAppOnlineDatabase {
         }
         return PARAMS_VALID;
     }
+    public JSONArray addUser(HashMap<String,String> dataParams){
+        if(isValidParams(dataParams,ADD_USER_PARAMS)) {
+            requestData("POST",TYPE_POST_ADD_USER, dataParams);
+        }else{
+            return PARAMS_INVALID;
+        }
+        return PARAMS_VALID;
+    }
+    public JSONArray updateUser(HashMap<String,String> dataParams){
+        if(isValidParams(dataParams,UPDATE_USER_PARAMS)) {
+            requestData("POST",TYPE_POST_UPDATE_USER, dataParams);
+        }else{
+            return PARAMS_INVALID;
+        }
+        return PARAMS_VALID;
+    }
+    public JSONArray deleteUser(HashMap<String,String> dataParams){
+        if(isValidParams(dataParams,DELETE_USER_PARAMS)) {
+            requestData("POST",TYPE_POST_DELETE_USER, dataParams);
+        }else{
+            return PARAMS_INVALID;
+        }
+        return PARAMS_VALID;
+    }
+    public JSONArray getUser(HashMap<String,String> dataParams){
+        if(isValidParams(dataParams,GET_USER_PARAMS)) {
+            requestData("GET",TYPE_GET_USER, dataParams);
+        }else{
+            return PARAMS_INVALID;
+        }
+        return PARAMS_VALID;
+    }
     public JSONArray addRoute(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,ADD_ROUTE_PARAMS)) {
              requestData("POST",TYPE_POST_ADD_ROUTE, dataParams);
@@ -197,7 +239,9 @@ public class TaxiAppOnlineDatabase {
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
                 setResult(result);
-                getResultListener.onGetResult();
+                if(getResultListener != null) {
+                    getResultListener.onGetResult();
+                }
             }
             @Override
             protected String doInBackground(Void... parameters) {
