@@ -3,6 +3,11 @@ package com.taxiapp.group28.taxiapp;
 import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -19,7 +24,10 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class AddBookingActivity  extends AppCompatActivity {
@@ -32,8 +40,9 @@ public class AddBookingActivity  extends AppCompatActivity {
     private Double destLongitude;
     private static final int  MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION =123;
     private boolean locationAccess = false;
-    private boolean pickUplocationSet = false;
+    private boolean pickUpLocationSet = false;
     private boolean destLocationSet = false;
+    private LocationManager locationManager=null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +59,7 @@ public class AddBookingActivity  extends AppCompatActivity {
             public void onClick(View v) {
                 // Perform action on click
                 // load map activity
-                pickUplocationSet = false;
+                pickUpLocationSet = false;
                 Intent mapLoadIntent = new Intent(AddBookingActivity.this, MapActivity.class);
                 EditText pickUpNameText = (EditText) AddBookingActivity.this.findViewById(R.id.editPickUpLocation);
                 mapLoadIntent.putExtra("type", TaxiConstants.PICK_UP);
@@ -80,7 +89,7 @@ public class AddBookingActivity  extends AppCompatActivity {
             public void onClick(View v) {
                 // Perform action on click
                 String toastText = null;
-                if(destLocationSet && (pickUplocationSet || locationAccess)) {
+                if(destLocationSet && (pickUpLocationSet || locationAccess)) {
                     toastText = "Calculate: Pickup " + pickUpLocation + " Coords: " + pickUpLatitude + "," + pickUpLongitude + " Destination " + destLocation + " Coords: " + destLatitude + "," + destLongitude;
                 }else {
                     toastText= "Required information not entered!";
@@ -108,10 +117,58 @@ public class AddBookingActivity  extends AppCompatActivity {
                          ActivityCompat.requestPermissions(AddBookingActivity.this,
                                 new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
                                 MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                    }else{
+                        locationAccess = true;
+                        setLocationManager();
+
                     }
+
                 }
             }
         });
+
+    }
+    private void setCurrentLocationCoords(Location location){
+        Geocoder geoCoder = new Geocoder(this);
+        Address currentAddress=null;
+        List<Address> locationList;
+        try{
+            locationList = geoCoder.getFromLocation(location.getLatitude(),location.getLongitude(),1);
+        }catch(IOException e){
+            Log.d("ERROR",e.getMessage());
+            return;
+        }
+        currentAddress= locationList.get(0);
+        pickUpLatitude = location.getLatitude();
+        pickUpLongitude = location.getLongitude();
+        setPickUpResultText(currentAddress.getAddressLine(0));
+    }
+    private void setLocationManager(){
+        locationManager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+        // Define a listener that responds to location updates
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                // Called when a new location is found by the network location provider.
+                setCurrentLocationCoords(location);
+                Log.d("CHECKED","checked current location");
+            }
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {}
+            @Override
+            public void onProviderEnabled(String provider) {}
+            @Override
+            public void onProviderDisabled(String provider) {}
+        };
+
+        try {
+            if(locationManager != null){
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                setCurrentLocationCoords(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+            }
+        }catch(SecurityException e){
+            Log.d("SECURITY_ERROR","Location permission denied");
+        }
 
     }
     @Override
@@ -139,6 +196,16 @@ public class AddBookingActivity  extends AppCompatActivity {
         pickUpButton.setEnabled(val);
 
     }
+    private void setDestResultTest(String text){
+        TextView resultText = (TextView)this.findViewById(R.id.destResultAddress);
+        resultText.setText(text);
+        destLocation = text;
+    }
+    private void setPickUpResultText(String text){
+        TextView resultText = (TextView)this.findViewById(R.id.pickUpResultAddress);
+        resultText.setText(text);
+        pickUpLocation = text;
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -149,9 +216,8 @@ public class AddBookingActivity  extends AppCompatActivity {
 
             Toast toast = Toast.makeText(this,"Pick up location: "+pickUpLocation, Toast.LENGTH_SHORT);
             toast.show();
-            TextView resultText = (TextView)this.findViewById(R.id.pickUpResultAddress);
-            resultText.setText(pickUpLocation);
-            pickUplocationSet = true;
+            setPickUpResultText(pickUpLocation);
+            pickUpLocationSet = true;
 
         }else if (requestCode == TaxiConstants.MAP_START_ACTIVITY_DEST && resultCode == TaxiConstants.MAP_DEST_POINT_DONE){
             destLocation = data.getStringExtra("destLocation").toString();
@@ -159,9 +225,8 @@ public class AddBookingActivity  extends AppCompatActivity {
             destLongitude = data.getDoubleExtra("destLocationLongitude",0);
             Toast toast = Toast.makeText(this,"Destination location: "+destLocation, Toast.LENGTH_SHORT);
             toast.show();
-            TextView resultText = (TextView)this.findViewById(R.id.destResultAddress);
-            resultText.setText(destLocation);
-            pickUplocationSet = true;
+            setDestResultTest(destLocation);
+            destLocationSet = true;
         }
 
     }

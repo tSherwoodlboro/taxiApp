@@ -31,7 +31,7 @@
         android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Terms & Conditions"
+        android:text="Terms and Conditions"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_above="@+id/textView"
@@ -44,6 +44,6 @@
         android:layout_height="wrap_content"
         app:srcCompat="@mipmap/taxitwo"
         android:layout_alignParentBottom="true"
-        android:layout_toRightOf="@+id/resources"
-        android:layout_toEndOf="@+id/resources" />
+
+        />
 </RelativeLayout>
