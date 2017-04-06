@@ -15,6 +15,8 @@
     <string name="map_current_location">Current address:</string>
     <string name="addBookingResultText">Result</string>
     <string name="addBookingNote">Note (Pick up description)</string>
+    <string name="pick_up_time_button">Pick Up Time</string>
+    <string name="pick_up_time_text" >Pick Up Time</string>
 
 
 </resources>
