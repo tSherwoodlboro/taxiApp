@@ -48,8 +48,6 @@ public class DestFragment extends Fragment {
 
             }
         });
-        //final EditText editDestText = (EditText)view.findViewById(R.id.editDestLocation);
-
         return view;
     }
     @Override
@@ -110,6 +108,7 @@ public class DestFragment extends Fragment {
     }
 
     private void setLocation(Double lat,Double longitude,String name){
+        // sets dest location (coords and sets the result information)
         setCoords(lat,longitude);
         setResultText(name);
         location = name;
@@ -117,17 +116,19 @@ public class DestFragment extends Fragment {
     }
 
     private void setCoords(Double lat,Double longitude){
+        // sets the lat and long of dest point
         latitude = lat;
         this.longitude = longitude;
     }
     private void setResultText(String locationInfo){
-
+        // sets the house number, steet and postcode UI fields
         String[] resultArray = AddBookingActivity.getResultTextArray(locationInfo);
         setHouseNumberResult(resultArray[0]);
         setStreetResult(resultArray[1]);
         setPostcodeResult(resultArray[2]);
     }
     public void setAddress(){
+        // sets the address based on result UI information
         if(isLocationSet() && !getPostcodeResult().isEmpty() && !getStreetResult().isEmpty()) {
             String locationInfo = getHouseNumberResult()+" " + getStreetResult()+" "+getPostcodeResult();
             address = MapActivity.getAddress(locationInfo, getActivity());

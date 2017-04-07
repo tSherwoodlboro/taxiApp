@@ -11,6 +11,10 @@ import android.util.Log;
 
 
 public class AddBookingPagerAdapter extends FragmentPagerAdapter {
+    private static final int PICK_UP_TAB =0;
+    private static final int DEST_TAB = 1;
+    private static final int CONFIRM_TAB =2;
+
     int mNumOfTabs;
     PickUpFragment pickUpTab = null;
     DestFragment destTab = null;
@@ -24,6 +28,7 @@ public class AddBookingPagerAdapter extends FragmentPagerAdapter {
         return (pickUpTab != null && destTab !=null && pickUpTab.isLocationSet() && destTab.isLocationSet());
     }
     public void setConfirmLocations(){
+        // set the get the address information from pickUp and dest instances and send to confirmTab instance
         destTab.setAddress();
         pickUpTab.setAddress();
         confirmTab.setDestAddress(destTab.getAddress());
@@ -45,13 +50,13 @@ public class AddBookingPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         Log.d("POSITION",new Integer(position).toString());
         switch (position) {
-            case 0:
+            case PICK_UP_TAB:
                 pickUpTab = new PickUpFragment();
                 return pickUpTab;
-            case 1:
+            case DEST_TAB:
                 destTab = new DestFragment();
                 return destTab;
-            case 2:
+            case CONFIRM_TAB:
                 confirmTab = new ConfirmBookingFragment();
                 return confirmTab;
             default:
