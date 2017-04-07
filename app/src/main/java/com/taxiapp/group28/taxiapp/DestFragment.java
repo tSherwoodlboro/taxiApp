@@ -30,6 +30,9 @@ public class DestFragment extends Fragment {
     private  View view;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if(view!=null){
+            return view;
+        }
         view = inflater.inflate(R.layout.destination_tab, container, false);
         // onclick listener for destination up button
         final Button destButton = (Button) view.findViewById(R.id.add_booking_destination_button);
@@ -56,15 +59,20 @@ public class DestFragment extends Fragment {
         if (requestCode == TaxiConstants.MAP_START_ACTIVITY_DEST && resultCode == TaxiConstants.MAP_DEST_POINT_DONE){
             setLocation(data.getDoubleExtra("destLocationLatitude",0),data.getDoubleExtra("destLocationLongitude",0),data.getStringExtra("destLocation").toString());
         }
-
     }
     public String getStreetResult(){
+        EditText editText = (EditText) view.findViewById(R.id.edit_street);
+        streetResult = editText.getText().toString();
         return streetResult;
     }
     public String getHouseNumberResult(){
+        EditText editText = (EditText) view.findViewById(R.id.edit_house_number);
+        houseNumberResult = editText.getText().toString();
         return houseNumberResult;
     }
     public String getPostcodeResult(){
+        EditText editText = (EditText) view.findViewById(R.id.edit_postcode);
+        postcodeResult = editText.getText().toString();
         return postcodeResult;
     }
     public Double getLatitude(){

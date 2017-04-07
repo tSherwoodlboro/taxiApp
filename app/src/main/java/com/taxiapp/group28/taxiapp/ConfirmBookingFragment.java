@@ -149,6 +149,7 @@ public class ConfirmBookingFragment extends Fragment {
         // get coords for both pick up and dest
         LatLng pickUpLatLng = new LatLng(pickUpAddress.getLatitude(),pickUpAddress.getLongitude());
         LatLng destLatLng = new LatLng(destAddress.getLatitude(),destAddress.getLongitude());
+        confirmMap.clear();
         addMarker(confirmMap,pickUpLatLng, PICK_UP_POINT_TEXT);
         addMarker(confirmMap,destLatLng, DESTINATION_POINT_TEXT);
         // create a lat/lng boundary based on the 2 points
@@ -162,6 +163,7 @@ public class ConfirmBookingFragment extends Fragment {
     private void addMarker(GoogleMap map,LatLng location,String markerText) {
         // adds markers/points to the map
         try {
+
             map.addMarker(new MarkerOptions()
                     .position(location)
                     .title(markerText));

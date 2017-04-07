@@ -49,10 +49,13 @@ public class PickUpFragment extends Fragment {
     private String streetResult; // result street
     private LocationManager locationManager=null; // helps get current location
     private boolean disableSeekBar = false;
-    private  View view;
+    private  View view=null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if(view!=null){
+            return view;
+        }
         view = inflater.inflate(R.layout.pick_up_tab, container, false);
         // set default pickUpTime
         Calendar calendar = Calendar.getInstance();
@@ -198,12 +201,18 @@ public class PickUpFragment extends Fragment {
     }
 
     public String getStreetResult(){
+        EditText editText = (EditText) view.findViewById(R.id.edit_street);
+        streetResult = editText.getText().toString();
         return streetResult;
     }
     public String getHouseNumberResult(){
+        EditText editText = (EditText) view.findViewById(R.id.edit_house_number);
+        houseNumberResult = editText.getText().toString();
         return houseNumberResult;
     }
     public String getPostcodeResult(){
+        EditText editText = (EditText) view.findViewById(R.id.edit_postcode);
+        postcodeResult = editText.getText().toString();
         return postcodeResult;
     }
     public Double getLatitude(){
