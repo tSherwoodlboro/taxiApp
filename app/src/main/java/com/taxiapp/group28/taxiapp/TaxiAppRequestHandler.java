@@ -24,43 +24,46 @@ import java.util.Map;
  *  Version 1
  */
 public class TaxiAppRequestHandler {
-    private static final String AUTH_TOKEN = "taxiAppTeam28";
-    private static final String API_URL = "http://group10.sci-project.lboro.ac.uk/taxiAppAPI.php?auth_token="+AUTH_TOKEN;
-    private static final String ERROR = "[{error: 'true'}]";
+    private static final String AUTH_TOKEN = "taxiAppTeam28"; // auth code
+    private static final String API_URL = "http://group10.sci-project.lboro.ac.uk/taxiAppAPI.php?auth_token="+AUTH_TOKEN; // url for api
+    private static final String ERROR = "[{error: '3'}]";
 
     public TaxiAppRequestHandler(){
 
     }
 
     public String  sendGetRequest (String type, HashMap<String,String> dataParams) {
+        // send get request
         return sendRequest("GET",type,dataParams);
     }
     public String  sendPostRequest (String type, HashMap<String,String> dataParams) {
+        // send post request
         return sendRequest("POST",type,dataParams);
     }
     private String sendRequest(String method,String type, HashMap<String,String> dataParams) {
         URL url;
-
         try{
-            url = new URL(API_URL);
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();
+            url = new URL(API_URL); // create new url
+            HttpURLConnection conn = (HttpURLConnection)url.openConnection(); // create and open connections http
+            // set up connection properties
             conn.setDoInput(true);
             conn.setConnectTimeout(10000);
             conn.setReadTimeout(10000);
             conn.setRequestMethod(method);
             conn.setDoOutput(true);
 
-            OutputStream outputStream = conn.getOutputStream();
+            OutputStream outputStream = conn.getOutputStream(); // create an output stream for url parameters
             BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream,"UTF-8"));
-            bufferedWriter.write(bindParams(type,dataParams));
-
+            bufferedWriter.write(bindParams(type,dataParams)); // add the parameters to stream send to api
+            // close
             bufferedWriter.flush();
             bufferedWriter.close();
             outputStream.close();
 
-            int httpResponseCode = conn.getResponseCode();
-            conn.disconnect();
+            int httpResponseCode = conn.getResponseCode(); // get response code
+            conn.disconnect(); // close connection
             if(httpResponseCode == HttpURLConnection.HTTP_OK){
+                // if response ok get results using buffer and string builder to append results
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
                 String responseData;
                 StringBuilder responseBuilder = new StringBuilder();
@@ -82,6 +85,7 @@ public class TaxiAppRequestHandler {
 
 
     private String bindParams(String type,HashMap<String,String> dataParams){
+        // bind the parameters into the correct format for the url
         StringBuilder params = new StringBuilder();
 
         try {
@@ -96,6 +100,7 @@ public class TaxiAppRequestHandler {
                 params.append("=");
                 params.append(URLEncoder.encode(param.getValue(), "UTF-8"));
             }
+            Log.d("PARAMS",params.toString());
             return params.toString();
         }catch(UnsupportedEncodingException e){
             return "";

@@ -32,41 +32,48 @@ import java.util.HashMap;
  */
 
 public class TaxiAppOnlineDatabase {
-    private static final String TYPE_GET_DRIVER_INFORMATION = "getDriverInfo";
-    private static final String TYPE_POST_UPDATE_DRIVER_LOCATION = "updateDriverLocation";
+    public static final String TYPE_GET_DRIVER_INFORMATION = "getDriverInfo";
+    public static final String TYPE_POST_UPDATE_DRIVER_LOCATION = "updateDriverLocation";
 
-    private static final String[] GET_DRIVER_INFORMATION_PARAMS = {"driver_id"};
-    private static final String[] UPDATE_DRIVER_LOCATION_PARAMS = {"driver_id","longitude","latitude"};
+    public static final String[] GET_DRIVER_INFORMATION_PARAMS = {"driver_id"};
+    public static final String[] UPDATE_DRIVER_LOCATION_PARAMS = {"driver_id","longitude","latitude"};
 
-    private static final String TYPE_GET_BOOKINGS = "getBooking";
-    private static final String TYPE_POST_ADD_BOOKING = "addBooking";
-    private static final String TYPE_POST_UPDATE_BOOKING = "editBooking";
-    private static final String TYPE_POST_DELETE_BOOKING = "deleteBooking";
+    public static final String TYPE_GET_BOOKINGS = "getBooking";
+    public static final String TYPE_POST_ADD_BOOKING = "addBooking";
+    public static final String TYPE_POST_UPDATE_BOOKING = "editBooking";
+    public static final String TYPE_POST_DELETE_BOOKING = "deleteBooking";
 
-    private static final String[] ADD_BOOKING_PARAMS = {"user_id","assigned_driver_id","note","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","price","est_arrival_time","est_dest_time","confirmed_arrival_time","confirmed_dest_time","booking_complete"};
-    private static final String[] UPDATE_BOOKING_PARAMS =  {"id","user_id","note","assigned_driver_id","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","price","est_arrival_time","est_dest_time","confirmed_arrival_time","confirmed_dest_time","booking_complete"};
-    private static final String[] DELETE_BOOKING_PARAMS = {"id"};
-    private static final String[] GET_BOOKINGS_PARAMS = {"user_id"};
+    public static final String[] ADD_BOOKING_PARAMS = {"user_id","assigned_driver_id","note","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","price","est_arrival_time","est_dest_time","confirmed_arrival_time","confirmed_dest_time","booking_complete"};
+    public static final String[] UPDATE_BOOKING_PARAMS =  {"id","user_id","note","assigned_driver_id","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","price","est_arrival_time","est_dest_time","confirmed_arrival_time","confirmed_dest_time","booking_complete"};
+    public static final String[] DELETE_BOOKING_PARAMS = {"id"};
+    public static final String[] GET_BOOKINGS_PARAMS = {"user_id"};
 
-    private static final String TYPE_GET_ROUTES = "gerRoute";
-    private static final String TYPE_POST_ADD_ROUTE = "addRoute";
-    private static final String TYPE_POST_UPDATE_ROUTE = "editRoute";
-    private static final String TYPE_POST_DELETE_ROUTE= "deleteRoute";
+    public static final String TYPE_GET_ROUTES = "gerRoute";
+    public static final String TYPE_POST_ADD_ROUTE = "addRoute";
+    public static final String TYPE_POST_UPDATE_ROUTE = "editRoute";
+    public static final String TYPE_POST_DELETE_ROUTE= "deleteRoute";
 
-    private static final String[] ADD_ROUTE_PARAMS = {"user_id","assigned_driver_id","note","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","name"};
-    private static final String[] UPDATE_ROUTE_PARAMS = {"id","times_used","user_id","note","assigned_driver_id","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","name"};
-    private static final String[] DELETE_ROUTE_PARAMS = {"id"};
-    private static final String[] GET_ROUTE_PARAMS = {"user_id"};
+    public static final String[] ADD_ROUTE_PARAMS = {"user_id","assigned_driver_id","note","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","name"};
+    public static final String[] UPDATE_ROUTE_PARAMS = {"id","times_used","user_id","note","assigned_driver_id","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","name"};
+    public static final String[] DELETE_ROUTE_PARAMS = {"id"};
+    public static final String[] GET_ROUTE_PARAMS = {"user_id"};
 
-    private static final String TYPE_GET_USER = "getUser";
-    private static final String TYPE_POST_ADD_USER = "addUser";
-    private static final String TYPE_POST_UPDATE_USER = "editUser";
-    private static final String TYPE_POST_DELETE_USER = "deleteUser";
+    public static final String TYPE_GET_USER = "getUser";
+    public static final String TYPE_POST_ADD_USER = "addUser";
+    public static final String TYPE_POST_UPDATE_USER = "editUser";
+    public static final String TYPE_POST_DELETE_USER = "deleteUser";
 
-    private static final String[] ADD_USER_PARAMS = {"tel_no","user_name"};
-    private static final String[] UPDATE_USER_PARAMS =  {"user_name","tel_no","preferred_driver_id"};
-    private static final String[] DELETE_USER_PARAMS = {"id"};
-    private static final String[] GET_USER_PARAMS = {"id"};
+    public static final String[] ADD_USER_PARAMS = {"tel_no","user_name"};
+    public static final String[] UPDATE_USER_PARAMS =  {"user_name","tel_no","preferred_driver_id"};
+    public static final String[] DELETE_USER_PARAMS = {"id"};
+    public static final String[] GET_USER_PARAMS = {"id"};
+
+    public static final int AUTH_ERROR = 0; // authentication failed
+    public static final int GET_DATA_ERROR = 1; // not all the data was received
+    public static final int DB_ERROR = 2; // database sql error
+    public static final int ERROR_UNKOWWN_ERRPOR= 3; // error unknown
+    public static final int NO_FUNCTION_ERROR = 4; // request unknown no action to take
+    public static final int SUCCESS = -1; // request successful
 
     private JSONArray PARAMS_INVALID = null;
     private JSONArray PARAMS_VALID=null;
@@ -264,7 +271,21 @@ public class TaxiAppOnlineDatabase {
         getJSON.execute();
 
     }
+    public String getResultMessage(){
+        // get the result only valid for post requests
+        if(result == null){
+            return null;
+        }
+        try{
+            return result.getJSONObject(0).get("error").toString();
+        }catch(JSONException e){
+            return null;
+        }
+
+    }
+
     private boolean isValidParams(HashMap<String,String> params, String[] keys){
+        // check the parameters are valid for the request
         boolean  valid = true;
 
         for (String key  : keys) {

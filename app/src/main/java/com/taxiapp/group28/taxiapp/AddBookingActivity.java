@@ -3,6 +3,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 
 
 public class AddBookingActivity  extends AppCompatActivity {
@@ -15,35 +16,45 @@ public class AddBookingActivity  extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_booking);
 
-        final TabLayout tabLayout = (TabLayout)findViewById(R.id.add_booking_tabLayout);
-        final ViewPager viewPager = (ViewPager)findViewById(R.id.add_booking_pager);
-        final AddBookingPagerAdapter adapter = new AddBookingPagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount()); // adapter for tabs
-        viewPager.setAdapter(adapter);
+        final TabLayout tabLayout = (TabLayout)findViewById(R.id.add_booking_tabLayout); // get tablayout
+        final ViewPager viewPager = (ViewPager)findViewById(R.id.add_booking_pager); // get view pager (holds the fragments)
+        final AddBookingPagerAdapter adapter = new AddBookingPagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount()); // adapter for pager
+        viewPager.setAdapter(adapter); // set the adapter
         viewPager.setOffscreenPageLimit(3); // increase memory for tabs to 3 tabs/pages
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        // add listeners
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout)); // keeps the pager and tablayout in sync
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 // if confirm tab selected when the locations (pick up and dest) are not set, switch to the previous tab(dest tab)
                 if(tab.getPosition() != CONFIRM_TAB || adapter.isLocationsSet()){
                     if(tab.getPosition() == CONFIRM_TAB){
-                        adapter.setConfirmLocations();
+                        adapter.setConfirmLocations(); // set locations
+                        if(!adapter.isLocationsSet()){
+                            // if locations set are not valid
+                            Log.d("INVALID","INVALID LOCATION");
+                            selectDestTab();
+                            return;
+                        }
                     }
-                    viewPager.setCurrentItem(tab.getPosition());
+                    viewPager.setCurrentItem(tab.getPosition()); // go to selected tab
                 }else{
-                    if(tabLayout.getTabAt(DEST_TAB) != null) {
-                        tabLayout.getTabAt(DEST_TAB).select();
-                    }
+                    selectDestTab(); // go to dest tab
                 }
             }
-
+            private void selectDestTab(){
+                // select the destination tab to screen
+                if(tabLayout.getTabAt(DEST_TAB) != null) {
+                    tabLayout.getTabAt(DEST_TAB).select();
+                }
+            }
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
-
+                // do nothing
             }
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
+                // do nothing
             }
         });
     }

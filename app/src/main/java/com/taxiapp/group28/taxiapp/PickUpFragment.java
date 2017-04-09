@@ -144,17 +144,17 @@ public class PickUpFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        Log.d("FRAGEMENT_STATE","Resume");
+        Log.d("FRAGMENT_STATE","Resume");
     }
     @Override
     public void onPause(){
         super.onPause();
-        Log.d("FRAGEMENT_STATE","Pause");
+        Log.d("FRAGMENT_STATE","Pause");
     }
     @Override
     public void onStart(){
         super.onStart();
-        Log.d("FRAGEMENT_STATE","Start");
+        Log.d("FRAGMENT_STATE","Start");
     }
     @Override
     public void onStop(){
@@ -164,12 +164,12 @@ public class PickUpFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        Log.d("FRAGEMENT_STATE","Saved");
+        Log.d("FRAGMENT_STATE","Saved");
     }
     @Override
     public void onActivityCreated(Bundle savedInstanceState ){
         super.onActivityCreated(savedInstanceState);
-        Log.d("FRAGEMENT_STATE","Created");
+        Log.d("FRAGMENT_STATE","Created");
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -236,7 +236,13 @@ public class PickUpFragment extends Fragment {
     public Address getAddress(){
         return address;
     }
-
+    public String getNoteText(){
+        if(view == null){
+            return null;
+        }
+        EditText note = (EditText)view.findViewById(R.id.edit_note);
+        return note.getText().toString();
+    }
     public String getSearchText(){
         EditText pickUpNameText = (EditText) view.findViewById(R.id.editPickUpLocation);
         return pickUpNameText.getText().toString();
@@ -341,12 +347,18 @@ public class PickUpFragment extends Fragment {
         setStreetResult(resultArray[1]);
         setPostcodeResult(resultArray[2]);
     }
+
     public void setAddress(){
         // set location and address
         if(isLocationSet() && !getPostcodeResult().isEmpty() && !getStreetResult().isEmpty()) {
             String locationInfo = getHouseNumberResult()+" " + getStreetResult()+" "+getPostcodeResult();
             address = MapActivity.getAddress(locationInfo, getActivity());
-            setLocation(address.getLatitude(), address.getLongitude(), MapActivity.getLocationName(address));
+            if(address != null) {
+                setLocation(address.getLatitude(), address.getLongitude(), MapActivity.getLocationName(address));
+            }else{
+                makeToast("Pick Up Location Invalid");
+                setLocationSet(false);
+            }
         }
     }
     private  void makeToast(String message){

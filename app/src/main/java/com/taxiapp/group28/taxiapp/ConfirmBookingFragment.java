@@ -1,18 +1,16 @@
 package com.taxiapp.group28.taxiapp;
 
 import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -20,7 +18,6 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.json.JSONObject;
@@ -31,6 +28,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.HashMap;
 
 
 /**
@@ -38,7 +36,7 @@ import java.util.Calendar;
  */
 
 public class ConfirmBookingFragment extends Fragment {
-    //constants
+    //constants for calculating fair price
     private static final Double FAIR_PRICE = 5.0;
     private static final Double PRICE_PER_MILE=1.2;
 
@@ -50,28 +48,76 @@ public class ConfirmBookingFragment extends Fragment {
     private static final String DESTINATION_POINT_TEXT = "Destination Point";
     private GoogleMap confirmMap=null; // map for confirm page
     private Calendar pickUpTime=null; // pick up time
+    private Calendar estDestTime=null;
+    private String pickUpName=null;
+    private String destName=null;
+    private String pickUpNote=null;
+    private final static int BOOKING_COMPLETE=-1;
     private String pickUpTimeString=null; // string value of pick up time
     private String price=null; // price of booking
     private String duration=null; // time to get to dest from pick up point
     private View view=null; // view associated with layout
-
+    private boolean gotBookingDetails = false;
+    public static final String BOOKING_COMPLETE_MESSAGE = "Booking Complete";
+    public static final String BOOKING_ERROR_MESSAGE = "Booking Error! Please try again later.";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // check if view set if not set up class
         if(view == null) {
             view = inflater.inflate(R.layout.confirm_tab, container, false); // assign view
-            intialiseMapView(); // initialise viewmap
+            initialiseMapView(); // initialise viewmap
             Button bookButton = (Button) view.findViewById(R.id.add_booking_button); // add on click listener to booking button
             bookButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                  //add booking to database
-
+                    //add booking to database
+                    if(!gotBookingDetails){
+                        return;
+                    }
+                    final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase();
+                    HashMap<String,String> data = new HashMap<>(); // hash map for parameters
+                    // -1 values represent empty
+                    data.put("user_id","1"); // add the parameter key and value
+                    data.put("assigned_driver_id","1");
+                    data.put("pick_up_name",pickUpName);
+                    data.put("dest_name",destName);
+                    data.put("pick_up_latitude",new Double(pickUpAddress.getLatitude()).toString());
+                    data.put("pick_up_longitude",new Double(pickUpAddress.getLongitude()).toString());
+                    data.put("dest_name",pickUpName);
+                    data.put("dest_latitude",new Double(destAddress.getLatitude()).toString());
+                    data.put("dest_longitude",new Double(destAddress.getLongitude()).toString());
+                    data.put("price",price);
+                    data.put("est_arrival_time",getTimestamp(pickUpTime));
+                    data.put("est_dest_time",getTimestamp(estDestTime));
+                    data.put("confirmed_arrival_time","-1");
+                    data.put("confirmed_dest_time","-1");
+                    data.put("booking_complete",new Integer(BOOKING_COMPLETE).toString());
+                    data.put("note",pickUpNote);
+                    conn.addBooking(data); // call the method
+                    // set an onclick listener for result
+                    conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
+                        @Override
+                        public void onGetResult() {
+                            // check result isn't null
+                            if(conn.getResult() !=null){
+                                String message;
+                                // create toast of either booking complete or booking error
+                                Log.d("RESULT",conn.getResultMessage()+"   "+new Integer(TaxiAppOnlineDatabase.SUCCESS).toString());
+                                if(conn.getResultMessage().equals(new Integer(TaxiAppOnlineDatabase.SUCCESS).toString())){
+                                    message = BOOKING_COMPLETE_MESSAGE;
+                                }else{
+                                    message = BOOKING_ERROR_MESSAGE;
+                                }
+                                Toast toast = Toast.makeText(getActivity(),message,Toast.LENGTH_SHORT);
+                                toast.show();
+                            }
+                        }
+                    });
                 }
             });
         }
-        Log.d("FRAGEMENT_STATE_CONFIRM","Initialise");
+        Log.d("FRAGMENT_STATE_CONFIRM","Initialise");
         return view;
     }
 
@@ -79,7 +125,7 @@ public class ConfirmBookingFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState ){
         super.onActivityCreated(savedInstanceState);
         mapView.onCreate(savedInstanceState);
-        Log.d("FRAGEMENT_STATE_CONFIRM","Created");
+        Log.d("FRAGMENT_STATE_CONFIRM","Created");
     }
     @Override
     public void onResume(){
@@ -88,7 +134,7 @@ public class ConfirmBookingFragment extends Fragment {
         if(isMapNeeded()){
             loadMap(); // reload the map fragment with points if fragment reloaded
         }
-        Log.d("FRAGEMENT_STATE_CONFIRM","Resume");
+        Log.d("FRAGMENT_STATE_CONFIRM","Resume");
     }
     @Override
     public void onPause(){
@@ -100,18 +146,18 @@ public class ConfirmBookingFragment extends Fragment {
     public void onStart(){
         super.onStart();
         mapView.onStart();
-        Log.d("FRAGEMENT_STATE_CONFIRM","Start");
+        Log.d("FRAGMENT_STATE_CONFIRM","Start");
     }
     @Override
     public void onStop(){
         super.onStop();
         mapView.onStop();
-        Log.d("FRAGEMENT_STATE_CONFIRM","Stop");
+        Log.d("FRAGMENT_STATE_CONFIRM","Stop");
     }
     @Override public void onDestroy(){
         mapView.onDestroy();
         super.onDestroy();
-        Log.d("FRAGEMENT_STATE_CONFIRM","Destroy");
+        Log.d("FRAGMENT_STATE_CONFIRM","Destroy");
     }
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -119,7 +165,7 @@ public class ConfirmBookingFragment extends Fragment {
         mapView.onSaveInstanceState(savedInstanceState);
         //Bundle bundle = new Bundle();
     }
-    private void intialiseMapView(){
+    private void initialiseMapView(){
         mapView = (MapView)view.findViewById(R.id.confirm_map_view); // initialise the mapView variable
     }
 
@@ -176,6 +222,18 @@ public class ConfirmBookingFragment extends Fragment {
         // map only needed if both coords are present
         return(pickUpAddress != null && destAddress !=null);
     }
+    public void setPickUpName(String text){
+        pickUpName = text;
+    }
+    public void setDestName(String text){
+        destName = text;
+    }
+    public void setPickUpNote(String note){
+        pickUpNote = note;
+        if(pickUpNote.isEmpty()){
+            pickUpNote="-1";
+        }
+    }
     public void setPickUpAddress(Address address){
         pickUpAddress = address;
     }
@@ -184,6 +242,33 @@ public class ConfirmBookingFragment extends Fragment {
         loadMap(); // final coords set load map
         getRouteInfo();
     }
+
+    private void setPrice(String _price){
+        price = _price;
+    }
+    private void setDuration(String _duration){
+        duration = _duration;
+        if(duration != null){
+            setEstDestTime();
+        }
+    }
+    private void setEstDestTime(){
+        estDestTime = pickUpTime;
+        estDestTime.set(Calendar.MINUTE,estDestTime.get(Calendar.MINUTE)+new Integer(duration.split(" ")[0]));
+    }
+    public void setPickUpTime(Calendar val){
+        pickUpTime = val;
+    }
+    private void setTextUI(String _price,String _duration,String estTime){
+        // sets the UI text
+        TextView priceLabel = (TextView)view.findViewById(R.id.confirm_price_label);
+        TextView estTimeLabel = (TextView)view.findViewById(R.id.est_arrival_time_label);
+        TextView estPickUpTimeLabel = (TextView)view.findViewById(R.id.estimated_pick_up_time);
+        priceLabel.setText(_price);
+        estTimeLabel.setText(_duration);
+        estPickUpTimeLabel.setText(estTime);
+    }
+
     private void  getRouteInfo(){
         // gets the price, the duration and distance of the route
         class GetRouteInfo extends AsyncTask<Void,Void,String> {
@@ -214,6 +299,7 @@ public class ConfirmBookingFragment extends Fragment {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("E HH:mm");
                 pickUpTimeString = dateFormat.format(pickUpTime.getTime()).toString();
                 setTextUI("Price: £"+price,"Estimated Travel Time: "+duration,"Estimated Pick Up Time: "+pickUpTimeString);
+                gotBookingDetails=true;
             }
 
             @Override
@@ -257,25 +343,10 @@ public class ConfirmBookingFragment extends Fragment {
         // create instance of GetRouteInfo and execute
         GetRouteInfo routeInfo = new GetRouteInfo();
         routeInfo.execute();
-
     }
-    private void setPrice(String _price){
-        price = _price;
+    public static String getTimestamp(Calendar calendar){
+        SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-dd HH:MM:SS");
+        Log.d("TIMESTAMP",df.format(calendar.getTime()).toString());
+        return df.format(calendar.getTime()).toString();
     }
-    private void setDuration(String _duration){
-        duration = _duration;
-    }
-    public void setPickUpTime(Calendar val){
-        pickUpTime = val;
-    }
-    private void setTextUI(String _price,String _duration,String estTime){
-        // sets the UI text
-        TextView priceLabel = (TextView)view.findViewById(R.id.confirm_price_label);
-        TextView estTimeLabel = (TextView)view.findViewById(R.id.est_arrival_time_label);
-        TextView estPickUpTimeLabel = (TextView)view.findViewById(R.id.estimated_pick_up_time);
-        priceLabel.setText(_price);
-        estTimeLabel.setText(_duration);
-        estPickUpTimeLabel.setText(estTime);
-    }
-
 }

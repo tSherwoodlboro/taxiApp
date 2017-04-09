@@ -25,15 +25,21 @@ public class AddBookingPagerAdapter extends FragmentPagerAdapter {
         this.mNumOfTabs = NumOfTabs;
     }
     public boolean isLocationsSet(){
+        // checks if the location is set for both pickup point and dest point
         return (pickUpTab != null && destTab !=null && pickUpTab.isLocationSet() && destTab.isLocationSet());
     }
     public void setConfirmLocations(){
-        // set the get the address information from pickUp and dest instances and send to confirmTab instance
+        // sends information to the confirm tab once the pick up and dest tabs have been completed
         destTab.setAddress();
         pickUpTab.setAddress();
-        confirmTab.setDestAddress(destTab.getAddress());
-        confirmTab.setPickUpAddress(pickUpTab.getAddress());
-        confirmTab.setPickUpTime(pickUpTab.getPickUpTime());
+        if(destTab.getAddress() != null && pickUpTab.getAddress() != null) {
+            confirmTab.setDestAddress(destTab.getAddress());
+            confirmTab.setPickUpAddress(pickUpTab.getAddress());
+            confirmTab.setPickUpTime(pickUpTab.getPickUpTime());
+            confirmTab.setPickUpName(pickUpTab.getLocation());
+            confirmTab.setDestName(destTab.getLocation());
+            confirmTab.setPickUpNote(pickUpTab.getNoteText());
+        }
 
     }
     public PickUpFragment getPickUpTab(){

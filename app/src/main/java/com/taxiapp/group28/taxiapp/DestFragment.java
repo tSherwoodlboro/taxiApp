@@ -11,7 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-
+import android.widget.Toast;
 
 
 /**
@@ -135,12 +135,19 @@ public class DestFragment extends Fragment {
         setStreetResult(resultArray[1]);
         setPostcodeResult(resultArray[2]);
     }
+
     public void setAddress(){
-        // sets the address based on result UI information
+        // set location and address
         if(isLocationSet() && !getPostcodeResult().isEmpty() && !getStreetResult().isEmpty()) {
             String locationInfo = getHouseNumberResult()+" " + getStreetResult()+" "+getPostcodeResult();
             address = MapActivity.getAddress(locationInfo, getActivity());
-            setLocation(address.getLatitude(), address.getLongitude(), MapActivity.getLocationName(address));
+            if(address != null) {
+                setLocation(address.getLatitude(), address.getLongitude(), MapActivity.getLocationName(address));
+            }else{
+                Toast toast = Toast.makeText(getActivity(),"Destionation Location Invalid", Toast.LENGTH_SHORT);
+                toast.show();
+                setLocationSet(false);
+            }
         }
     }
 }

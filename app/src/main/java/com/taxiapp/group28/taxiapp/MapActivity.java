@@ -104,6 +104,9 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         try {
             List<Address> locationList; //create address list
             locationList = geoCoder.getFromLocationName(name + " UK", 10); // get 10 locations from uk
+            if(locationList.size() <=0){
+                return null;
+            }
             return locationList.get(0);
         }catch(Exception e){
             return null;
