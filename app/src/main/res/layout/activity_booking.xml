@@ -9,202 +9,50 @@
 
     <TextView
         android:id="@+id/subheading1"
-        android:layout_width="wrap_content"
-        android:layout_height="25dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="7dp"
         android:text="Current Booking"
         android:textSize="20sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="16dp" />
-
-    <TextView
-        android:id="@+id/bookingID1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Booking ID: 7856"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="54dp" />
-
-    <TextView
-        android:id="@+id/date1"
-        android:layout_width="wrap_content"
-        android:layout_height="17dp"
-        android:text="Date: 9/3/2017"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="71dp" />
-
-    <TextView
-        android:id="@+id/dTime1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Estimated Departure Time: 20:53"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="88dp" />
-
-    <TextView
-        android:id="@+id/aTime1"
-        android:layout_width="wrap_content"
-        android:layout_height="17dp"
-        android:text="Estimated Arrival Time: 21:01"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="105dp" />
-
-    <TextView
-        android:id="@+id/fromLoc1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Travel From: Tesco Extra, Loughborough"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="122dp" />
-
-    <TextView
-        android:id="@+id/toLoc1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Travel To: Railway Station, Loughborough"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="139dp" />
-
-    <TextView
-        android:id="@+id/distance1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Distance: 3km"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="156dp" />
-
-    <TextView
-        android:id="@+id/price1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Price: £10"
-        tools:layout_editor_absoluteX="170dp"
-        tools:layout_editor_absoluteY="156dp" />
-
-    <TextView
-        android:id="@+id/driver1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Driver: Mr. Mario"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="173dp" />
-
-    <Button
-        android:id="@+id/edit"
-        android:layout_width="115dp"
-        android:layout_height="wrap_content"
-        android:text="Edit Details"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="198dp" />
-
-    <Button
-        android:id="@+id/cancel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Cancel Booking"
-        tools:layout_editor_absoluteX="160dp"
-        tools:layout_editor_absoluteY="198dp" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
 
     <TextView
         android:id="@+id/subheading2"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="200dp"
         android:text="Previous Booking Records"
         android:textSize="20sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="264dp" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subheading1" />
 
-    <TextView
-        android:id="@+id/bookingID2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Booking ID: 4518"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="301dp" />
-
-    <TextView
-        android:id="@+id/date2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Date: 3/9/2016"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="318dp" />
-
-    <TextView
-        android:id="@+id/dTime2"
-        android:layout_width="wrap_content"
-        android:layout_height="17dp"
-        android:text="Departure Time: 15:57"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="335dp" />
-
-    <TextView
-        android:id="@+id/aTime2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Arrival Time: 16:03"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="352dp" />
-
-    <TextView
-        android:id="@+id/fromLoc2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Travel From: Cayley Gate, Loughborough University"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="369dp" />
-
-    <TextView
-        android:id="@+id/toLoc2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Travel To: Cheng Du Restaurant, Loughborough"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="386dp" />
-
-    <TextView
-        android:id="@+id/distance2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Distance: 2km"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="403dp" />
-
-    <TextView
-        android:id="@+id/price2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Price: £6"
-        tools:layout_editor_absoluteX="171dp"
-        tools:layout_editor_absoluteY="403dp" />
-
-    <TextView
-        android:id="@+id/driver2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Driver: Mr. English"
-        android:textSize="14sp"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="420dp" />
-
-    <Button
-        android:id="@+id/delete"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Delete Record"
-        tools:layout_editor_absoluteX="16dp"
-        tools:layout_editor_absoluteY="447dp" />
+    <ListView
+        android:id="@+id/previou_bookings_listview"
+        android:layout_width="0dp"
+        android:layout_height="235dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/subheading2"
+        app:layout_constraintVertical_bias="1.0"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp" />
 
 </android.support.constraint.ConstraintLayout>

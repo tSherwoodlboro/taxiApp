@@ -1,9 +1,11 @@
 package com.taxiapp.group28.taxiapp;
 
+import android.app.NotificationManager;
 import android.location.Address;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +31,8 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+
+import static android.content.Context.NOTIFICATION_SERVICE;
 
 
 /**
@@ -106,6 +110,8 @@ public class ConfirmBookingFragment extends Fragment {
                                 Log.d("RESULT",conn.getResultMessage()+"   "+new Integer(TaxiAppOnlineDatabase.SUCCESS).toString());
                                 if(conn.getResultMessage().equals(new Integer(TaxiAppOnlineDatabase.SUCCESS).toString())){
                                     message = BOOKING_COMPLETE_MESSAGE;
+                                    createConfirmNotification();
+
                                 }else{
                                     message = BOOKING_ERROR_MESSAGE;
                                 }
@@ -185,6 +191,15 @@ public class ConfirmBookingFragment extends Fragment {
                     });
                 }
             });
+    }
+    private void createConfirmNotification(){
+        NotificationManager mNotifyMgr = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(getActivity())
+                        .setSmallIcon(R.mipmap.logo)
+                        .setContentTitle("Taxi App Booking")
+                        .setContentText("Booking Confirmed");
+        mNotifyMgr.notify(0,mBuilder.build());
     }
     private void setUpMap(){
         // set the points for the map if needed

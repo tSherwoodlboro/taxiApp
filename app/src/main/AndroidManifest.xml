@@ -22,16 +22,18 @@
             android:value="AIzaSyAFXdC5H5nbJXk_D77Z43pj6YgAg70EQQA" />
 
         <activity android:name=".RegisterActivity"></activity>
-        <activity android:name=".BookingActivity" />
-        <activity android:name=".AddBookingActivity">
+        <activity android:name=".BookingActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".AddBookingActivity">
+
+        </activity>
         <activity android:name=".MapActivity"></activity>
 
+        <provider android:name="com.taxiapp.group28.taxiapp.DBContentProvider" android:enabled="true" android:authorities="com.taxiapp.group28.taxiapp"/>
     </application>
 
 </manifest>
