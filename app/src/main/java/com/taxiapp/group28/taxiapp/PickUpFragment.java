@@ -49,6 +49,8 @@ public class PickUpFragment extends Fragment {
     private String streetResult; // result street
     private LocationManager locationManager=null; // helps get current location
     private boolean disableSeekBar = false;
+    private Switch locationSwitch;
+
     private  View view=null;
 
     @Override
@@ -57,6 +59,7 @@ public class PickUpFragment extends Fragment {
             return view;
         }
         view = inflater.inflate(R.layout.pick_up_tab, container, false);
+        locationSwitch = (Switch)view.findViewById(R.id.add_booking_cLocation_switch);
         // set default pickUpTime
         Calendar calendar = Calendar.getInstance();
         calendar.set(calendar.MINUTE,calendar.get(calendar.MINUTE)+30);
@@ -79,26 +82,19 @@ public class PickUpFragment extends Fragment {
             }
         });
         // switch listener
-        final Switch currentLocationSwitch = (Switch) view.findViewById(R.id.add_booking_cLocation_switch);
-        currentLocationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        locationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
                 // check for permissions if not granted request permission otherwise get location if checked
                 useCurrentLocation = isChecked;
                 enableSearch(!useCurrentLocation);
                 if (isChecked) {
-                    if (ContextCompat.checkSelfPermission(getActivity(),
-                            android.Manifest.permission.ACCESS_FINE_LOCATION)
-                            != PackageManager.PERMISSION_GRANTED) {
-
-                        ActivityCompat.requestPermissions(getActivity(),
-                                new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                                MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                    if (ContextCompat.checkSelfPermission(getActivity(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(getActivity(), new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
                     }else{
                         setLocationAccess(true);
                         setLocationManager();
                     }
-
                 }
             }
         });
@@ -187,13 +183,10 @@ public class PickUpFragment extends Fragment {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION: {
                 // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     setLocationAccess(true);
                 } else {
                     setLocationAccess(false);
-                    Switch locationSwitch = (Switch)view.findViewById(R.id.add_booking_cLocation_switch);
-                    locationSwitch.setChecked(false);
                 }
                 return;
             }
@@ -266,12 +259,12 @@ public class PickUpFragment extends Fragment {
             // if no locations returned return invalid location
             makeToast("Current Location Invalid");
             enableSearch(true);
-            Switch locationSwitch = (Switch)view.findViewById(R.id.add_booking_cLocation_switch);
-            locationSwitch.setChecked(false); // use current location disabled
+            setLocationAccess(true);
         }
     }
     private void setLocationAccess(boolean val){
         locationAccess = val;
+        locationSwitch.setChecked(val);
     }
     private void setStreetResult(String val){
         // set the street edit text value
@@ -298,6 +291,11 @@ public class PickUpFragment extends Fragment {
     private void setLocationManager(){
         // location manager for devices current location
         locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
+        if(!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+            setLocationAccess(false);
+            makeToast("Location Services disabled. Please enable them");
+            return;
+        }
         // Define a listener that responds to location updates
         LocationListener locationListener = new LocationListener() {
             @Override

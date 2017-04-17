@@ -63,16 +63,17 @@ public class TaxiAppOnlineDatabase {
     public static final String TYPE_POST_UPDATE_USER = "editUser";
     public static final String TYPE_POST_DELETE_USER = "deleteUser";
 
-    public static final String[] ADD_USER_PARAMS = {"tel_no","user_name"};
-    public static final String[] UPDATE_USER_PARAMS =  {"user_name","tel_no","preferred_driver_id"};
+    public static final String[] ADD_USER_PARAMS = {"tel_no","user_name","verification_code","verified"};
+    public static final String[] UPDATE_USER_PARAMS =  {"user_name","tel_no","preferred_driver_id","verified","verification_code"};
     public static final String[] DELETE_USER_PARAMS = {"id"};
-    public static final String[] GET_USER_PARAMS = {"id"};
+    public static final String[] GET_USER_PARAMS = {"tel_no"};
 
     public static final int AUTH_ERROR = 0; // authentication failed
     public static final int GET_DATA_ERROR = 1; // not all the data was received
     public static final int DB_ERROR = 2; // database sql error
     public static final int ERROR_UNKOWWN_ERRPOR= 3; // error unknown
     public static final int NO_FUNCTION_ERROR = 4; // request unknown no action to take
+    public static final int DB_UNIQUE_ERROR = 5; // duplicate entry error
     public static final int SUCCESS = -1; // request successful
 
     private JSONArray PARAMS_INVALID = null;
@@ -85,6 +86,7 @@ public class TaxiAppOnlineDatabase {
     }
     public void setOnGetResultListener(onGetResultListener listener){
         getResultListener = listener;
+
     }
     public TaxiAppOnlineDatabase(){
         try{
@@ -102,7 +104,7 @@ public class TaxiAppOnlineDatabase {
         try{
             this.result = new JSONArray(result);
         }catch(JSONException e){
-            Log.d("JSON ERROR",e.getMessage());
+            Log.d("JSON ERROR1",e.getMessage());
             this.result =null;
         }
     }
@@ -283,7 +285,13 @@ public class TaxiAppOnlineDatabase {
         }
 
     }
-
+    public void close(){
+        try {
+            this.finalize();
+        }catch(Throwable e){
+            Log.d("Error",e.getMessage());
+        }
+    }
     private boolean isValidParams(HashMap<String,String> params, String[] keys){
         // check the parameters are valid for the request
         boolean  valid = true;

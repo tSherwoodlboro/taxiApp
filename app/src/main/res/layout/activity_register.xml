@@ -31,7 +31,7 @@
         android:layout_alignParentStart="true" />
 
     <EditText
-        android:id="@+id/editMobileNumber"
+        android:id="@+id/edit_mobile_number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
@@ -43,16 +43,16 @@
         android:inputType="phone" />
 
     <Button
-        android:id="@+id/registerButton"
+        android:id="@+id/register_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/regsiter_button_text"
-        android:layout_marginTop="25dp"
-        android:layout_below="@+id/editMobileNumber"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/edit_mobile_number"
+        android:layout_marginTop="25dp"
+        android:text="@string/regsiter_button_text" />
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -62,5 +62,26 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="30dp" />
+
+    <EditText
+        android:id="@+id/edit_verification_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:ems="10"
+        android:hint="@string/edit_verification_code"
+        android:inputType="textPersonName" />
+
+    <Button
+        android:id="@+id/verify_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/edit_verification_code"
+        android:layout_marginTop="11dp"
+        android:text="Verify" />
 
 </RelativeLayout>

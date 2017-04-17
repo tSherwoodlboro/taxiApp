@@ -24,13 +24,13 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         sqLiteDatabase = db;
         String userQuery = "CREATE TABLE IF NOT EXISTS " + DBContract.User_Table.TABLE_NAME+" (" +
-                    DBContract.User_Table._ID+" INTEGER PRIMARY KEY," +
-                    DBContract.User_Table.COLUMN_TEL_NO+" INTEGER," +
+                    DBContract.User_Table._ID+" INTEGER PRIMARY KEY ON CONFLICT REPLACE," +
+                    DBContract.User_Table.COLUMN_TEL_NO+" TEXT," +
                     DBContract.User_Table.COLUMN_USER_NAME+" TEXT," +
                     DBContract.User_Table.COLUMN_PREFERRED_DRIVER_ID+" INTEGER DEFAULT NULL" +
                 ")";
         String bookingQuery ="CREATE TABLE IF NOT EXISTS " + DBContract.Booking_Table.TABLE_NAME+" (" +
-                    DBContract.Booking_Table._ID+" INTEGER PRIMARY KEY," +
+                    DBContract.Booking_Table._ID+" INTEGER PRIMARY KEY ON CONFLICT REPLACE," +
                     DBContract.Booking_Table.COLUMN_USER_ID+" INTEGER," +
                     DBContract.Booking_Table.COLUMN_ASSIGNED_DRIVER_ID+" INTEGER," +
                     DBContract.Booking_Table.COLUMN_DATE+" TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
@@ -51,7 +51,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     "FOREIGN KEY("+DBContract.Booking_Table.COLUMN_ASSIGNED_DRIVER_ID+") REFERENCES "+DBContract.Driver_Information_Table.TABLE_NAME+"("+DBContract.Driver_Information_Table._ID+")" +
                 ")";
         String routeQuery ="CREATE TABLE IF NOT EXISTS " + DBContract.Route_Table.TABLE_NAME+"(" +
-                    DBContract.Route_Table._ID+" INTEGER PRIMARY KEY," +
+                    DBContract.Route_Table._ID+" INTEGER PRIMARY KEY ON CONFLICT REPLACE," +
                     DBContract.Route_Table.COLUMN_NAME+" TEXT," +
                     DBContract.Route_Table.COLUMN_PICK_UP_NAME+" TEXT," +
                     DBContract.Route_Table.COLUMN_PICK_UP_LATITUDE+" DOUBLE," +
@@ -65,7 +65,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     "FOREIGN KEY("+DBContract.Route_Table.COLUMN_USER_ID+") REFERENCES "+DBContract.User_Table.TABLE_NAME+"("+DBContract.User_Table._ID+")" +
                 ")";
         String driverQuery="CREATE TABLE IF NOT EXISTS " + DBContract.Driver_Information_Table.TABLE_NAME+" (" +
-                    DBContract.Driver_Information_Table._ID+" INTEGER PRIMARY KEY," +
+                    DBContract.Driver_Information_Table._ID+" INTEGER PRIMARY KEY ON CONFLICT REPLACE," +
                     DBContract.Driver_Information_Table.COLUMN_FIRST_NAME+" TEXT," +
                     DBContract.Driver_Information_Table.COLUMN_LAST_NAME+" TEXT," +
                     DBContract.Driver_Information_Table.COLUMN_CONTACT_NUMBER+" INTEGER," +
