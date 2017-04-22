@@ -4,25 +4,35 @@ package com.taxiapp.group28.taxiapp;
  * Created by Tom on 04/04/2017.
  */
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
 
 
-public class AddBookingPagerAdapter extends FragmentPagerAdapter {
+public class BookingPagerAdapter extends FragmentPagerAdapter {
     private static final int PICK_UP_TAB =0;
     private static final int DEST_TAB = 1;
     private static final int CONFIRM_TAB =2;
-
+    public static final String UPDATE_BOOKING = "updateBooking";
+    public static final String UPDATE_BOOKING_PICK_UP_LOCATION_NAME = "pickUpLocationName";
+    public static final String UPDATE_BOOKING_PICK_UP_LATITUDE = "pickUpLatitude";
+    public static final String UPDATE_BOOKING_PICK_UP_LONGITUDE = "pickUpLongitude";
+    public static final String UPDATE_BOOKING_DEST_LOCATION_NAME = "destLocationName";
+    public static final String UPDATE_BOOKING_DEST_LATITUDE = "pickUpLatitude";
+    public static final String UPDATE_BOOKING_DEST_LONGITUDE = "pickUpLongitude";
+    public static final String UPDATE_BOOKING_ID = "bookingId";
     int mNumOfTabs;
     PickUpFragment pickUpTab = null;
     DestFragment destTab = null;
     ConfirmBookingFragment confirmTab = null;
+    Bundle argsBundle=null;
 
-    public AddBookingPagerAdapter(FragmentManager fm, int NumOfTabs) {
+    public BookingPagerAdapter(FragmentManager fm, int NumOfTabs,Bundle argsBundle) {
         super(fm);
         this.mNumOfTabs = NumOfTabs;
+        this.argsBundle = argsBundle; // bundle for updating otherwise null
     }
     public boolean isLocationsSet(){
         // checks if the location is set for both pickup point and dest point
@@ -58,12 +68,15 @@ public class AddBookingPagerAdapter extends FragmentPagerAdapter {
         switch (position) {
             case PICK_UP_TAB:
                 pickUpTab = new PickUpFragment();
+                pickUpTab.setArguments(argsBundle);
                 return pickUpTab;
             case DEST_TAB:
                 destTab = new DestFragment();
+                destTab.setArguments(argsBundle);
                 return destTab;
             case CONFIRM_TAB:
                 confirmTab = new ConfirmBookingFragment();
+                confirmTab.setArguments(argsBundle);
                 return confirmTab;
             default:
                 return null;
@@ -74,4 +87,5 @@ public class AddBookingPagerAdapter extends FragmentPagerAdapter {
     public int getCount() {
         return mNumOfTabs;
     }
+
 }

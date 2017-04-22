@@ -9,32 +9,43 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ty"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ty"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Design.Light"
-        >
+        android:theme="@style/Theme.Design.Light">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAFXdC5H5nbJXk_D77Z43pj6YgAg70EQQA" />
 
-        <activity android:name=".RegisterActivity">
+        <receiver android:name=".OnBootBroadcastReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".RegisterActivity" />
+        <activity android:name=".ViewBookingsActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".BookingActivity">
-        </activity>
-        <activity android:name=".AddBookingActivity">
+        <activity android:name=".BookingActivity" />
+        <activity android:name=".MapActivity" />
+        <activity android:name=".MainActivity"></activity>
+        <service android:name=".OnBootService" />
 
-        </activity>
-        <activity android:name=".MapActivity"></activity>
+        <provider
+            android:name=".DBContentProvider"
+            android:authorities="com.taxiapp.group28.taxiapp"
+            android:enabled="true" />
 
-        <provider android:name="com.taxiapp.group28.taxiapp.DBContentProvider" android:enabled="true" android:authorities="com.taxiapp.group28.taxiapp"/>
     </application>
 
 </manifest>

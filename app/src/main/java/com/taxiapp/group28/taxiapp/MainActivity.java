@@ -1,7 +1,6 @@
 package com.taxiapp.group28.taxiapp;
 
 import android.content.Intent;
-import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -21,12 +20,12 @@ public class MainActivity extends AppCompatActivity {
         public boolean onOptionsItemSelected(MenuItem item) {
             int id = item.getItemId();
         if (id == R.id.menu_add_booking) {
-            Intent addBookingIntent = new Intent(this,AddBookingActivity.class);
+            Intent addBookingIntent = new Intent(this,BookingActivity.class);
             this.startActivity(addBookingIntent);
             return true;
         }
         if (id == R.id.menu_booking) {
-            Intent BookingIntent = new Intent(this,BookingActivity.class);
+            Intent BookingIntent = new Intent(this,ViewBookingsActivity.class);
             this.startActivity(BookingIntent);
             return true;
         }

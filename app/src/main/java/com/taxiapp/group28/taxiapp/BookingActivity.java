@@ -1,111 +1,94 @@
 package com.taxiapp.group28.taxiapp;
-
-import android.app.LoaderManager;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.database.SQLException;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import java.util.ArrayList;
 
-public class BookingActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class BookingActivity extends AppCompatActivity {
+    private final static int PICK_UP_TAB = 0;
+    private final static int DEST_TAB = 1;
+    private final static int CONFIRM_TAB = 2;
+    private Bundle argsBundle =null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_booking);
-        getLoaderManager().initLoader(0, null, this);
-    }
-    public Loader<Cursor> onCreateLoader(int id,Bundle bundle){
-        Log.d("CURSOR","created");
-        String[] args = {"1"}; // users id
-        return new CursorLoader(this,DBContract.Booking_Table.CONTENT_URI,null,DBContract.Booking_Table.COLUMN_USER_ID+"= ?",args,null);
+        setContentView(R.layout.activity_add_booking);
+        // if booking is being updated
 
+        if(getIntent() !=  null){
+            if(getIntent().getExtras() != null){
+                argsBundle= new Bundle(getIntent().getExtras());
+            }
+        }
+        final TabLayout tabLayout = (TabLayout)findViewById(R.id.add_booking_tabLayout); // get tablayout
+        final ViewPager viewPager = (ViewPager)findViewById(R.id.add_booking_pager); // get view pager (holds the fragments)
+        final BookingPagerAdapter adapter = new BookingPagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount(),argsBundle); // adapter for pager
+        viewPager.setAdapter(adapter); // set the adapter
+        viewPager.setOffscreenPageLimit(3); // increase memory for tabs to 3 tabs/pages
+        // add listeners
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout)); // keeps the pager and tablayout in sync
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                // if confirm tab selected when the locations (pick up and dest) are not set, switch to the previous tab(dest tab)
+                if(tab.getPosition() != CONFIRM_TAB || adapter.isLocationsSet()){
+                    if(tab.getPosition() == CONFIRM_TAB){
+                        adapter.setConfirmLocations(); // set locations
+                        if(!adapter.isLocationsSet()){
+                            // if locations set are not valid
+                            selectDestTab();
+                            return;
+                        }
+                    }
+                    viewPager.setCurrentItem(tab.getPosition()); // go to selected tab
+                }else{
+                    // locations not valid
+                    Toast toast = Toast.makeText(BookingActivity.this,"Locations Not Set Or Invalid.",Toast.LENGTH_SHORT);
+                    toast.show();
+                    selectDestTab(); // go to dest tab
+                }
+            }
+            private void selectDestTab(){
+                // select the destination tab to screen
+                if(tabLayout.getTabAt(DEST_TAB) != null) {
+                    tabLayout.getTabAt(DEST_TAB).select();
+                }
+            }
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+                // do nothing
+            }
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+                // do nothing
+            }
+        });
     }
-    public void onLoadFinished(Loader<Cursor> loader, Cursor data){
-        Log.d("CURSOR","finished");
-        ArrayList<Booking> bookings = new ArrayList<>();
-        while(data.moveToNext()){
-            bookings.add(new Booking(data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_DATE)),
-                        data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_PICK_UP_NAME)),
-                        data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_DEST_NAME)),
-                        data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_PRICE))));
-        }
-        BookingAdapter bookingAdapter = new BookingAdapter(this,bookings);
-        ListView bookingsListView = (ListView)this.findViewById(R.id.previou_bookings_listview);
-        bookingsListView.setAdapter(bookingAdapter);
+    public static String[] getResultTextArray(String locationInfo){
+        // sort house number, street and postcode information from string in format "housenumber street,postcode,UK"
+        String[] locationArray = locationInfo.split(",");
+        String[] houseStreetArray= locationArray[0].split(" ");
 
-    }
-    public void onLoaderReset(Loader<Cursor> loader){
+        String houseNumber;
+        String street;
+        String postcode = locationArray[locationArray.length-2];
+        int i=0;
+        if(houseStreetArray.length >1 && houseStreetArray[0].toString().matches("\\d+(-?\\d+)?")){
+            houseNumber = houseStreetArray[0];
+            i=1;
+        }else{
+            houseNumber = "";
 
-    }
-    class BookingAdapter extends BaseAdapter{
-        private Context context;
-        private ArrayList<Booking> data;
-        private  LayoutInflater inflater = null;
-        public BookingAdapter(Context _context, ArrayList<Booking> _data){
-            context = _context;
-            data = _data;
-            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
-        @Override
-        public int getCount(){
-            return data.size();
+        StringBuilder stringBuilder = new StringBuilder();
+        for(int z=i;z<houseStreetArray.length;++z){
+            stringBuilder.append(houseStreetArray[z]+" ");
         }
-        @Override
-        public Object getItem(int position) {
-            // TODO Auto-generated method stub
-            return data.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            // TODO Auto-generated method stub
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            // TODO Auto-generated method stub
-            View vi = convertView;
-            if (vi == null)
-                vi = inflater.inflate(R.layout.booking_item_row, null);
-            TextView dateTextView = (TextView)vi.findViewById(R.id.row_booking_date);
-            dateTextView.setText("Date: "+data.get(position).getDate());
-            TextView pickUpTextView = (TextView)vi.findViewById(R.id.row_booking_pick_up_name);
-            pickUpTextView.setText("Pick Up Point: "+data.get(position).getPickUpName());
-            TextView destTextView = (TextView)vi.findViewById(R.id.row_booking_dest_name);
-            destTextView.setText("Dest Point: "+data.get(position).getDestName());
-            TextView priceTextView = (TextView)vi.findViewById(R.id.row_booking_price);
-            priceTextView.setText("Price: "+data.get(position).getPrice());
-            return vi;
-        }
-    }
-    class Booking {
-        private String date = null;
-        private String pickUpName = null;
-        private String destName = null;
-        private String price =null;
-        Booking(String date,String pickUpName,String destName,String price){
-            this.date = date;
-            this.pickUpName = pickUpName;
-            this.destName = destName;
-            this.price = price;
-        }
-        public String getDate(){return date;}
-        public String getPickUpName(){return pickUpName;}
-        public String getDestName(){return destName;}
-        public String getPrice(){return price;}
+        street = stringBuilder.toString();
+        String[] resultArray = {houseNumber,street,postcode};
+        return resultArray;
     }
 }
+

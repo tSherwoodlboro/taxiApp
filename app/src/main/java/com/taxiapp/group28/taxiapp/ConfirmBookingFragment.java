@@ -1,6 +1,8 @@
 package com.taxiapp.group28.taxiapp;
 
 import android.app.NotificationManager;
+import android.content.ContentValues;
+import android.content.Intent;
 import android.location.Address;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,6 +33,7 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 import static android.content.Context.NOTIFICATION_SERVICE;
 
@@ -43,7 +46,6 @@ public class ConfirmBookingFragment extends Fragment {
     //constants for calculating fair price
     private static final Double FAIR_PRICE = 5.0;
     private static final Double PRICE_PER_MILE=1.2;
-
     private Address pickUpAddress=null;
     private Address destAddress=null;
     private MapView mapView=null;
@@ -55,6 +57,7 @@ public class ConfirmBookingFragment extends Fragment {
     private Calendar estDestTime=null;
     private String pickUpName=null;
     private String destName=null;
+    private String insert_id="-1";
     private String pickUpNote=null;
     private final static int BOOKING_COMPLETE=-1;
     private String pickUpTimeString=null; // string value of pick up time
@@ -64,14 +67,15 @@ public class ConfirmBookingFragment extends Fragment {
     private boolean gotBookingDetails = false;
     public static final String BOOKING_COMPLETE_MESSAGE = "Booking Complete";
     public static final String BOOKING_ERROR_MESSAGE = "Booking Error! Please try again later.";
-
+    private boolean updateBooking = false;
+    private int bookingId = -1;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // check if view set if not set up class
         if(view == null) {
             view = inflater.inflate(R.layout.confirm_tab, container, false); // assign view
             initialiseMapView(); // initialise viewmap
-            Button bookButton = (Button) view.findViewById(R.id.add_booking_button); // add on click listener to booking button
+            final Button bookButton = (Button) view.findViewById(R.id.add_booking_button); // add on click listener to booking button
             bookButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -80,25 +84,33 @@ public class ConfirmBookingFragment extends Fragment {
                         return;
                     }
                     final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase();
-                    HashMap<String,String> data = new HashMap<>(); // hash map for parameters
+                    final HashMap<String,String> data = new HashMap<>(); // hash map for parameters
                     // -1 values represent empty
-                    data.put("user_id","1"); // add the parameter key and value
-                    data.put("assigned_driver_id","1");
-                    data.put("pick_up_name",pickUpName);
-                    data.put("dest_name",destName);
-                    data.put("pick_up_latitude",new Double(pickUpAddress.getLatitude()).toString());
-                    data.put("pick_up_longitude",new Double(pickUpAddress.getLongitude()).toString());
-                    data.put("dest_name",pickUpName);
-                    data.put("dest_latitude",new Double(destAddress.getLatitude()).toString());
-                    data.put("dest_longitude",new Double(destAddress.getLongitude()).toString());
-                    data.put("price",price);
-                    data.put("est_arrival_time",getTimestamp(pickUpTime));
-                    data.put("est_dest_time",getTimestamp(estDestTime));
-                    data.put("confirmed_arrival_time","-1");
-                    data.put("confirmed_dest_time","-1");
-                    data.put("booking_complete",new Integer(BOOKING_COMPLETE).toString());
-                    data.put("note",pickUpNote);
-                    conn.addBooking(data); // call the method
+                    data.put(DBContract.Booking_Table.COLUMN_USER_ID,SharedPreferencesManager.getUserPreferences(getActivity()).getString(getString(R.string.user_preferred_user_id_pref_key),"null")); // add the parameter key and value
+                    data.put(DBContract.Booking_Table.COLUMN_ASSIGNED_DRIVER_ID,"1");
+                    data.put(DBContract.Booking_Table.COLUMN_PICK_UP_NAME,pickUpName);
+                    data.put(DBContract.Booking_Table.COLUMN_PICK_UP_LATITUDE, Double.valueOf(pickUpAddress.getLatitude()).toString());
+                    data.put(DBContract.Booking_Table.COLUMN_PICK_UP_LONGITUDE,Double.valueOf(pickUpAddress.getLongitude()).toString());
+                    data.put(DBContract.Booking_Table.COLUMN_DEST_NAME,destName);
+                    data.put(DBContract.Booking_Table.COLUMN_DEST_LATITUDE,Double.valueOf(destAddress.getLatitude()).toString());
+                    data.put(DBContract.Booking_Table.COLUMN_DEST_LONGITUDE,Double.valueOf(destAddress.getLongitude()).toString());
+                    data.put(DBContract.Booking_Table.COLUMN_PRICE,price);
+                    data.put(DBContract.Booking_Table.COLUMN_EST_ARRIVAL_TIME,getTimestamp(pickUpTime));
+                    data.put(DBContract.Booking_Table.COLUMN_EST_DEST_TIME,getTimestamp(estDestTime));
+                    data.put(DBContract.Booking_Table.COLUMN_CONFIRMED_ARRIVAL_TIME,"-1");
+                    data.put(DBContract.Booking_Table.COLUMN_CONFIRMED_DEST_TIME,"-1");
+                    data.put(DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE, Integer.valueOf(BOOKING_COMPLETE).toString());
+                    data.put(DBContract.Booking_Table.COLUMN_NOTE,pickUpNote);
+                    if(!updateBooking) {
+                        conn.addBooking(data); // call the method
+                    }else{
+                        Bundle argBundle = ConfirmBookingFragment.this.getArguments();
+                        if(argBundle.get(BookingPagerAdapter.UPDATE_BOOKING) != null) {
+                            bookingId = (int)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_ID);
+                            data.put("id",Integer.valueOf(bookingId).toString());
+                           Log.d("RESULT",conn.updateBooking(data).toString());
+                        }
+                    }
                     // set an onclick listener for result
                     conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
                         @Override
@@ -107,16 +119,25 @@ public class ConfirmBookingFragment extends Fragment {
                             if(conn.getResult() !=null){
                                 String message;
                                 // create toast of either booking complete or booking error
-                                Log.d("RESULT",conn.getResultMessage()+"   "+new Integer(TaxiAppOnlineDatabase.SUCCESS).toString());
-                                if(conn.getResultMessage().equals(new Integer(TaxiAppOnlineDatabase.SUCCESS).toString())){
+                                if(conn.getResultMessage().equals(Integer.valueOf(TaxiAppOnlineDatabase.SUCCESS).toString())) {
                                     message = BOOKING_COMPLETE_MESSAGE;
                                     createConfirmNotification();
-
+                                    if (!updateBooking){
+                                        insert_id = conn.getInsertId();
+                                        data.put("id", insert_id);
+                                    }else {
+                                        data.put("id",Integer.valueOf(bookingId).toString());
+                                    }
+                                    addBookingLocal(data);
+                                    Intent bookingIntent = new Intent(getActivity(),ViewBookingsActivity.class);
+                                    getActivity().startActivity(bookingIntent);
                                 }else{
                                     message = BOOKING_ERROR_MESSAGE;
                                 }
                                 Toast toast = Toast.makeText(getActivity(),message,Toast.LENGTH_SHORT);
                                 toast.show();
+                            }else{
+                                Log.d("Error","An error occurred");
                             }
                         }
                     });
@@ -124,9 +145,9 @@ public class ConfirmBookingFragment extends Fragment {
             });
         }
         Log.d("FRAGMENT_STATE_CONFIRM","Initialise");
+        isUpdatingBooking();
         return view;
     }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState ){
         super.onActivityCreated(savedInstanceState);
@@ -146,7 +167,7 @@ public class ConfirmBookingFragment extends Fragment {
     public void onPause(){
         super.onPause();
         mapView.onPause();
-        Log.d("FRAGEMENT_STATE_CONFIRM","Pause");
+        Log.d("FRAGMENT_STATE_CONFIRM","Pause");
     }
     @Override
     public void onStart(){
@@ -171,10 +192,23 @@ public class ConfirmBookingFragment extends Fragment {
         mapView.onSaveInstanceState(savedInstanceState);
         //Bundle bundle = new Bundle();
     }
+    private boolean isUpdatingBooking(){
+        Bundle argBundle = this.getArguments();
+        if(argBundle != null && argBundle.get("updateBooking") != null){
+            bookingId = (int)argBundle.get("bookingId");
+            updateBooking = true;
+            return true;
+        }else{
+            return false;
+        }
+    }
+    public boolean isMapNeeded(){
+        // map only needed if both coords are present
+        return(pickUpAddress != null && destAddress !=null);
+    }
     private void initialiseMapView(){
         mapView = (MapView)view.findViewById(R.id.confirm_map_view); // initialise the mapView variable
     }
-
     private void loadMap(){
         Log.d("LOAD_MAP","Loaded map");
         // get map async
@@ -191,15 +225,6 @@ public class ConfirmBookingFragment extends Fragment {
                     });
                 }
             });
-    }
-    private void createConfirmNotification(){
-        NotificationManager mNotifyMgr = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
-        NotificationCompat.Builder mBuilder =
-                new NotificationCompat.Builder(getActivity())
-                        .setSmallIcon(R.mipmap.logo)
-                        .setContentTitle("Taxi App Booking")
-                        .setContentText("Booking Confirmed");
-        mNotifyMgr.notify(0,mBuilder.build());
     }
     private void setUpMap(){
         // set the points for the map if needed
@@ -230,13 +255,43 @@ public class ConfirmBookingFragment extends Fragment {
                     .title(markerText));
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 20));
         } catch (Exception e) {
-            return;
+            //
         }
     }
-    public boolean isMapNeeded(){
-        // map only needed if both coords are present
-        return(pickUpAddress != null && destAddress !=null);
+
+    private void createConfirmNotification(){
+        NotificationManager mNotifyMgr = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(getActivity())
+                        .setSmallIcon(R.mipmap.logo)
+                        .setContentTitle("Taxi App Booking")
+                        .setContentText("Booking Confirmed");
+        mNotifyMgr.notify(0,mBuilder.build());
     }
+    private void addBookingLocal(HashMap<String,String> dataParams){
+        ContentValues values = new ContentValues();
+        Calendar currentDate = Calendar.getInstance();
+
+        values.put(DBContract.Booking_Table._ID, Integer.valueOf(dataParams.get("id")));
+        values.put(DBContract.Booking_Table.COLUMN_USER_ID, Integer.valueOf(dataParams.get(DBContract.Booking_Table.COLUMN_USER_ID)));
+        values.put(DBContract.Booking_Table.COLUMN_DATE,getTimestamp(currentDate));
+        values.put(DBContract.Booking_Table.COLUMN_PICK_UP_NAME,dataParams.get(DBContract.Booking_Table.COLUMN_PICK_UP_NAME));
+        values.put(DBContract.Booking_Table.COLUMN_PICK_UP_LATITUDE, Double.valueOf(dataParams.get(DBContract.Booking_Table.COLUMN_PICK_UP_LATITUDE)));
+        values.put(DBContract.Booking_Table.COLUMN_PICK_UP_LONGITUDE,Double.valueOf(dataParams.get(DBContract.Booking_Table.COLUMN_PICK_UP_LONGITUDE)));
+        values.put(DBContract.Booking_Table.COLUMN_DEST_NAME,dataParams.get(DBContract.Booking_Table.COLUMN_DEST_NAME));
+        values.put(DBContract.Booking_Table.COLUMN_DEST_LATITUDE,Double.valueOf(dataParams.get(DBContract.Booking_Table.COLUMN_DEST_LATITUDE)));
+        values.put(DBContract.Booking_Table.COLUMN_DEST_LONGITUDE,Double.valueOf(dataParams.get(DBContract.Booking_Table.COLUMN_DEST_LONGITUDE)));
+        values.put(DBContract.Booking_Table.COLUMN_NOTE,dataParams.get(DBContract.Booking_Table.COLUMN_NOTE));
+        values.put(DBContract.Booking_Table.COLUMN_PRICE,Double.valueOf(dataParams.get(DBContract.Booking_Table.COLUMN_PRICE)));
+        values.put(DBContract.Booking_Table.COLUMN_EST_ARRIVAL_TIME,dataParams.get(DBContract.Booking_Table.COLUMN_EST_ARRIVAL_TIME));
+        values.put(DBContract.Booking_Table.COLUMN_EST_DEST_TIME,dataParams.get(DBContract.Booking_Table.COLUMN_EST_DEST_TIME));
+        values.put(DBContract.Booking_Table.COLUMN_CONFIRMED_ARRIVAL_TIME,dataParams.get(DBContract.Booking_Table.COLUMN_CONFIRMED_ARRIVAL_TIME));
+        values.put(DBContract.Booking_Table.COLUMN_CONFIRMED_DEST_TIME,dataParams.get(DBContract.Booking_Table.COLUMN_CONFIRMED_DEST_TIME));
+        values.put(DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE,Integer.valueOf(dataParams.get(DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE)));
+
+        getActivity().getContentResolver().insert(DBContract.Booking_Table.CONTENT_URI,values);
+    }
+
     public void setPickUpName(String text){
         pickUpName = text;
     }
@@ -268,8 +323,21 @@ public class ConfirmBookingFragment extends Fragment {
         }
     }
     private void setEstDestTime(){
-        estDestTime = pickUpTime;
-        estDestTime.set(Calendar.MINUTE,estDestTime.get(Calendar.MINUTE)+new Integer(duration.split(" ")[0]));
+        String[] durationInfo = duration.split(" ");
+        int addHour = 0;
+        int addMin;
+        if(durationInfo.length >2) {
+            addHour = Integer.valueOf(durationInfo[0]); // add journey hour
+            addMin = Integer.valueOf(durationInfo[2]); // add journey minutes
+        }else{
+            addMin = Integer.valueOf(durationInfo[0]);
+        }
+        // create a new calendar instance and set the new properties
+        estDestTime =  Calendar.getInstance();
+        estDestTime.set(Calendar.SECOND,pickUpTime.get(Calendar.SECOND));
+        estDestTime.set(Calendar.HOUR,pickUpTime.get(Calendar.HOUR)+addHour);
+        estDestTime.set(Calendar.MINUTE,pickUpTime.get(Calendar.MINUTE)+addMin);
+
     }
     public void setPickUpTime(Calendar val){
         pickUpTime = val;
@@ -298,7 +366,7 @@ public class ConfirmBookingFragment extends Fragment {
             public String getTripDuration(){
                 return tripDuration;
             }
-            public GetRouteInfo() {
+            private GetRouteInfo() {
                 //constructor
             }
 
@@ -311,8 +379,8 @@ public class ConfirmBookingFragment extends Fragment {
             protected void onPostExecute(String s) {
                 super.onPostExecute(s);
                 // update the UI with the info
-                SimpleDateFormat dateFormat = new SimpleDateFormat("E HH:mm");
-                pickUpTimeString = dateFormat.format(pickUpTime.getTime()).toString();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("E HH:mm", Locale.UK);
+                pickUpTimeString = dateFormat.format(pickUpTime.getTime());
                 setTextUI("Price: £"+price,"Estimated Travel Time: "+duration,"Estimated Pick Up Time: "+pickUpTimeString);
                 gotBookingDetails=true;
             }
@@ -345,7 +413,7 @@ public class ConfirmBookingFragment extends Fragment {
                         tripDistance = (String)jsonRowElements.getJSONObject("distance").get("text");
                         tripDuration = (String)jsonRowElements.getJSONObject("duration").get("text");
                         Log.d("TRIP INFORMATION",tripDistance+","+tripDuration);
-                        setPrice((new Double((new Double(tripDistance.split(" ")[0])*PRICE_PER_MILE)+FAIR_PRICE)).toString().substring(0,4)); // calculate price
+                        setPrice((Double.valueOf((Double.valueOf(tripDistance.split(" ")[0])*PRICE_PER_MILE)+FAIR_PRICE)).toString().substring(0,4)); // calculate price
                         setDuration(tripDuration);
                         return tripDistance+","+tripDuration; // return info not really needed
                     }
@@ -360,8 +428,7 @@ public class ConfirmBookingFragment extends Fragment {
         routeInfo.execute();
     }
     public static String getTimestamp(Calendar calendar){
-        SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-dd HH:MM:SS");
-        Log.d("TIMESTAMP",df.format(calendar.getTime()).toString());
-        return df.format(calendar.getTime()).toString();
+        SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss",Locale.UK);
+        return df.format(calendar.getTime());
     }
 }

@@ -16,12 +16,25 @@
     <string name="addBookingResultText">Result</string>
     <string name="addBookingNote">Note (Pick up description)</string>
     <string name="pick_up_time_button">Pick Up Time</string>
-    <string name="pick_up_time_text" >Pick Up Time</string>
+    <string name="pick_up_time_text">Pick Up Time</string>
     <string name="edit_verification_code">Enter code</string>
 
     <string name="user_tel_no_pref_key">null</string>
     <string name="user_name_pref_key">null</string>
     <string name="user_email_pref_key">null</string>
+    <string name="user_preferred_user_id_pref_key">null</string>
     <string name="user_preferred_driver_id_pref_key">null</string>
+    <string name="title_activity_main_menu">MainMenuActivity</string>
+
+    <string name="title_section1">Section 1</string>
+    <string name="title_section2">Section 2</string>
+    <string name="title_section3">Section 3</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_example">Example action</string>
+
+    <string name="action_settings">Settings</string>
 
 </resources>

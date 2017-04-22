@@ -38,7 +38,7 @@ public class DBContract {
         public static final String COLUMN_EST_DEST_TIME= "est_dest_time";
         public static final String COLUMN_CONFIRMED_ARRIVAL_TIME = "confirmed_arrival_time";
         public static final String COLUMN_CONFIRMED_DEST_TIME = "confirmed_dest_time";
-        public static final String COLUMN_BOOKING_COMPLETE= "POPULAR_MOVIE";
+        public static final String COLUMN_BOOKING_COMPLETE= "booking_complete";
         public static final String COLUMN_NOTE= "note";
 
         public static Uri buildBookingUriWithID(long ID){
@@ -81,6 +81,9 @@ public class DBContract {
         public static final String COLUMN_TEL_NO= "tel_no";
         public static final String COLUMN_USER_NAME= "user_name";
         public static final String COLUMN_PREFERRED_DRIVER_ID= "preferred_driver_id";
+        // online only
+        public static final String COLUMN_VERIFICATION_CODE = "verification_code";
+        public static final String COLUMN_VERIFIED = "verified";
 
 
         public static Uri buildUserUriWithID(long ID){

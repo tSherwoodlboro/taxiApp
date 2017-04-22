@@ -54,7 +54,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent addBooking = new Intent(MapActivity.this, AddBookingActivity.class);
+                Intent addBooking = new Intent(MapActivity.this, BookingActivity.class);
                 String locationDetails =getLocationName(currentAddress);
                 int i=0;
                 if(currentAddress != null) {
@@ -79,6 +79,24 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
                addNewMarker(map,latLng);
             }
         });
+    }
+    private void addInitialMarker(GoogleMap map) {
+        // adds the initial marker when the activity first loads
+        try {
+            // make sure location name is not empty
+            if (!locationName.isEmpty()) {
+
+                currentAddress= getAddress(locationName,this); // get first list address
+                setLocationNameText(currentAddress.getAddressLine(0)); // set locationName
+                LatLng currentLocation = new LatLng(currentAddress.getLatitude(), currentAddress.getLongitude()); // get coords for address
+                map.addMarker(new MarkerOptions() // place new maker
+                        .position(currentLocation)
+                        .title(markerText));
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20)); // move the camera to point
+            }
+        } catch (Exception e) {
+            return;
+        }
     }
     private void addNewMarker(GoogleMap map,LatLng location) {
         // add a marker to the map
@@ -112,36 +130,6 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             return null;
         }
     }
-    private void addInitialMarker(GoogleMap map) {
-        // adds the initial marker when the activity first loads
-        try {
-            // make sure location name is not empty
-            if (!locationName.isEmpty()) {
-
-                currentAddress= getAddress(locationName,this); // get first list address
-                setLocationNameText(currentAddress.getAddressLine(0)); // set locationName
-                LatLng currentLocation = new LatLng(currentAddress.getLatitude(), currentAddress.getLongitude()); // get coords for address
-                map.addMarker(new MarkerOptions() // place new maker
-                        .position(currentLocation)
-                        .title(markerText));
-                map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20)); // move the camera to point
-            }
-        } catch (Exception e) {
-            return;
-        }
-    }
-    private void setLocationNameText(String text){
-        // set the header location name text for the map(this) activity
-        TextView currentLocationView = (TextView)this.findViewById(R.id.map_current_location);
-        if(!text.isEmpty()) {
-            currentLocationView.setText(text);
-            locationName = text;
-        }else{
-            currentLocationView.setText(NO_LOCATION_MESSAGE); // no location set
-            locationName = null;
-        }
-    }
-
     public static String getLocationName(Address address){
         // get location information based of address
         String locationDetails ="";
@@ -158,4 +146,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         }
         return locationDetails;
     }
+    private void setLocationNameText(String text){
+        // set the header location name text for the map(this) activity
+        TextView currentLocationView = (TextView)this.findViewById(R.id.map_current_location);
+        if(!text.isEmpty()) {
+            currentLocationView.setText(text);
+            locationName = text;
+        }else{
+            currentLocationView.setText(NO_LOCATION_MESSAGE); // no location set
+            locationName = null;
+        }
+    }
+
 }

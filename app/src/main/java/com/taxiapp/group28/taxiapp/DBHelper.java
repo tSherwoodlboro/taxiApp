@@ -87,7 +87,10 @@ public class DBHelper extends SQLiteOpenHelper {
         onCreate(db);
     }
 
-
+    public void clearBookings(){
+        String sql = "DELETE FROM " + DBContract.Booking_Table.TABLE_NAME;
+        sqLiteDatabase.execSQL(sql);
+    }
     public void clearTables(){
         String sql = "DELETE FROM " + DBContract.User_Table.TABLE_NAME+
                         "DELETE FROM " + DBContract.Booking_Table.TABLE_NAME+

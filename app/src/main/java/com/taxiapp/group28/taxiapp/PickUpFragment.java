@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import static android.content.Context.LOCATION_SERVICE;
 
@@ -50,20 +51,20 @@ public class PickUpFragment extends Fragment {
     private LocationManager locationManager=null; // helps get current location
     private boolean disableSeekBar = false;
     private Switch locationSwitch;
-
     private  View view=null;
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if(view!=null){
             return view;
         }
+
         view = inflater.inflate(R.layout.pick_up_tab, container, false);
         locationSwitch = (Switch)view.findViewById(R.id.add_booking_cLocation_switch);
         // set default pickUpTime
         Calendar calendar = Calendar.getInstance();
         calendar.set(calendar.MINUTE,calendar.get(calendar.MINUTE)+30);
         pickUpTime = calendar;
+        setLocationSet(false);
         // onclick listener for pick up button
         final Button pickUpButton = (Button) view.findViewById(R.id.add_booking_pick_up_button);
         pickUpButton.setOnClickListener(new View.OnClickListener() {
@@ -72,7 +73,6 @@ public class PickUpFragment extends Fragment {
                 // load map activity
                 String searchText = getSearchText();
                 if(!searchText.isEmpty()){
-                    setLocationSet(false);
                     Intent mapLoadIntent = new Intent(getActivity(), MapActivity.class);
                     // put information in intent
                     mapLoadIntent.putExtra("type", TaxiConstants.PICK_UP);
@@ -112,7 +112,7 @@ public class PickUpFragment extends Fragment {
                 Calendar calendar = Calendar.getInstance();
                 calendar.set(calendar.MINUTE,calendar.get(calendar.MINUTE)+progress);
 
-                SimpleDateFormat dateFormat = new SimpleDateFormat("E HH:mm");
+                SimpleDateFormat dateFormat = new SimpleDateFormat("E HH:mm", Locale.UK);
                 pickUpTime = calendar;
                 return dateFormat.format(calendar.getTime());
             }
@@ -135,6 +135,8 @@ public class PickUpFragment extends Fragment {
                 toast.cancel();
             }
         });
+
+        isUpdatingBooking();
         return view;
     }
     @Override
@@ -188,80 +190,10 @@ public class PickUpFragment extends Fragment {
                 } else {
                     setLocationAccess(false);
                 }
-                return;
             }
         }
     }
 
-    public String getStreetResult(){
-        EditText editText = (EditText) view.findViewById(R.id.edit_street);
-        streetResult = editText.getText().toString();
-        return streetResult;
-    }
-    public String getHouseNumberResult(){
-        EditText editText = (EditText) view.findViewById(R.id.edit_house_number);
-        houseNumberResult = editText.getText().toString();
-        return houseNumberResult;
-    }
-    public String getPostcodeResult(){
-        EditText editText = (EditText) view.findViewById(R.id.edit_postcode);
-        postcodeResult = editText.getText().toString();
-        return postcodeResult;
-    }
-    public Double getLatitude(){
-        return latitude;
-    }
-    public Double getLongitude(){
-        return longitude;
-    }
-    public String getLocation(){
-        return location;
-    }
-    public boolean isLocationSet(){
-        return locationSet;
-    }
-    public boolean isLocationAccess(){
-        return locationAccess;
-    }
-    public Calendar getPickUpTime(){
-        return pickUpTime;
-    }
-    public Address getAddress(){
-        return address;
-    }
-    public String getNoteText(){
-        if(view == null){
-            return null;
-        }
-        EditText note = (EditText)view.findViewById(R.id.edit_note);
-        return note.getText().toString();
-    }
-    public String getSearchText(){
-        EditText pickUpNameText = (EditText) view.findViewById(R.id.editPickUpLocation);
-        return pickUpNameText.getText().toString();
-    }
-    private void getCurrentLocation(Location location){
-        // get the current location information such as street name, long and lat coords
-        Geocoder geoCoder = new Geocoder(getActivity());
-        Address currentAddress;
-        List<Address> locationList;
-        try{
-            locationList = geoCoder.getFromLocation(location.getLatitude(),location.getLongitude(),1); // get list of locations based on geoCoder search
-        }catch(IOException e){
-            Log.d("ERROR",e.getMessage());
-            return;
-        }
-        if(locationList.size()>0) {
-            // get the first value from list if any
-            currentAddress = locationList.get(0);
-            setLocation(location.getLatitude(), location.getLongitude(), MapActivity.getLocationName(currentAddress));
-        }else{
-            // if no locations returned return invalid location
-            makeToast("Current Location Invalid");
-            enableSearch(true);
-            setLocationAccess(true);
-        }
-    }
     private void setLocationAccess(boolean val){
         locationAccess = val;
         locationSwitch.setChecked(val);
@@ -284,9 +216,7 @@ public class PickUpFragment extends Fragment {
         postcodeResult = val;
         editPostcode.setText(postcodeResult);
     }
-    private void  setLocationSet(boolean val){
-        locationSet = val;
-    }
+
     // for getting the current location of device
     private void setLocationManager(){
         // location manager for devices current location
@@ -327,12 +257,11 @@ public class PickUpFragment extends Fragment {
     }
     private void setLocation(Double lat,Double longitude,String name){
         // set location of pickUp point
+        location = name;
         setCoords(lat,longitude);
         setResultText(name);
-        location = name;
         setLocationSet(true);
     }
-
     private void setCoords(Double lat,Double longitude){
         // set lat and long for pick up point
         latitude = lat;
@@ -340,15 +269,21 @@ public class PickUpFragment extends Fragment {
     }
     private void setResultText(String locationInfo){
         // set the result information
-        String[] resultArray = AddBookingActivity.getResultTextArray(locationInfo);
+        String[] resultArray = BookingActivity.getResultTextArray(locationInfo);
         setHouseNumberResult(resultArray[0]);
         setStreetResult(resultArray[1]);
-        setPostcodeResult(resultArray[2]);
+        if(!resultArray[2].equals(resultArray[1].split(" ")[0])){
+            //makes sure postcode is present
+            setPostcodeResult(resultArray[2]);
+        }
     }
-
+    private void setLocationSet(boolean val){
+        locationSet = val;
+        enableResultEdit(val);
+    }
     public void setAddress(){
         // set location and address
-        if(isLocationSet() && !getPostcodeResult().isEmpty() && !getStreetResult().isEmpty()) {
+        if(isLocationSet()  && !getStreetResult().isEmpty()) {
             String locationInfo = getHouseNumberResult()+" " + getStreetResult()+" "+getPostcodeResult();
             address = MapActivity.getAddress(locationInfo, getActivity());
             if(address != null) {
@@ -357,6 +292,93 @@ public class PickUpFragment extends Fragment {
                 makeToast("Pick Up Location Invalid");
                 setLocationSet(false);
             }
+        }else{
+            setLocationSet(false);
+        }
+    }
+
+    private void getCurrentLocation(Location location){
+        // get the current location information such as street name, long and lat coords
+        Geocoder geoCoder = new Geocoder(getActivity());
+        Address currentAddress;
+        List<Address> locationList;
+        try{
+            locationList = geoCoder.getFromLocation(location.getLatitude(),location.getLongitude(),1); // get list of locations based on geoCoder search
+        }catch(IOException e){
+            Log.d("ERROR",e.getMessage());
+            return;
+        }
+        if(locationList.size()>0) {
+            // get the first value from list if any
+            currentAddress = locationList.get(0);
+            setLocation(location.getLatitude(), location.getLongitude(), MapActivity.getLocationName(currentAddress));
+        }else{
+            // if no locations returned return invalid location
+            makeToast("Current Location Invalid");
+            enableSearch(true);
+            setLocationAccess(true);
+        }
+    }
+    public String getStreetResult(){
+        EditText editText = (EditText) view.findViewById(R.id.edit_street);
+        streetResult = editText.getText().toString();
+        return streetResult;
+    }
+    public String getHouseNumberResult(){
+        EditText editText = (EditText) view.findViewById(R.id.edit_house_number);
+        houseNumberResult = editText.getText().toString();
+        return houseNumberResult;
+    }
+    public String getPostcodeResult(){
+        EditText editText = (EditText) view.findViewById(R.id.edit_postcode);
+        postcodeResult = editText.getText().toString();
+        return postcodeResult;
+    }
+    public Double getLatitude(){
+        return latitude;
+    }
+    public Double getLongitude(){
+        return longitude;
+    }
+    public String getLocation(){
+        return location;
+    }
+    public Calendar getPickUpTime(){
+        return pickUpTime;
+    }
+    public Address getAddress(){
+        return address;
+    }
+    public String getNoteText(){
+        if(view == null){
+            return null;
+        }
+        EditText note = (EditText)view.findViewById(R.id.edit_note);
+        return note.getText().toString();
+    }
+    public String getSearchText(){
+        EditText pickUpNameText = (EditText) view.findViewById(R.id.editPickUpLocation);
+        return pickUpNameText.getText().toString();
+    }
+    public boolean isLocationSet(){
+        return locationSet;
+    }
+    public boolean isLocationAccess(){
+        return locationAccess;
+    }
+    private boolean isUpdatingBooking(){
+        // check if it's for updating a booking
+        Bundle argBundle = this.getArguments();
+        if(argBundle != null && argBundle.get(BookingPagerAdapter.UPDATE_BOOKING) != null){
+            String locationName = (String)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_PICK_UP_LOCATION_NAME);
+            Log.d("PICK_UP_NAME",(String)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_PICK_UP_LOCATION_NAME));
+
+            Double latitude = (Double)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_PICK_UP_LATITUDE);
+            Double longitude = (Double)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_PICK_UP_LONGITUDE);
+            setLocation(latitude,longitude,locationName);
+            return true;
+        }else{
+            return false;
         }
     }
     private  void makeToast(String message){
@@ -370,5 +392,13 @@ public class PickUpFragment extends Fragment {
         pickUpEdit.setEnabled(val);
         Button pickUpButton = (Button) view.findViewById(R.id.add_booking_pick_up_button);
         pickUpButton.setEnabled(val);
+    }
+    private void enableResultEdit(boolean val){
+        EditText editStreet = (EditText)view.findViewById(R.id.edit_street);
+        EditText editHouseNum = (EditText)view.findViewById(R.id.edit_house_number);
+        EditText editPostcode = (EditText)view.findViewById(R.id.edit_postcode);
+        editStreet.setEnabled(val);
+        editHouseNum.setEnabled(val);
+        editPostcode.setEnabled(val);
     }
 }

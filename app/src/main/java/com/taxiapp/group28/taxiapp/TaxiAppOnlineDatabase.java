@@ -80,6 +80,9 @@ public class TaxiAppOnlineDatabase {
     private JSONArray PARAMS_VALID=null;
     private JSONArray result =null;
 
+    private static final String ERROR_FIELD = "error";
+    private static final String INSERT_ID_FIELD = "insert_id";
+
     private onGetResultListener getResultListener;
     public interface onGetResultListener{
          void onGetResult();
@@ -279,11 +282,22 @@ public class TaxiAppOnlineDatabase {
             return null;
         }
         try{
-            return result.getJSONObject(0).get("error").toString();
+            return result.getJSONObject(0).get(ERROR_FIELD).toString();
         }catch(JSONException e){
             return null;
         }
 
+    }
+    public String getInsertId(){
+        if(result == null){
+            return null;
+        }
+        try{
+            return result.getJSONObject(0).get(INSERT_ID_FIELD).toString();
+        }catch(JSONException e){
+            Log.d("JSON ERROR","ERROR "+e.getMessage());
+            return null;
+        }
     }
     public void close(){
         try {
@@ -298,6 +312,7 @@ public class TaxiAppOnlineDatabase {
 
         for (String key  : keys) {
             if(!params.containsKey(key)){
+                Log.d("NO_KEY",key);
                 valid = false;
             }
         }

@@ -181,10 +181,10 @@ public class RegisterActivity extends AppCompatActivity {
         final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(); // create a db instance
         HashMap<String,String> dataParams = new HashMap<>(); // hashmap for data
         Log.d("Mobile Number","Mobile Number "+mobileNumber);
-        dataParams.put("tel_no",mobileNumber);
-        dataParams.put("user_name",DEFAULT_USER_NAME);
-        dataParams.put("verification_code", verificationCode);
-        dataParams.put("verified",MOBILE_VERIFIED_VAL);
+        dataParams.put(DBContract.User_Table.COLUMN_TEL_NO,mobileNumber);
+        dataParams.put(DBContract.User_Table.COLUMN_USER_NAME,DEFAULT_USER_NAME);
+        dataParams.put(DBContract.User_Table.COLUMN_VERIFICATION_CODE, verificationCode);
+        dataParams.put(DBContract.User_Table.COLUMN_VERIFIED,MOBILE_VERIFIED_VAL);
         conn.addUser(dataParams); // add the user
         // set a listener to get the response from the server
         conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
@@ -220,11 +220,11 @@ public class RegisterActivity extends AppCompatActivity {
                     JSONArray result = conn.getResult(); // get the result (The user information)
                     try {
                         // store user info in local variables
-                        String userVerified = new Integer((int)result.getJSONObject(0).get("verified")).toString();
-                        String userVerificationCode = (String)result.getJSONObject(0).get("verification_code");
+                        String userVerified = new Integer((int)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_VERIFIED)).toString();
+                        String userVerificationCode = (String)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_VERIFICATION_CODE);
                         userId = (int)result.getJSONObject(0).get("id");
-                        userUserName = (String)result.getJSONObject(0).get("user_name");
-                        userTelNo = (String)result.getJSONObject(0).get("tel_no");
+                        userUserName = (String)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_USER_NAME);
+                        userTelNo = (String)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_TEL_NO);
                         userPreferredDriverID = "-1"; // proffered driver id NULL (-1) this value is set later in settings
 
                        if(!oldAccountVerified){
@@ -237,11 +237,11 @@ public class RegisterActivity extends AppCompatActivity {
                        if(userVerificationCode.equals(verificationCode)){
                            // if the verification code is valid update the users details. Set verified to true
                            HashMap<String,String> dataParams = new HashMap<>(); // hashmap for data
-                           dataParams.put("user_name",userUserName);
-                           dataParams.put("tel_no",userTelNo);
-                           dataParams.put("verified", MOBILE_VERIFIED);
-                           dataParams.put("preferred_driver_id",userPreferredDriverID);
-                           dataParams.put("verification_code",userVerificationCode);
+                           dataParams.put(DBContract.User_Table.COLUMN_USER_NAME,userUserName);
+                           dataParams.put(DBContract.User_Table.COLUMN_TEL_NO,userTelNo);
+                           dataParams.put(DBContract.User_Table.COLUMN_VERIFIED, MOBILE_VERIFIED);
+                           dataParams.put(DBContract.User_Table.COLUMN_PREFERRED_DRIVER_ID,userPreferredDriverID);
+                           dataParams.put(DBContract.User_Table.COLUMN_VERIFICATION_CODE,userVerificationCode);
                            conn.setOnGetResultListener(null); // remove listener to prevent recursion
                            conn.updateUser(dataParams); // update user to verified
                            makeToast("Account Verified");
@@ -284,11 +284,12 @@ public class RegisterActivity extends AppCompatActivity {
         editor.putString(getString(R.string.user_tel_no_pref_key), userTelNo);
         editor.putString(getString(R.string.user_preferred_driver_id_pref_key), null);
         editor.putString(getString(R.string.user_email_pref_key), null);
+        editor.putString(getString(R.string.user_preferred_user_id_pref_key),new Integer(userId).toString());
         editor.commit();
     }
     private void loadBookingActivity(){
         // load Booking activity via intent
-        Intent bookingIntent = new Intent(this,BookingActivity.class);
+        Intent bookingIntent = new Intent(this,ViewBookingsActivity.class);
         startActivity(bookingIntent);
         this.finish();
     }
@@ -301,7 +302,7 @@ public class RegisterActivity extends AppCompatActivity {
         // if the user has their details saved then skip login and load booking activity
         SharedPreferences sharedPref = getSharedPreferences(TaxiConstants.USER_PREFERENCES, Context.MODE_PRIVATE);
         final String defaultValue = "null";
-        if(sharedPref.getString(getString(R.string.user_tel_no_pref_key), defaultValue).equals(defaultValue)){
+        if(!sharedPref.getString(getString(R.string.user_tel_no_pref_key), defaultValue).equals(defaultValue)){
             loadBookingActivity();
         }
         return false;

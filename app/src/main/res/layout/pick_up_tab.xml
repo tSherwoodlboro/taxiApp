@@ -183,7 +183,7 @@
         android:ems="10"
         android:inputType="textPostalAddress"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toRightOf="@+id/edit_house_number"
+        app:layout_constraintLeft_toRightOf="@+id/edit_dest_house_number"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/post_code" />
 
