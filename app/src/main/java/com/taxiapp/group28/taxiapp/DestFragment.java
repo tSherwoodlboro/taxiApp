@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.location.Address;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +27,8 @@ public class DestFragment extends Fragment {
     private String houseNumberResult; // result house number
     private String postcodeResult; // result postcode
     private String streetResult; // result street
+    private boolean updateBooking=false;
+
     private  View view;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -34,7 +37,9 @@ public class DestFragment extends Fragment {
         }
         view = inflater.inflate(R.layout.destination_tab, container, false);
         // onclick listener for destination up button
+
         setLocationSet(false);
+
         final Button destButton = (Button) view.findViewById(R.id.add_booking_destination_button);
         destButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -54,13 +59,75 @@ public class DestFragment extends Fragment {
         return view;
     }
     @Override
+    public void onActivityCreated(Bundle savedInstanceState){
+        super.onActivityCreated(savedInstanceState);
+        if(savedInstanceState !=null){
+            setLocationSet(savedInstanceState.getBoolean("locationSet"));
+            if(isLocationSet()){
+                setLocation(savedInstanceState.getDouble("latitude"),savedInstanceState.getDouble("longitude"),savedInstanceState.getString("locationName"));
+                setSearchText(savedInstanceState.getString("searchText"));
+            }
+        }
+        Log.d("FRAGMENT_STATE_DEST","Activity Created");
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.d("FRAGMENT_STATE_DEST","Resume");
+    }
+    @Override
+    public void onPause(){
+        super.onPause();
+        Log.d("FRAGMENT_STATE_DEST","Pause");
+    }
+    @Override
+    public void onStart(){
+        super.onStart();
+        Log.d("FRAGMENT_STATE_DEST","Start");
+    }
+    @Override
+    public void onStop(){
+        super.onStop();
+        Bundle savedInstanceState = new Bundle();
+        savedInstanceState.putBoolean("locationSet",isLocationSet());
+        savedInstanceState.putString("searchText",getSearchText());
+
+        if(isLocationSet()){
+            savedInstanceState.putString("locationName",location);
+            savedInstanceState.putDouble("latitude",latitude);
+            savedInstanceState.putDouble("longitude",longitude);
+        }
+        onSaveInstanceState(savedInstanceState);
+        Log.d("FRAGMENT_STATE_DEST","Stop");
+
+    }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Log.d("FRAGMENT_STATE_DEST","Destroy");
+    }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        Log.d("FRAGMENT_STATE_DEST","Saved");
+
+    }
+    @Override
+    public void onViewStateRestored (Bundle savedInstanceState){
+        super.onViewStateRestored(savedInstanceState);
+        Log.d("FRAGMENT_STATE_DEST","Restored");
+    }
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // called when returning from the activity
         if (requestCode == TaxiConstants.MAP_START_ACTIVITY_DEST && resultCode == TaxiConstants.MAP_DEST_POINT_DONE){
             setLocation(data.getDoubleExtra("destLocationLatitude",0),data.getDoubleExtra("destLocationLongitude",0),data.getStringExtra("destLocation"));
         }
     }
-
+    public void setSearchText(String text){
+        EditText destText = (EditText) view.findViewById(R.id.editDestLocation);
+        destText.setText(text);
+    }
     private void setStreetResult(String val){
         EditText editStreet = (EditText)view.findViewById(R.id.edit_dest_street);
         streetResult = val;
@@ -94,7 +161,7 @@ public class DestFragment extends Fragment {
     }
     private void setResultText(String locationInfo){
         // sets the house number, steet and postcode UI fields
-        String[] resultArray = BookingActivity.getResultTextArray(locationInfo);
+        String[] resultArray = AddBookingFragment.getResultTextArray(locationInfo);
         setHouseNumberResult(resultArray[0]);
         setStreetResult(resultArray[1]);
         if(!resultArray[2].equals(resultArray[1].split(" ")[0])){
@@ -144,14 +211,20 @@ public class DestFragment extends Fragment {
 
     private boolean isUpdatingBooking(){
         // check if it's for updating a booking
+        if(updateBooking){
+            setLocationSet(true);
+            return true;
+        }
         Bundle argBundle = this.getArguments();
         if(argBundle != null && argBundle.get(BookingPagerAdapter.UPDATE_BOOKING) != null){
+            updateBooking=true;
             String locationName = (String)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_DEST_LOCATION_NAME);
             Double latitude = (Double)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_DEST_LATITUDE);
             Double longitude = (Double)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_DEST_LONGITUDE);
             setLocation(latitude,longitude,locationName);
             return true;
         }else{
+            updateBooking=false;
             return false;
         }
     }

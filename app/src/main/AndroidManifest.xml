@@ -17,7 +17,7 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ty"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Design.Light">
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAFXdC5H5nbJXk_D77Z43pj6YgAg70EQQA" />
@@ -27,24 +27,29 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".PickUpTimeReceiver">
+        </receiver>
 
-        <activity android:name=".RegisterActivity" />
-        <activity android:name=".ViewBookingsActivity">
+        <activity android:name=".RegisterActivity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".BookingActivity" />
+
         <activity android:name=".MapActivity" />
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
+        <activity android:name=".MainMenuActivity" >
+
+        </activity>
         <service android:name=".OnBootService" />
 
         <provider
             android:name=".DBContentProvider"
             android:authorities="com.taxiapp.group28.taxiapp"
             android:enabled="true" />
+
 
     </application>
 

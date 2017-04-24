@@ -28,7 +28,6 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
     DestFragment destTab = null;
     ConfirmBookingFragment confirmTab = null;
     Bundle argsBundle=null;
-
     public BookingPagerAdapter(FragmentManager fm, int NumOfTabs,Bundle argsBundle) {
         super(fm);
         this.mNumOfTabs = NumOfTabs;

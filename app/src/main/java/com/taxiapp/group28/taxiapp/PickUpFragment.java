@@ -52,8 +52,10 @@ public class PickUpFragment extends Fragment {
     private boolean disableSeekBar = false;
     private Switch locationSwitch;
     private  View view=null;
+    private boolean updateBooking=false;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d("FRAGMENT_STATE","Created View");
         if(view!=null){
             return view;
         }
@@ -62,9 +64,10 @@ public class PickUpFragment extends Fragment {
         locationSwitch = (Switch)view.findViewById(R.id.add_booking_cLocation_switch);
         // set default pickUpTime
         Calendar calendar = Calendar.getInstance();
-        calendar.set(calendar.MINUTE,calendar.get(calendar.MINUTE)+30);
+        calendar.set(calendar.MINUTE, calendar.get(calendar.MINUTE) + 30);
         pickUpTime = calendar;
         setLocationSet(false);
+
         // onclick listener for pick up button
         final Button pickUpButton = (Button) view.findViewById(R.id.add_booking_pick_up_button);
         pickUpButton.setOnClickListener(new View.OnClickListener() {
@@ -135,40 +138,81 @@ public class PickUpFragment extends Fragment {
                 toast.cancel();
             }
         });
-
         isUpdatingBooking();
         return view;
     }
     @Override
+    public void onActivityCreated(Bundle savedInstanceState){
+        super.onActivityCreated(savedInstanceState);
+
+        Log.d("FRAGMENT_STATE_PICK_UP","Activity Created");
+    }
+    @Override
     public void onResume(){
         super.onResume();
-        Log.d("FRAGMENT_STATE","Resume");
+        Log.d("FRAGMENT_STATE_PICK_UP","Resume");
     }
     @Override
     public void onPause(){
         super.onPause();
-        Log.d("FRAGMENT_STATE","Pause");
+        Log.d("FRAGMENT_STATE_PICK_UP","Pause");
     }
     @Override
     public void onStart(){
         super.onStart();
-        Log.d("FRAGMENT_STATE","Start");
+        Log.d("FRAGMENT_STATE_PICK_UP","Start");
     }
     @Override
     public void onStop(){
         super.onStop();
+        Bundle savedInstanceState = new Bundle();
+        savedInstanceState.putBoolean("locationSet",isLocationSet());
+        savedInstanceState.putString("searchText",getSearchText());
+        savedInstanceState.putString("noteText",getNoteText());
+        savedInstanceState.putBoolean("useCurrentLocation",useCurrentLocation);
 
+        if(isLocationSet()){
+            savedInstanceState.putString("locationName",location);
+            savedInstanceState.putDouble("latitude",latitude);
+            savedInstanceState.putDouble("longitude",longitude);
+        }
+        if(savedInstanceState == null){
+            Log.d("NULL_BUNDLE","true");
+        }
+        onSaveInstanceState(savedInstanceState);
+        Log.d("FRAGMENT_STATE_PICK_UP","Stop");
+
+    }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Log.d("FRAGMENT_STATE_PICK_UP","Destroy");
     }
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        Log.d("FRAGMENT_STATE","Saved");
+        Log.d("FRAGMENT_STATE_PICK_UP","Saved");
+
     }
     @Override
-    public void onActivityCreated(Bundle savedInstanceState ){
-        super.onActivityCreated(savedInstanceState);
-        Log.d("FRAGMENT_STATE","Created");
+    public void onViewStateRestored (Bundle savedInstanceState){
+        super.onViewStateRestored(savedInstanceState);
+        if(savedInstanceState !=null){
+            setLocationSet(savedInstanceState.getBoolean("locationSet"));
+            useCurrentLocation = savedInstanceState.getBoolean("useCurrentLocation");
+            if(isLocationSet() && !useCurrentLocation){
+                setLocation(savedInstanceState.getDouble("latitude"),savedInstanceState.getDouble("longitude"),savedInstanceState.getString("locationName"));
+                setSearchText(savedInstanceState.getString("searchText"));
+            }
+            if(useCurrentLocation){
+                locationSwitch.setChecked(true);
+            }
+            setNoteText(savedInstanceState.getString("noteText"));
+            Log.d("FRAGMENT_STATE_PICK_UP","State Restored");
+        }
+        Log.d("FRAGMENT_STATE_PICK_UP","Restored");
     }
+
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // called when returning from the Maps activity
@@ -255,6 +299,14 @@ public class PickUpFragment extends Fragment {
         }
 
     }
+    public void setNoteText(String text){
+        EditText note = (EditText)view.findViewById(R.id.edit_note);
+         note.setText(text);
+    }
+    public void setSearchText(String text){
+        EditText pickUpNameText = (EditText) view.findViewById(R.id.editPickUpLocation);
+        pickUpNameText.setText(text);
+    }
     private void setLocation(Double lat,Double longitude,String name){
         // set location of pickUp point
         location = name;
@@ -269,7 +321,7 @@ public class PickUpFragment extends Fragment {
     }
     private void setResultText(String locationInfo){
         // set the result information
-        String[] resultArray = BookingActivity.getResultTextArray(locationInfo);
+        String[] resultArray = AddBookingFragment.getResultTextArray(locationInfo);
         setHouseNumberResult(resultArray[0]);
         setStreetResult(resultArray[1]);
         if(!resultArray[2].equals(resultArray[1].split(" ")[0])){
@@ -368,8 +420,13 @@ public class PickUpFragment extends Fragment {
     }
     private boolean isUpdatingBooking(){
         // check if it's for updating a booking
+        if(updateBooking){
+            setLocationSet(true);
+            return true;
+        }
         Bundle argBundle = this.getArguments();
         if(argBundle != null && argBundle.get(BookingPagerAdapter.UPDATE_BOOKING) != null){
+            updateBooking=true;
             String locationName = (String)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_PICK_UP_LOCATION_NAME);
             Log.d("PICK_UP_NAME",(String)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_PICK_UP_LOCATION_NAME));
 
@@ -378,6 +435,7 @@ public class PickUpFragment extends Fragment {
             setLocation(latitude,longitude,locationName);
             return true;
         }else{
+            updateBooking = false;
             return false;
         }
     }

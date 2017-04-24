@@ -1,6 +1,8 @@
 package com.taxiapp.group28.taxiapp;
 
+import android.app.AlarmManager;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.location.Address;
@@ -35,6 +37,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
 
+import static android.content.Context.ALARM_SERVICE;
 import static android.content.Context.NOTIFICATION_SERVICE;
 
 
@@ -69,6 +72,7 @@ public class ConfirmBookingFragment extends Fragment {
     public static final String BOOKING_ERROR_MESSAGE = "Booking Error! Please try again later.";
     private boolean updateBooking = false;
     private int bookingId = -1;
+    private static PendingIntent pendingIntent=null;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // check if view set if not set up class
@@ -111,6 +115,7 @@ public class ConfirmBookingFragment extends Fragment {
                            Log.d("RESULT",conn.updateBooking(data).toString());
                         }
                     }
+                    setPickUpAlarm();
                     // set an onclick listener for result
                     conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
                         @Override
@@ -129,8 +134,9 @@ public class ConfirmBookingFragment extends Fragment {
                                         data.put("id",Integer.valueOf(bookingId).toString());
                                     }
                                     addBookingLocal(data);
-                                    Intent bookingIntent = new Intent(getActivity(),ViewBookingsActivity.class);
-                                    getActivity().startActivity(bookingIntent);
+                                    ConfirmBookingFragment.this.getActivity().getSupportFragmentManager().beginTransaction()
+                                            .replace(R.id.content_frame,new ViewBookingsFragment(),String.valueOf(MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION))
+                                            .commit();
                                 }else{
                                     message = BOOKING_ERROR_MESSAGE;
                                 }
@@ -144,7 +150,7 @@ public class ConfirmBookingFragment extends Fragment {
                 }
             });
         }
-        Log.d("FRAGMENT_STATE_CONFIRM","Initialise");
+        //Log.d("FRAGMENT_STATE_CONFIRM","Initialise");
         isUpdatingBooking();
         return view;
     }
@@ -184,21 +190,24 @@ public class ConfirmBookingFragment extends Fragment {
     @Override public void onDestroy(){
         mapView.onDestroy();
         super.onDestroy();
-        Log.d("FRAGMENT_STATE_CONFIRM","Destroy");
+       // Log.d("FRAGMENT_STATE_CONFIRM","Destroy");
     }
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
         mapView.onSaveInstanceState(savedInstanceState);
-        //Bundle bundle = new Bundle();
     }
     private boolean isUpdatingBooking(){
+        if(updateBooking){
+            return true;
+        }
         Bundle argBundle = this.getArguments();
         if(argBundle != null && argBundle.get("updateBooking") != null){
             bookingId = (int)argBundle.get("bookingId");
             updateBooking = true;
             return true;
         }else{
+            updateBooking = false;
             return false;
         }
     }
@@ -226,6 +235,7 @@ public class ConfirmBookingFragment extends Fragment {
                 }
             });
     }
+
     private void setUpMap(){
         // set the points for the map if needed
         if(!isMapNeeded()){
@@ -350,6 +360,16 @@ public class ConfirmBookingFragment extends Fragment {
         priceLabel.setText(_price);
         estTimeLabel.setText(_duration);
         estPickUpTimeLabel.setText(estTime);
+    }
+    private void setPickUpAlarm(){
+        if(pendingIntent == null) {
+            Intent intent = new Intent(this.getActivity(), PickUpTimeReceiver.class);
+            int requestCode = 123456;
+            pendingIntent = PendingIntent.getBroadcast(this.getActivity(), requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            Calendar.getInstance().getTimeInMillis();
+            AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(ALARM_SERVICE);
+            alarmManager.set(AlarmManager.RTC_WAKEUP, pickUpTime.getTimeInMillis(), pendingIntent);
+        }
     }
 
     private void  getRouteInfo(){

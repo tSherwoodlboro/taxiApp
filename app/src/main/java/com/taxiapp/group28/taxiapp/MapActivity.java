@@ -54,7 +54,7 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         confirmButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent addBooking = new Intent(MapActivity.this, BookingActivity.class);
+                Intent addBooking = new Intent(MapActivity.this, AddBookingFragment.class);
                 String locationDetails =getLocationName(currentAddress);
                 int i=0;
                 if(currentAddress != null) {

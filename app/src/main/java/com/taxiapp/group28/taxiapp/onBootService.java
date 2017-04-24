@@ -33,7 +33,7 @@ public class OnBootService extends IntentService {
     }
 
     private void createNotification() {
-        Intent bookingsIntent = new Intent(this,ViewBookingsActivity.class);
+        Intent bookingsIntent = new Intent(this,ViewBookingsFragment.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,0,bookingsIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         NotificationManager mNotifyMgr = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder =

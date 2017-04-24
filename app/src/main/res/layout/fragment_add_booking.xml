@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@mipmap/white"
-    tools:context="com.taxiapp.group28.taxiapp.BookingActivity"
+    tools:context="com.taxiapp.group28.taxiapp.AddBookingFragment"
     android:baselineAligned="false"
     android:orientation="vertical">
 

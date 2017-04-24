@@ -1,30 +1,38 @@
 package com.taxiapp.group28.taxiapp;
+import android.support.v4.app.Fragment;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 
-public class BookingActivity extends AppCompatActivity {
+public class AddBookingFragment extends Fragment {
     private final static int PICK_UP_TAB = 0;
     private final static int DEST_TAB = 1;
     private final static int CONFIRM_TAB = 2;
     private Bundle argsBundle =null;
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_booking);
-        // if booking is being updated
+    private  TabLayout tabLayout=null;
+    private ViewPager viewPager=null ;
+    private BookingPagerAdapter adapter=null;
+    private View view;
 
-        if(getIntent() !=  null){
-            if(getIntent().getExtras() != null){
-                argsBundle= new Bundle(getIntent().getExtras());
-            }
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        if(view!=null){
+            return view;
         }
-        final TabLayout tabLayout = (TabLayout)findViewById(R.id.add_booking_tabLayout); // get tablayout
-        final ViewPager viewPager = (ViewPager)findViewById(R.id.add_booking_pager); // get view pager (holds the fragments)
-        final BookingPagerAdapter adapter = new BookingPagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount(),argsBundle); // adapter for pager
+        view = inflater.inflate(R.layout.fragment_add_booking, container, false);
+        // if booking is being updated
+        if(this.getArguments() !=  null){
+            argsBundle= new Bundle(getArguments());
+        }
+        tabLayout = (TabLayout)view.findViewById(R.id.add_booking_tabLayout); // get tablayout
+        viewPager = (ViewPager)view.findViewById(R.id.add_booking_pager); // get view pager (holds the fragments)
+        adapter = new BookingPagerAdapter(this.getChildFragmentManager(), tabLayout.getTabCount(),argsBundle); // adapter for pager
         viewPager.setAdapter(adapter); // set the adapter
         viewPager.setOffscreenPageLimit(3); // increase memory for tabs to 3 tabs/pages
         // add listeners
@@ -45,7 +53,7 @@ public class BookingActivity extends AppCompatActivity {
                     viewPager.setCurrentItem(tab.getPosition()); // go to selected tab
                 }else{
                     // locations not valid
-                    Toast toast = Toast.makeText(BookingActivity.this,"Locations Not Set Or Invalid.",Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(AddBookingFragment.this.getActivity(),"Locations Not Set Or Invalid.",Toast.LENGTH_SHORT);
                     toast.show();
                     selectDestTab(); // go to dest tab
                 }
@@ -65,6 +73,28 @@ public class BookingActivity extends AppCompatActivity {
                 // do nothing
             }
         });
+        Log.d("ADD_BOOKING_FRAGMENT","created");
+        return view;
+    }
+    @Override
+    public void onStart(){
+        super.onStart();
+        Log.d("ADD_BOOKING","START");
+    }
+    @Override
+    public void onStop(){
+        super.onStop();
+        Log.d("ADD_BOOKING","STOP");
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.d("ADD_BOOKING","RESUME");
+    }
+    @Override
+    public void onPause(){
+        super.onPause();
+        Log.d("ADD_BOOKING","PAUSE");
     }
     public static String[] getResultTextArray(String locationInfo){
         // sort house number, street and postcode information from string in format "housenumber street,postcode,UK"

@@ -289,7 +289,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
     private void loadBookingActivity(){
         // load Booking activity via intent
-        Intent bookingIntent = new Intent(this,ViewBookingsActivity.class);
+        Intent bookingIntent = new Intent(this,MainMenuActivity.class);
         startActivity(bookingIntent);
         this.finish();
     }
