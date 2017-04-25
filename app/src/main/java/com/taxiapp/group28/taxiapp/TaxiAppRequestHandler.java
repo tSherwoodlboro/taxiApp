@@ -73,12 +73,12 @@ public class TaxiAppRequestHandler {
                 return responseBuilder.toString();
             }
         }catch(MalformedURLException e){
-            Log.d("Error",""+e.getMessage());
+            Log.d("Error1",""+e.getMessage());
         }
-        catch(IOException e1){
-            Log.d("Error",""+e1.getMessage());
+        catch(IOException e1) {
+            Log.d("Error2", "" + e1.getMessage());
         }catch(RuntimeException e2){
-            Log.d("Error",""+e2.getMessage());
+           Log.d("Error3",""+e2.getMessage());
         }
         return ERROR;
     }
@@ -98,6 +98,7 @@ public class TaxiAppRequestHandler {
                 params.append("&");
                 params.append(URLEncoder.encode(param.getKey(), "UTF-8"));
                 params.append("=");
+                Log.d("PARAMS","111");
                 params.append(URLEncoder.encode(param.getValue(), "UTF-8"));
             }
             Log.d("PARAMS",params.toString());

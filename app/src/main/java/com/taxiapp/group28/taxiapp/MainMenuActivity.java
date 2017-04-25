@@ -25,9 +25,10 @@ public class MainMenuActivity extends AppCompatActivity {
     public static final int ADD_BOOKING_FRAGMENT_POSITION = 0;
     public static final int VIEW_BOOKINGS_FRAGMENT_POSITION = 1;
     public static final int UPDATE_BOOKINGS_FRAGMENT_POSITION = 3;
-    public static final int ROUTES_FRAGMENT_POSITION = 4;
-    public static final int GUIDE_FRAGMENT_POSITION = 5;
-    public static final int SETTINGS_FRAGMENT_POSITION = 6;
+    public static final int ADD_ROUTES_FRAGMENT_POSITION = 4;
+    public static final int ROUTES_FRAGMENT_POSITION = 5;
+    public static final int GUIDE_FRAGMENT_POSITION = 6;
+    public static final int SETTINGS_FRAGMENT_POSITION = 7;
     private Fragment currentFragment = null;
     private String key;
     @Override
@@ -108,9 +109,6 @@ public class MainMenuActivity extends AppCompatActivity {
     @Override
     public void  onBackPressed(){
         super.onBackPressed();
-        if(getSupportFragmentManager().getFragments().size() <=1 && getSupportFragmentManager().getFragments().contains(null)){
-            this.finish();
-        }
         if(currentFragment == null){
             return;
         }

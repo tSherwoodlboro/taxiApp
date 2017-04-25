@@ -102,6 +102,8 @@ public class DBContract {
         public static final String COLUMN_LAST_NAME= "last_name";
         public static final String COLUMN_CONTACT_NUMBER= "contact_number";
         public static final String COLUMN_LOCATION = "location";
+        public static final String COLUMN_LATITUDE = "latitude";
+        public static final String COLUMN_LONGITUDE = "longitude";
 
         public static Uri buildDriverInformationUriWithID(long ID){
             return ContentUris.withAppendedId(CONTENT_URI,ID);

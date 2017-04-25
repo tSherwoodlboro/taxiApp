@@ -32,6 +32,9 @@ import java.util.HashMap;
  */
 
 public class TaxiAppOnlineDatabase {
+    public static final String TYPE_GET_DRIVERS_INFORMATION = "getDriversInfo";
+    public static final String[] GET_DRIVERS_INFORMATION_PARAMS = {};
+
     public static final String TYPE_GET_DRIVER_INFORMATION = "getDriverInfo";
     public static final String TYPE_POST_UPDATE_DRIVER_LOCATION = "updateDriverLocation";
 
@@ -40,11 +43,13 @@ public class TaxiAppOnlineDatabase {
 
     public static final String TYPE_GET_BOOKINGS = "getBooking";
     public static final String TYPE_POST_ADD_BOOKING = "addBooking";
+    public static final String TYPE_POST_UPDATE_BOOKING_COMPLETE = "editBookingComplete";
     public static final String TYPE_POST_UPDATE_BOOKING = "editBooking";
     public static final String TYPE_POST_DELETE_BOOKING = "deleteBooking";
 
     public static final String[] ADD_BOOKING_PARAMS = {"user_id","assigned_driver_id","note","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","price","est_arrival_time","est_dest_time","confirmed_arrival_time","confirmed_dest_time","booking_complete"};
     public static final String[] UPDATE_BOOKING_PARAMS =  {"id","user_id","note","assigned_driver_id","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","price","est_arrival_time","est_dest_time","confirmed_arrival_time","confirmed_dest_time","booking_complete"};
+    public static final String[] UPDATE_BOOKINGS_COMPLETE_PARAMS = {"id"};
     public static final String[] DELETE_BOOKING_PARAMS = {"id"};
     public static final String[] GET_BOOKINGS_PARAMS = {"user_id"};
 
@@ -53,8 +58,8 @@ public class TaxiAppOnlineDatabase {
     public static final String TYPE_POST_UPDATE_ROUTE = "editRoute";
     public static final String TYPE_POST_DELETE_ROUTE= "deleteRoute";
 
-    public static final String[] ADD_ROUTE_PARAMS = {"user_id","assigned_driver_id","note","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","name"};
-    public static final String[] UPDATE_ROUTE_PARAMS = {"id","times_used","user_id","note","assigned_driver_id","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","name"};
+    public static final String[] ADD_ROUTE_PARAMS = {"user_id","note","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","name"};
+    public static final String[] UPDATE_ROUTE_PARAMS = {"id","times_used","user_id","note","pick_up_name","pick_up_latitude","pick_up_longitude","dest_name","dest_latitude","dest_longitude","name"};
     public static final String[] DELETE_ROUTE_PARAMS = {"id"};
     public static final String[] GET_ROUTE_PARAMS = {"user_id"};
 
@@ -116,6 +121,14 @@ public class TaxiAppOnlineDatabase {
         return result;
     }
 
+    public JSONArray getDriversInformation(HashMap<String,String> dataParams){
+        if(isValidParams(dataParams,GET_DRIVERS_INFORMATION_PARAMS)) {
+            requestData("GET",TYPE_GET_DRIVERS_INFORMATION, dataParams);
+        }else{
+            return PARAMS_INVALID;
+        }
+        return PARAMS_VALID;
+    }
     public JSONArray getDriverInformation(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,GET_DRIVER_INFORMATION_PARAMS)) {
              requestData("GET",TYPE_GET_DRIVER_INFORMATION, dataParams);
@@ -135,6 +148,14 @@ public class TaxiAppOnlineDatabase {
     public JSONArray addBooking(HashMap<String,String> dataParams){
         if(isValidParams(dataParams,ADD_BOOKING_PARAMS)) {
              requestData("POST",TYPE_POST_ADD_BOOKING, dataParams);
+        }else{
+            return PARAMS_INVALID;
+        }
+        return PARAMS_VALID;
+    }
+    public JSONArray updateBookingComplete(HashMap<String,String> dataParams){
+        if(isValidParams(dataParams,UPDATE_BOOKINGS_COMPLETE_PARAMS)) {
+            requestData("POST",TYPE_POST_UPDATE_BOOKING_COMPLETE, dataParams);
         }else{
             return PARAMS_INVALID;
         }

@@ -39,4 +39,6 @@
     <string name="open_drawer">Open Drawer</string>
     <string name="close_drawer">Close Drawer</string>
     <string name="add_route">Add Route</string>
+    <string name="route_name">Route Name</string>
+    <string name="route_assigned_driver_text">Assigned Driver</string>
 </resources>

@@ -22,6 +22,7 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
     public static final String UPDATE_BOOKING_DEST_LOCATION_NAME = "destLocationName";
     public static final String UPDATE_BOOKING_DEST_LATITUDE = "pickUpLatitude";
     public static final String UPDATE_BOOKING_DEST_LONGITUDE = "pickUpLongitude";
+    public static final String UPDATE_BOOKING_NOTE = "pickUpNote";
     public static final String UPDATE_BOOKING_ID = "bookingId";
     int mNumOfTabs;
     PickUpFragment pickUpTab = null;
@@ -42,12 +43,9 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
         destTab.setAddress();
         pickUpTab.setAddress();
         if(destTab.getAddress() != null && pickUpTab.getAddress() != null) {
-            confirmTab.setDestAddress(destTab.getAddress());
-            confirmTab.setPickUpAddress(pickUpTab.getAddress());
-            confirmTab.setPickUpTime(pickUpTab.getPickUpTime());
-            confirmTab.setPickUpName(pickUpTab.getLocation());
-            confirmTab.setDestName(destTab.getLocation());
-            confirmTab.setPickUpNote(pickUpTab.getNoteText());
+            // create a new booking and pass to the confirmTab
+            Booking booking = new Booking(confirmTab.getActivity(),pickUpTab.getLocation(),destTab.getLocation(),pickUpTab.getAddress(),destTab.getAddress(),pickUpTab.getNoteText(),pickUpTab.getPickUpTime());
+            confirmTab.setBooking(booking);
         }
 
     }

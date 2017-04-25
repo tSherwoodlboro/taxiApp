@@ -432,7 +432,9 @@ public class PickUpFragment extends Fragment {
 
             Double latitude = (Double)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_PICK_UP_LATITUDE);
             Double longitude = (Double)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_PICK_UP_LONGITUDE);
+            setNoteText((String)argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_NOTE));
             setLocation(latitude,longitude,locationName);
+
             return true;
         }else{
             updateBooking = false;

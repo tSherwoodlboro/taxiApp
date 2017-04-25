@@ -122,27 +122,29 @@ public class DBContentProvider extends ContentProvider {
     @Override
     public int delete(Uri uri, String selection, String[] selectionArgs) {
         Log.d("URI DATA",uri.toString());
+        int returnVal;
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         switch (uriMatcher.match(uri)) {
-            case USER:
-                return db.delete(DBContract.User_Table.TABLE_NAME, null, null);
-            case USER_WITH_ID:
-                return db.delete(DBContract.User_Table.TABLE_NAME, selection, selectionArgs);
-            case BOOKING:
-                return db.delete(DBContract.Booking_Table.TABLE_NAME, null, null);
-            case BOOKING_WITH_ID:
-                return db.delete(DBContract.Booking_Table.TABLE_NAME, selection, selectionArgs);
-            case ROUTE:
-                return db.delete(DBContract.Route_Table.TABLE_NAME, null, null);
-            case ROUTE_WITH_ID:
-                return db.delete(DBContract.Route_Table.TABLE_NAME, selection, selectionArgs);
-            case DRIVER_INFORMATION:
-                return db.delete(DBContract.Driver_Information_Table.TABLE_NAME, null, null);
-            case DRIVER_INFORMATION_WITH_ID:
-                return db.delete(DBContract.Driver_Information_Table.TABLE_NAME, selection, selectionArgs);
+            case USER: returnVal = db.delete(DBContract.User_Table.TABLE_NAME, null, null);
+                break;
+            case USER_WITH_ID:returnVal =  db.delete(DBContract.User_Table.TABLE_NAME, selection, selectionArgs);
+                break;
+            case BOOKING:returnVal =  db.delete(DBContract.Booking_Table.TABLE_NAME, null, null);
+                break;
+            case BOOKING_WITH_ID:returnVal =  db.delete(DBContract.Booking_Table.TABLE_NAME, selection, selectionArgs);
+                break;
+            case ROUTE:returnVal =  db.delete(DBContract.Route_Table.TABLE_NAME, null, null);
+                break;
+            case ROUTE_WITH_ID:returnVal =  db.delete(DBContract.Route_Table.TABLE_NAME, selection, selectionArgs);
+                break;
+            case DRIVER_INFORMATION:returnVal =  db.delete(DBContract.Driver_Information_Table.TABLE_NAME, null, null);
+                break;
+            case DRIVER_INFORMATION_WITH_ID:returnVal =  db.delete(DBContract.Driver_Information_Table.TABLE_NAME, selection, selectionArgs);
+                break;
             default:
                 throw new UnsupportedOperationException("URI Not found.");
         }
+        return returnVal;
 
     }
     @Override
@@ -178,24 +180,26 @@ public class DBContentProvider extends ContentProvider {
             default:
                 throw new UnsupportedOperationException("URI Not found.");
         }
-
         return cursor;
     }
     @Override
     public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
         Log.d("URI DATA",uri.toString());
         SQLiteDatabase db = dbHelper.getWritableDatabase();
+        int returnVal;
         switch (uriMatcher.match(uri)) {
-            case USER_WITH_ID:
-                return db.update(DBContract.User_Table.TABLE_NAME, values, selection, selectionArgs);
-            case BOOKING_WITH_ID:
-                return db.update(DBContract.Booking_Table.TABLE_NAME, values, selection, selectionArgs);
-            case ROUTE_WITH_ID:
-                return db.update(DBContract.Route_Table.TABLE_NAME, values, selection, selectionArgs);
-            case DRIVER_INFORMATION_WITH_ID:
-                return db.update(DBContract.Driver_Information_Table.TABLE_NAME, values, selection, selectionArgs);
+            case USER_WITH_ID:returnVal= db.update(DBContract.User_Table.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case BOOKING_WITH_ID:returnVal= db.update(DBContract.Booking_Table.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case ROUTE_WITH_ID: returnVal= db.update(DBContract.Route_Table.TABLE_NAME, values, selection, selectionArgs);
+                break;
+            case DRIVER_INFORMATION_WITH_ID: returnVal= db.update(DBContract.Driver_Information_Table.TABLE_NAME, values, selection, selectionArgs);
+                break;
             default:
                 throw new UnsupportedOperationException("URI Not found.");
         }
+        return returnVal;
     }
+
 }
