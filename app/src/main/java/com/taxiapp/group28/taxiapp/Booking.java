@@ -195,6 +195,7 @@ public class Booking {
         }
         contentValues = new ContentValues();
         contentValues.put(DBContract.Booking_Table._ID,id);
+        contentValues.put(DBContract.Booking_Table.COLUMN_DATE,date);
         contentValues.put(DBContract.Booking_Table.COLUMN_USER_ID,userId);
         contentValues.put(DBContract.Booking_Table.COLUMN_ASSIGNED_DRIVER_ID,Integer.valueOf(assignedDriverId).toString());
         contentValues.put(DBContract.Booking_Table.COLUMN_PICK_UP_NAME,pickUpName);
@@ -220,6 +221,7 @@ public class Booking {
     }
     private void setEstDestTime(){
         String[] durationInfo = duration.split(" ");
+        Log.d("DURATION",duration+" "+estArrivalTimeCalendar.get(Calendar.HOUR));
         int addHour = 0;
         int addMin;
         if(durationInfo.length >2) {
@@ -230,11 +232,16 @@ public class Booking {
         }
         // create a new calendar instance and set the new properties
         estDestTimeCalendar =  Calendar.getInstance();
-        estDestTimeCalendar.set(Calendar.SECOND,estArrivalTimeCalendar.get(Calendar.SECOND));
         estDestTimeCalendar.set(Calendar.HOUR,estArrivalTimeCalendar.get(Calendar.HOUR)+addHour);
         estDestTimeCalendar.set(Calendar.MINUTE,estArrivalTimeCalendar.get(Calendar.MINUTE)+addMin);
-        estDestTime = getTimestamp(estDestTimeCalendar);
+        estDestTimeCalendar.set(Calendar.SECOND,estArrivalTimeCalendar.get(Calendar.SECOND));
+        // if day change
+        if(estDestTimeCalendar.getTimeInMillis()< estArrivalTimeCalendar.getTimeInMillis()){
+            estDestTimeCalendar.set(Calendar.DAY_OF_MONTH,estDestTimeCalendar.get(Calendar.DAY_OF_MONTH)+1);
+            estDestTimeCalendar.set(Calendar.DAY_OF_MONTH,estDestTimeCalendar.get(Calendar.HOUR)-12);
+        }
 
+        estDestTime = getTimestamp(estDestTimeCalendar);
     }
     public void setAssignedDriverId(int val){assignedDriverId= val;}
     public void setDate(String val){this.date = val;}

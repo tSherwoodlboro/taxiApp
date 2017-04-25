@@ -228,7 +228,7 @@ public  class ViewBookingsFragment extends Fragment {
             TextView destTextView = (TextView)vi.findViewById(R.id.row_booking_dest_name);
             destTextView.setText("Dest Point: "+data.get(position).getDestName());
             TextView priceTextView = (TextView)vi.findViewById(R.id.row_booking_price);
-            priceTextView.setText("Price: "+data.get(position).getPrice());
+            priceTextView.setText("Price: £"+data.get(position).getPrice());
 
             return vi;
         }
@@ -273,7 +273,7 @@ public  class ViewBookingsFragment extends Fragment {
             TextView destTextView = (TextView)vi.findViewById(R.id.row_booking_dest_name_previous);
             destTextView.setText("Dest Point: "+data.get(position).getDestName());
             TextView priceTextView = (TextView)vi.findViewById(R.id.row_booking_price_previous);
-            priceTextView.setText("Price: "+data.get(position).getPrice());
+            priceTextView.setText("Price: £"+data.get(position).getPrice());
             Button addRouteBtn = (Button)vi.findViewById(R.id.add_route_button);
             addRouteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
