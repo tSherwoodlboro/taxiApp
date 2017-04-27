@@ -1,9 +1,7 @@
 package com.taxiapp.group28.taxiapp;
 
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
+import android.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,10 +51,10 @@ public class AddRouteFragment extends Fragment {
                                     route.setContentValues();
                                     message = "Added Route";
                                     AddRouteFragment.this.getActivity().getContentResolver().insert(DBContract.Route_Table.CONTENT_URI,route.getContentValues());
-                                    AddRouteFragment.this.getActivity().getSupportFragmentManager().popBackStack();
+                                    AddRouteFragment.this.getActivity().getFragmentManager().popBackStack();
                                 }
                             }
-                            Toast toast = Toast.makeText(AddRouteFragment.this.getContext(),message,Toast.LENGTH_SHORT);
+                            Toast toast = Toast.makeText(AddRouteFragment.this.getActivity(),message,Toast.LENGTH_SHORT);
                             toast.show();
                         }
                     });
@@ -68,22 +66,22 @@ public class AddRouteFragment extends Fragment {
     @Override
     public void onStart(){
         super.onStart();
-        Log.d("ADD_BOOKING","START");
+        Log.d("ADD_ROUTE","START");
     }
     @Override
     public void onStop(){
         super.onStop();
-        Log.d("ADD_BOOKING","STOP");
+        Log.d("ADD_ROUTE","STOP");
     }
     @Override
     public void onResume(){
         super.onResume();
-        Log.d("ADD_BOOKING","RESUME");
+        Log.d("ADD_ROUTE","RESUME");
     }
     @Override
     public void onPause(){
         super.onPause();
-        Log.d("ADD_BOOKING","PAUSE");
+        Log.d("ADD_ROUTE","PAUSE");
     }
     public void setRoute(Route route){
         if(route== null){

@@ -30,7 +30,7 @@ public class DriverInfo{
     }
     public void addToLocalDatabase(){
         if(contentValues != null){
-            context.getContentResolver().insert(DBContract.Driver_Information_Table.CONTENT_URI,contentValues);
+            //context.getContentResolver().insert(DBContract.Driver_Information_Table.CONTENT_URI,contentValues);
         }
     }
     private void setContentValues(){

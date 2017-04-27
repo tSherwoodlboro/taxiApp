@@ -2,6 +2,7 @@ package com.taxiapp.group28.taxiapp;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.os.Bundle;
 
 import java.util.HashMap;
 
@@ -96,6 +97,22 @@ public class Route {
     }
     public void setName(String val){
         name = val;
+    }
+    public Bundle getRouteBundle(){
+        Bundle bundle = new Bundle();
+        bundle.putString(DBContract.Route_Table._ID,String.valueOf(id));
+        bundle.putString(DBContract.Route_Table.COLUMN_USER_ID,userId);
+        bundle.putString(DBContract.Route_Table.COLUMN_NAME,name);
+        bundle.putString(DBContract.Route_Table.COLUMN_PICK_UP_NAME,pickUpName);
+        bundle.putString(DBContract.Route_Table.COLUMN_PICK_UP_LATITUDE,String.valueOf(pickUpLatitude));
+        bundle.putString(DBContract.Route_Table.COLUMN_PICK_UP_LONGITUDE,String.valueOf(pickUpLongitude));
+        bundle.putString(DBContract.Route_Table.COLUMN_DEST_NAME,destName);
+        bundle.putString(DBContract.Route_Table.COLUMN_DEST_LATITUDE,String.valueOf(destLatitude));
+        bundle.putString(DBContract.Route_Table.COLUMN_DEST_LONGITUDE,String.valueOf(destLongitude));
+        bundle.putString(DBContract.Route_Table.COLUMN_TIMES_USED,String.valueOf(timesUsed));
+        bundle.putString(DBContract.Route_Table.COLUMN_NOTE,note);
+        bundle.putString(BookingPagerAdapter.USING_ROUTE,BookingPagerAdapter.USING_ROUTE);
+        return bundle;
     }
     public int getId(){return id;}
     public String getName(){return name;}

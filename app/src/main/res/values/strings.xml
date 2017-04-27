@@ -20,10 +20,12 @@
     <string name="edit_verification_code">Enter code</string>
 
     <string name="user_tel_no_pref_key">null</string>
-    <string name="user_name_pref_key">null</string>
-    <string name="user_email_pref_key">null</string>
+    <string name="user_name_pref_key">User</string>
+    <string name="user_email_pref_key">user@user.com</string>
     <string name="user_preferred_user_id_pref_key">null</string>
-    <string name="user_preferred_driver_id_pref_key">null</string>
+    <string name="user_preferred_driver_id_pref_key">1</string>
+
+
     <string name="title_activity_main_menu">MainMenuActivity</string>
 
     <string name="title_section1">Section 1</string>
@@ -41,4 +43,10 @@
     <string name="add_route">Add Route</string>
     <string name="route_name">Route Name</string>
     <string name="route_assigned_driver_text">Assigned Driver</string>
+    <string name="items_empty_text">No Results Found</string>
+    <string name="pref_user_name_title">Username</string>
+    <string name="pref_email_title">Email</string>
+    <string name="pref_tel_no_title">Tel No</string>
+    <string name="pref_theme_title">Theme</string>
+    <string name="driver_title">Preferred Driver</string>
 </resources>

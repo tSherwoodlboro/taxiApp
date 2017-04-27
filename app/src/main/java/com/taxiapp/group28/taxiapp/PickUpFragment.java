@@ -1,6 +1,6 @@
 package com.taxiapp.group28.taxiapp;
 
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -138,7 +138,10 @@ public class PickUpFragment extends Fragment {
                 toast.cancel();
             }
         });
-        isUpdatingBooking();
+        if(!isUsingRoute()) {
+            isUpdatingBooking();
+        }
+
         return view;
     }
     @Override
@@ -417,6 +420,19 @@ public class PickUpFragment extends Fragment {
     }
     public boolean isLocationAccess(){
         return locationAccess;
+    }
+    private boolean isUsingRoute(){
+        Bundle argBundle = this.getArguments();
+        if(argBundle != null && argBundle.get(BookingPagerAdapter.USING_ROUTE) != null){
+            String locationName = (String)argBundle.get(DBContract.Booking_Table.COLUMN_PICK_UP_NAME);
+            Double latitude = (Double)argBundle.get(DBContract.Booking_Table.COLUMN_PICK_UP_LATITUDE);
+            Double longitude = (Double)argBundle.get(DBContract.Booking_Table.COLUMN_PICK_UP_LONGITUDE);
+            setNoteText((String)argBundle.get(DBContract.Booking_Table.COLUMN_NOTE));
+            setLocation(latitude,longitude,locationName);
+            return true;
+        }else{
+            return false;
+        }
     }
     private boolean isUpdatingBooking(){
         // check if it's for updating a booking

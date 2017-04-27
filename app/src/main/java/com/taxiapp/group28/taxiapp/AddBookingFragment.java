@@ -1,5 +1,6 @@
 package com.taxiapp.group28.taxiapp;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
+import android.os.Build;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
@@ -32,7 +33,12 @@ public class AddBookingFragment extends Fragment {
         }
         tabLayout = (TabLayout)view.findViewById(R.id.add_booking_tabLayout); // get tablayout
         viewPager = (ViewPager)view.findViewById(R.id.add_booking_pager); // get view pager (holds the fragments)
-        adapter = new BookingPagerAdapter(this.getChildFragmentManager(), tabLayout.getTabCount(),argsBundle); // adapter for pager
+        if(Build.VERSION.SDK_INT>=17) {
+            adapter = new BookingPagerAdapter(this.getChildFragmentManager(), tabLayout.getTabCount(), argsBundle); // adapter for pager
+        }else{
+            // needs changing to support API level < 17 currently doesn't work correctly
+            adapter = new BookingPagerAdapter(this.getFragmentManager(), tabLayout.getTabCount(), argsBundle); // adapter for pager
+        }
         viewPager.setAdapter(adapter); // set the adapter
         viewPager.setOffscreenPageLimit(3); // increase memory for tabs to 3 tabs/pages
         // add listeners

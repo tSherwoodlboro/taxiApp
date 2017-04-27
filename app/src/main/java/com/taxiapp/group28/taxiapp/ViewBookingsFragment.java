@@ -1,22 +1,25 @@
 package com.taxiapp.group28.taxiapp;
 
 import android.content.ContentValues;
-import android.support.v4.app.LoaderManager;
+import android.app.LoaderManager;
 import android.content.Context;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
+import android.content.CursorLoader;
+import android.content.Loader;
 import android.database.Cursor;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 
 
@@ -25,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
+import java.util.TimeZone;
 
 public  class ViewBookingsFragment extends Fragment {
     private String[] args = new String[1];
@@ -78,6 +82,34 @@ public  class ViewBookingsFragment extends Fragment {
         super.onSaveInstanceState(saveInstanceState);
         saveInstanceState.putBoolean("checkedBookings",checkedBookings);
     }
+    private void updateBooking(Booking selectedBooking){
+        AddBookingFragment addBookingFragment = new AddBookingFragment();
+        addBookingFragment.setArguments(selectedBooking.getUpdateBookingBundle());
+        MainMenuActivity mainMenuActivity = (MainMenuActivity)ViewBookingsFragment.this.getActivity();
+        mainMenuActivity.loadFragment(addBookingFragment,MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true);
+    }
+    private void removeBooking(Booking selectedBooking,final int position){
+        final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase();
+        HashMap<String,String> params = new HashMap<>();
+        params.put("id",String.valueOf(selectedBooking.getId()));
+        final String[] args = {params.get("id")};
+        conn.deleteBooking(params);
+        conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
+            @Override
+            public void onGetResult() {
+                if (conn.getResultMessage().equals(Integer.valueOf(TaxiAppOnlineDatabase.SUCCESS).toString())) {
+                    ViewBookingsFragment.this.getActivity().getContentResolver().delete(DBContract.Booking_Table.CONTENT_URI,DBContract.Route_Table._ID+" = ?",args);
+                    ListView listView = (ListView)view.findViewById(R.id.live_bookings_listview);
+                    ViewBookingsFragment.BookingAdapterCurrent  currentBookingAdapter = (ViewBookingsFragment.BookingAdapterCurrent)listView.getAdapter();
+                    currentBookingAdapter.getData().remove(position);
+                    currentBookingAdapter.notifyDataSetChanged();
+                }else{
+                    Log.d("ERROR", "An error occurred");
+                }
+            }
+        });
+
+    }
     private void loadBookings(){
         if(view == null){
             return;
@@ -88,40 +120,29 @@ public  class ViewBookingsFragment extends Fragment {
             args[0] = SharedPreferencesManager.getUserPreferences(ViewBookingsFragment.this.getActivity()).getString(getString(R.string.user_preferred_user_id_pref_key), null); // users id
         }
         // start loader if not started otherwise restart loader
-        if(this.getActivity().getSupportLoaderManager().getLoader(0) == null) {
-            this.getActivity().getSupportLoaderManager().initLoader(0, null, liveBookingLoader);
-            this.getActivity().getSupportLoaderManager().initLoader(1, null, previousBookingLoader);
+        if(this.getActivity().getLoaderManager().getLoader(0) == null) {
+            this.getActivity().getLoaderManager().initLoader(0, null, liveBookingLoader);
+            this.getActivity().getLoaderManager().initLoader(1, null, previousBookingLoader);
         }else{
-            this.getActivity().getSupportLoaderManager().restartLoader(0, null, liveBookingLoader);
-            this.getActivity().getSupportLoaderManager().restartLoader(1, null, previousBookingLoader);
+            this.getActivity().getLoaderManager().restartLoader(0, null, liveBookingLoader);
+            this.getActivity().getLoaderManager().restartLoader(1, null, previousBookingLoader);
         }
     }
     private class LiveBookingLoader implements LoaderManager.LoaderCallbacks<Cursor>{
         @Override
         public Loader<Cursor> onCreateLoader(int id,Bundle bundle){
             Log.d("CURSOR","created");
-            return new CursorLoader(ViewBookingsFragment.this.getActivity(),DBContract.Booking_Table.CONTENT_URI,null,DBContract.Booking_Table.COLUMN_USER_ID+"= ? AND "+DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE+"= -1",args,null);
+            return new CursorLoader(ViewBookingsFragment.this.getActivity(),DBContract.Booking_Table.CONTENT_URI,null,DBContract.Booking_Table.COLUMN_USER_ID+"= ? AND "+DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE+"= -1",args,"_id DESC");
         }
         public void onLoadFinished(Loader<Cursor> loader, Cursor data){
             Log.d("CURSOR","finished");
-            BookingAdapterCurrent bookingAdapter = new BookingAdapterCurrent(ViewBookingsFragment.this.getActivity(),addBookings(data,0));
-            ListView bookingsListView = (ListView)view.findViewById(R.id.live_bookings_listview);
-            bookingsListView.setAdapter(bookingAdapter);
-            // on click listener to update booking for current booking
-            bookingsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    Booking selectedBooking = (Booking) parent.getAdapter().getItem(position);
-                    AddBookingFragment addBookingFragment = new AddBookingFragment();
-                    addBookingFragment.setArguments(selectedBooking.getUpdateBookingBundle());
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    String key = Integer.toString(MainMenuActivity.UPDATE_BOOKINGS_FRAGMENT_POSITION);
-                    fragmentManager.beginTransaction()
-                            .replace(R.id.content_frame,addBookingFragment,key)
-                            .addToBackStack(key)
-                            .commit();
-                }
-            });
+            ListView bookingsListView = (ListView) view.findViewById(R.id.live_bookings_listview);
+            if(data.getCount()>0){
+                BookingAdapterCurrent bookingAdapter = new BookingAdapterCurrent(ViewBookingsFragment.this.getActivity(), addBookings(data, 0));
+                bookingsListView.setAdapter(bookingAdapter);
+            }else{
+                bookingsListView.setAdapter(MainMenuActivity.getNoResultAdapter(ViewBookingsFragment.this.getActivity()));
+            }
         }
         public void onLoaderReset(Loader<Cursor> loader){
 
@@ -135,14 +156,17 @@ public  class ViewBookingsFragment extends Fragment {
             if(args[0] == null){
                 return null;
             }
-            return new CursorLoader(ViewBookingsFragment.this.getActivity(),DBContract.Booking_Table.CONTENT_URI,null,DBContract.Booking_Table.COLUMN_USER_ID+"= ? AND "+DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE+"= 1",args,null);
-
+            return new CursorLoader(ViewBookingsFragment.this.getActivity(),DBContract.Booking_Table.CONTENT_URI,null,DBContract.Booking_Table.COLUMN_USER_ID+"= ? AND "+DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE+"= 1",args,"_id DESC");
         }
         public void onLoadFinished(Loader<Cursor> loader, Cursor data){
             Log.d("CURSOR","finished");
-            BookingAdapterPrevious bookingAdapter = new BookingAdapterPrevious(ViewBookingsFragment.this.getActivity(),addBookings(data,1));
             ListView bookingsListView = (ListView)view.findViewById(R.id.previous_bookings_listview);
-            bookingsListView.setAdapter(bookingAdapter);
+            if(data.getCount() >0){
+                BookingAdapterPrevious bookingAdapter = new BookingAdapterPrevious(ViewBookingsFragment.this.getActivity(),addBookings(data,1));
+                bookingsListView.setAdapter(bookingAdapter);
+            }else{
+                bookingsListView.setAdapter(MainMenuActivity.getNoResultAdapter(ViewBookingsFragment.this.getActivity()));
+            }
         }
         public void onLoaderReset(Loader<Cursor> loader){
 
@@ -171,9 +195,11 @@ public  class ViewBookingsFragment extends Fragment {
                 currentBooking.setEstArrivalTime(data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_EST_ARRIVAL_TIME)));
                 currentBooking.setEstDestTime(data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_EST_DEST_TIME)));
                 try {
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss", Locale.UK);
-                    simpleDateFormat.parse(currentBooking.getEstDestTime());
-                    if (simpleDateFormat.getCalendar().getTimeInMillis() < Calendar.getInstance().getTimeInMillis()) {
+                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Booking.TIME_STAMP_FORMAT, Locale.UK);
+                    Calendar estDestTime = Calendar.getInstance();
+                    estDestTime.setTime(simpleDateFormat.parse(currentBooking.getEstDestTime()));
+
+                    if (estDestTime.getTimeInMillis() < Calendar.getInstance().getTimeInMillis()) {
                         currentBooking.setBookingComplete();
                         previousBooking = true;
                     }
@@ -198,6 +224,7 @@ public  class ViewBookingsFragment extends Fragment {
             data = _data;
             inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
+        public ArrayList<Booking> getData(){return data;}
         @Override
         public int getCount(){
             return data.size();
@@ -205,7 +232,6 @@ public  class ViewBookingsFragment extends Fragment {
         @Override
         public Object getItem(int position) {
             // TODO Auto-generated method stub
-
             return data.get(position);
         }
 
@@ -229,6 +255,32 @@ public  class ViewBookingsFragment extends Fragment {
             destTextView.setText("Dest Point: "+data.get(position).getDestName());
             TextView priceTextView = (TextView)vi.findViewById(R.id.row_booking_price);
             priceTextView.setText("Price: £"+data.get(position).getPrice());
+            ImageButton optionsButton = (ImageButton)vi.findViewById(R.id.option_booking_button);
+            optionsButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    PopupMenu popupMenu = new PopupMenu(ViewBookingsFragment.this.getActivity(),v);
+                    MenuInflater menuInflater = popupMenu.getMenuInflater();
+                    popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(android.view.MenuItem item) {
+                            switch(item.getItemId()){
+                                case R.id.option_booking_update:
+                                    updateBooking(data.get(position));
+                                    return true;
+                                case R.id.option_booking_cancel:
+                                    removeBooking(data.get(position),position);
+                                    return true;
+                                default:
+                                    return false;
+                            }
+                        }
+                    });
+                    menuInflater.inflate(R.menu.menu_current_booking_options,popupMenu.getMenu());
+                    popupMenu.show();
+                }
+
+            });
 
             return vi;
         }
@@ -243,6 +295,7 @@ public  class ViewBookingsFragment extends Fragment {
             data = _data;
             inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
+        public ArrayList<Booking> getData(){return data;}
         @Override
         public int getCount(){
             return data.size();
@@ -285,12 +338,8 @@ public  class ViewBookingsFragment extends Fragment {
 
                     AddRouteFragment addRouteFragment = new AddRouteFragment();
                     addRouteFragment.setRoute(newRoute);
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    String key = Integer.toString(MainMenuActivity.ADD_ROUTES_FRAGMENT_POSITION);
-                    fragmentManager.beginTransaction()
-                            .replace(R.id.content_frame,addRouteFragment,key)
-                            .addToBackStack(key)
-                            .commit();
+                    MainMenuActivity mainMenuActivity = (MainMenuActivity)ViewBookingsFragment.this.getActivity();
+                    mainMenuActivity.loadFragment(addRouteFragment,MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true);
                 }
             });
             return vi;

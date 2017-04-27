@@ -8,7 +8,7 @@ import android.content.Intent;
 import android.location.Address;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -113,9 +113,8 @@ public class ConfirmBookingFragment extends Fragment {
                                         message = BOOKING_UPDATED_MESSAGE;
                                     }
                                     addBookingLocal();
-                                    ConfirmBookingFragment.this.getActivity().getSupportFragmentManager().beginTransaction()
-                                            .replace(R.id.content_frame, new ViewBookingsFragment(), String.valueOf(MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION))
-                                            .commit();
+                                    MainMenuActivity mainMenuActivity = (MainMenuActivity)ConfirmBookingFragment.this.getActivity();
+                                    mainMenuActivity.loadFragment(new ViewBookingsFragment(),MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true);
                                 } else {
                                     message = BOOKING_ERROR_MESSAGE;
                                 }
@@ -182,7 +181,9 @@ public class ConfirmBookingFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        mapView.onSaveInstanceState(savedInstanceState);
+        if(mapView != null){
+            mapView.onSaveInstanceState(savedInstanceState);
+        }
     }
 
     private boolean isUpdatingBooking() {

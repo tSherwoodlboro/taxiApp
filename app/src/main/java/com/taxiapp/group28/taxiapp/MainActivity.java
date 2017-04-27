@@ -35,18 +35,18 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         if (id == R.id.menu_routes) {
-            Intent routesIntent = new Intent(this,RoutesActivity.class);
-            this.startActivity(routesIntent);
+           // Intent routesIntent = new Intent(this,RoutesActivity.class);
+            //this.startActivity(routesIntent);
             return true;
         }
         if (id == R.id.menu_settings) {
-            Intent settingsIntent = new Intent(this,SettingsActivity.class);
-            this.startActivity(settingsIntent);
+            //Intent settingsIntent = new Intent(this,SettingsActivity.class);
+            //this.startActivity(settingsIntent);
             return true;
         }
         if (id == R.id.menu_guide) {
-            Intent guideIntent = new Intent(this,GuideActivity.class);
-            this.startActivity(guideIntent);
+            //Intent guideIntent = new Intent(this,GuideActivity.class);
+           // this.startActivity(guideIntent);
             return true;
         }
         return super.onOptionsItemSelected(item);

@@ -25,6 +25,7 @@ import java.util.Locale;
 public class Booking {
     private static final Double FAIR_PRICE = 5.0;
     private static final Double PRICE_PER_MILE=1.2;
+    public static final String TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private String date = null;
     private String pickUpName = null;
     private String destName = null;
@@ -63,6 +64,7 @@ public class Booking {
         // Constructor always called to get user id.
         this.context = context;
         userId = SharedPreferencesManager.getUserPreferences(this.context).getString(context.getString(R.string.user_preferred_user_id_pref_key),"null");
+        assignedDriverId =  Integer.valueOf(SharedPreferencesManager.getUserPreferences(this.context).getString(context.getString(R.string.user_preferred_driver_id_pref_key),"null"));
     }
     public Booking(Context context, String date, String pickUpName, String destName, Double pickUpLatitude, Double pickUpLongitude, Double destLatitude, Double destLongitude,String price, int id){
         this(context);
@@ -95,76 +97,26 @@ public class Booking {
         setNote(note);
         getRouteInfo();
     }
-    public Booking(Context context,int assignedDriverId, String pickUpName,String destName,Double pickUpLatitude, Double pickUpLongitude, Double destLatitude, Double destLongitude,String price,Calendar estArrivalTimeCalendar, Calendar estDestTimeCalendar,
-                   String confirmedArrivalTime, String confirmedDestTime, int bookingComplete, String note){
-        this(context);
-        // constructor for whole object excluding id
-        this.pickUpName = pickUpName;
-        this.pickUpLatitude = pickUpLatitude;
-        this.pickUpLongitude = pickUpLongitude;
-        this.destName = destName;
-        this.destLatitude = destLatitude;
-        this.destLongitude = destLongitude;
-        this.price = price;
-        this.estArrivalTime = getTimestamp(estArrivalTimeCalendar);
-        this.estArrivalTimeCalendar = estArrivalTimeCalendar;
-        this.estDestTimeCalendar = estDestTimeCalendar;
-        this.estDestTime = getTimestamp(estDestTimeCalendar);
-        this.confirmedArrivalTime = confirmedArrivalTime;
-        this.confirmedDestTime = confirmedDestTime;
-        this.bookingComplete = bookingComplete;
-        this.note = note;
-        setNote(note);
-        this.assignedDriverId = assignedDriverId;
 
-    }
-    public Booking(Context context,int assignedDriverId,String date,String pickUpName,String destName,Double pickUpLatitude, Double pickUpLongitude, Double destLatitude, Double destLongitude,String price, int id,String estArrivalTime, String estDestTime,
-                   String confirmedArrivalTime, String confirmedDestTime, int bookingComplete, String note){
-        this(context);
-        // constructor for full booking object no real reason to implement
-        this.date = date;
-        this.pickUpName = pickUpName;
-        this.pickUpLatitude = pickUpLatitude;
-        this.pickUpLongitude = pickUpLongitude;
-        this.destName = destName;
-        this.destLatitude = destLatitude;
-        this.destLongitude = destLongitude;
-        this.price = price;
-        this.id=id;
-        this.estArrivalTime = estArrivalTime;
-        this.estDestTime = estDestTime;
-        this.confirmedArrivalTime = confirmedArrivalTime;
-        this.confirmedDestTime = confirmedDestTime;
-        this.bookingComplete = bookingComplete;
-        this.note = note;
-        setNote(note);
-        this.assignedDriverId = assignedDriverId;
-
-    }
     public Booking(Context context,Bundle bundle){
         this(context);
         // constructor for add or update booking in bundle form
-        boolean validParams = true;
-        for(String key : TaxiAppOnlineDatabase.ADD_BOOKING_PARAMS){
-            if(bundle.get(key) == null){
-                validParams = false;
-                break;
-            }
-        }
-        if(validParams){
-            this.pickUpName = String.valueOf(bundle.get(DBContract.Booking_Table.COLUMN_PICK_UP_NAME));
-            this.pickUpLatitude = Double.valueOf((String)bundle.get(DBContract.Booking_Table.COLUMN_PICK_UP_LATITUDE));
-            this.pickUpLongitude = Double.valueOf((String)bundle.get(DBContract.Booking_Table.COLUMN_PICK_UP_LONGITUDE));
-            this.destName = String.valueOf(bundle.get(DBContract.Booking_Table.COLUMN_DEST_NAME));
-            this.destLatitude = Double.valueOf((String)bundle.get(DBContract.Booking_Table.COLUMN_DEST_LATITUDE));
-            this.destLongitude = Double.valueOf((String)bundle.get(DBContract.Booking_Table.COLUMN_DEST_LONGITUDE));
-            this.price = (String)bundle.get(DBContract.Booking_Table.COLUMN_PRICE);
-            this.estArrivalTime = (String)bundle.get(DBContract.Booking_Table.COLUMN_EST_ARRIVAL_TIME);
-            this.estDestTime = (String)bundle.get(DBContract.Booking_Table.COLUMN_EST_DEST_TIME);
-            this.confirmedArrivalTime = (String)bundle.get(DBContract.Booking_Table.COLUMN_CONFIRMED_ARRIVAL_TIME);
-            this.confirmedDestTime = (String)bundle.get(DBContract.Booking_Table.COLUMN_CONFIRMED_DEST_TIME);;
+        this.pickUpName = String.valueOf(bundle.get(DBContract.Booking_Table.COLUMN_PICK_UP_NAME));
+        this.pickUpLatitude = Double.valueOf((String)bundle.get(DBContract.Booking_Table.COLUMN_PICK_UP_LATITUDE));
+        this.pickUpLongitude = Double.valueOf((String)bundle.get(DBContract.Booking_Table.COLUMN_PICK_UP_LONGITUDE));
+        this.destName = String.valueOf(bundle.get(DBContract.Booking_Table.COLUMN_DEST_NAME));
+        this.destLatitude = Double.valueOf((String)bundle.get(DBContract.Booking_Table.COLUMN_DEST_LATITUDE));
+        this.destLongitude = Double.valueOf((String)bundle.get(DBContract.Booking_Table.COLUMN_DEST_LONGITUDE));
+        this.price = (String)bundle.get(DBContract.Booking_Table.COLUMN_PRICE);
+        this.estArrivalTime = (String)bundle.get(DBContract.Booking_Table.COLUMN_EST_ARRIVAL_TIME);
+        this.estDestTime = (String)bundle.get(DBContract.Booking_Table.COLUMN_EST_DEST_TIME);
+        this.confirmedArrivalTime = (String)bundle.get(DBContract.Booking_Table.COLUMN_CONFIRMED_ARRIVAL_TIME);
+        this.confirmedDestTime = (String)bundle.get(DBContract.Booking_Table.COLUMN_CONFIRMED_DEST_TIME);
+        if(bundle.get(DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE) != null){
             this.bookingComplete = Integer.valueOf((String)bundle.get(DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE));
-            this.note = (String)bundle.get(DBContract.Booking_Table.COLUMN_NOTE);
+        }
+        this.note = (String)bundle.get(DBContract.Booking_Table.COLUMN_NOTE);
+        if(bundle.get(DBContract.Booking_Table.COLUMN_ASSIGNED_DRIVER_ID) != null){
             this.assignedDriverId = Integer.valueOf((String)bundle.get(DBContract.Booking_Table.COLUMN_ASSIGNED_DRIVER_ID));
         }
     }
@@ -314,6 +266,24 @@ public class Booking {
         argsBundle.putString(BookingPagerAdapter.UPDATE_BOOKING_NOTE,note);
         return argsBundle;
     }
+    public Bundle getBookingBundle(){
+        Bundle argsBundle = new Bundle();
+        argsBundle.putString(DBContract.Booking_Table.COLUMN_PICK_UP_NAME,pickUpName);
+        argsBundle.putDouble(DBContract.Booking_Table.COLUMN_PICK_UP_LATITUDE,pickUpLatitude);
+        argsBundle.putDouble(DBContract.Booking_Table.COLUMN_PICK_UP_LONGITUDE,destLatitude);
+        argsBundle.putString(DBContract.Booking_Table.COLUMN_DEST_NAME,destName);
+        argsBundle.putDouble(DBContract.Booking_Table.COLUMN_DEST_LATITUDE,destLatitude);
+        argsBundle.putDouble(DBContract.Booking_Table.COLUMN_DEST_LONGITUDE,destLongitude);
+        argsBundle.putString(DBContract.Booking_Table.COLUMN_PRICE,price);
+        argsBundle.putString(DBContract.Booking_Table.COLUMN_EST_ARRIVAL_TIME,estArrivalTime);
+        argsBundle.putString(DBContract.Booking_Table.COLUMN_EST_DEST_TIME,estDestTime);
+        argsBundle.putString(DBContract.Booking_Table.COLUMN_CONFIRMED_ARRIVAL_TIME,confirmedArrivalTime);
+        argsBundle.putString(DBContract.Booking_Table.COLUMN_CONFIRMED_DEST_TIME,confirmedDestTime);
+        argsBundle.putInt(DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE,bookingComplete);
+        argsBundle.putString(DBContract.Booking_Table.COLUMN_NOTE,note);
+
+        return argsBundle;
+    }
 
     public void  getRouteInfo(){
         // gets the price, the duration and distance of the route
@@ -400,7 +370,7 @@ public class Booking {
         context.getContentResolver().insert(DBContract.Booking_Table.CONTENT_URI,getContentValues());
     }
     public static String getTimestamp(Calendar calendar){
-        SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss",Locale.UK);
+        SimpleDateFormat df = new SimpleDateFormat(TIME_STAMP_FORMAT,Locale.UK);
         return df.format(calendar.getTime());
     }
 }

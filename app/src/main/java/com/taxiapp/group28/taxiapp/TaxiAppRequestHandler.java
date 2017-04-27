@@ -98,7 +98,6 @@ public class TaxiAppRequestHandler {
                 params.append("&");
                 params.append(URLEncoder.encode(param.getKey(), "UTF-8"));
                 params.append("=");
-                Log.d("PARAMS","111");
                 params.append(URLEncoder.encode(param.getValue(), "UTF-8"));
             }
             Log.d("PARAMS",params.toString());

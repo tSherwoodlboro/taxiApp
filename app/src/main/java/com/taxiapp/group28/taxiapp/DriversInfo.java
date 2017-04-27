@@ -1,12 +1,14 @@
 package com.taxiapp.group28.taxiapp;
 
 import android.content.Context;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by Tom on 25/04/2017.
@@ -17,13 +19,23 @@ public class DriversInfo{
     private JSONArray driverData = null;
     private ArrayList<DriverInfo> driverList =null;
     private Context context;
+    private DriversInfo.onGetResultListener getResultListener;
+
+    public interface onGetResultListener{
+        void onGetResult();
+    }
+    public void setOnGetResultListener(DriversInfo.onGetResultListener listener){
+        getResultListener = listener;
+
+    }
     public  DriversInfo(Context context){
         this.context = context;
     }
     public void setDriverInfo(){
 
         conn = new TaxiAppOnlineDatabase();
-        conn.getDriversInformation(null);
+        HashMap<String,String> hashMap = new HashMap<>();
+        conn.getDriversInformation(hashMap);
         conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
             @Override
             public void onGetResult() {
@@ -41,12 +53,17 @@ public class DriversInfo{
                         Double longitude = driverObject.getDouble(DBContract.Driver_Information_Table.COLUMN_LONGITUDE);
                         DriverInfo driver = new DriverInfo(context,driverId,firstName,lastName,contactNumber,location,latitude,longitude);
                         driverList.add(driver);
+                        Log.d("",driver.getFirstName());
                     }catch(JSONException e){
+
                     }catch(Exception e1){
                     }
                 }
                 for(int z=0;z<driverList.size();++z){
                     driverList.get(z).addToLocalDatabase();
+                }
+                if(getResultListener != null) {
+                    getResultListener.onGetResult();
                 }
             }
         });

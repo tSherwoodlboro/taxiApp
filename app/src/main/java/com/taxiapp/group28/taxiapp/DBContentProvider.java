@@ -129,15 +129,15 @@ public class DBContentProvider extends ContentProvider {
                 break;
             case USER_WITH_ID:returnVal =  db.delete(DBContract.User_Table.TABLE_NAME, selection, selectionArgs);
                 break;
-            case BOOKING:returnVal =  db.delete(DBContract.Booking_Table.TABLE_NAME, null, null);
+            case BOOKING:returnVal =  db.delete(DBContract.Booking_Table.TABLE_NAME, selection, selectionArgs);
                 break;
             case BOOKING_WITH_ID:returnVal =  db.delete(DBContract.Booking_Table.TABLE_NAME, selection, selectionArgs);
                 break;
-            case ROUTE:returnVal =  db.delete(DBContract.Route_Table.TABLE_NAME, null, null);
+            case ROUTE:returnVal =  db.delete(DBContract.Route_Table.TABLE_NAME, selection, selectionArgs);
                 break;
             case ROUTE_WITH_ID:returnVal =  db.delete(DBContract.Route_Table.TABLE_NAME, selection, selectionArgs);
                 break;
-            case DRIVER_INFORMATION:returnVal =  db.delete(DBContract.Driver_Information_Table.TABLE_NAME, null, null);
+            case DRIVER_INFORMATION:returnVal =  db.delete(DBContract.Driver_Information_Table.TABLE_NAME, selection, selectionArgs);
                 break;
             case DRIVER_INFORMATION_WITH_ID:returnVal =  db.delete(DBContract.Driver_Information_Table.TABLE_NAME, selection, selectionArgs);
                 break;
@@ -154,28 +154,28 @@ public class DBContentProvider extends ContentProvider {
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         switch (uriMatcher.match(uri)) {
             case USER:
-                cursor = db.query(DBContract.User_Table.TABLE_NAME, projection, selection, selectionArgs, null, null, null, null);
+                cursor = db.query(DBContract.User_Table.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder, null);
                 break;
             case USER_WITH_ID:
-                cursor = db.query(DBContract.User_Table.TABLE_NAME, projection, selection, selectionArgs, null, null, "1");
+                cursor = db.query(DBContract.User_Table.TABLE_NAME, projection, selection, selectionArgs, null, sortOrder, "1");
                 break;
             case BOOKING:
-                cursor = db.query(DBContract.Booking_Table.TABLE_NAME, projection, selection, selectionArgs, null, null, null, null);
+                cursor = db.query(DBContract.Booking_Table.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder, null);
                 break;
             case BOOKING_WITH_ID:
-                cursor = db.query(DBContract.Booking_Table.TABLE_NAME, projection, selection, selectionArgs, null, null, "1");
+                cursor = db.query(DBContract.Booking_Table.TABLE_NAME, projection, selection, selectionArgs, null, sortOrder, "1");
                 break;
             case ROUTE:
-                cursor = db.query(DBContract.Route_Table.TABLE_NAME, projection, selection, selectionArgs, null, null, null, null);
+                cursor = db.query(DBContract.Route_Table.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder, null);
                 break;
             case ROUTE_WITH_ID:
-                cursor = db.query(DBContract.Route_Table.TABLE_NAME, projection, selection, selectionArgs, null, null, "1");
+                cursor = db.query(DBContract.Route_Table.TABLE_NAME, projection, selection, selectionArgs, null, sortOrder, "1");
                 break;
             case DRIVER_INFORMATION:
-                cursor = db.query(DBContract.Driver_Information_Table.TABLE_NAME, projection, selection, selectionArgs, null, null, null, null);
+                cursor = db.query(DBContract.Driver_Information_Table.TABLE_NAME, projection, selection, selectionArgs, null, null, sortOrder, null);
                 break;
             case DRIVER_INFORMATION_WITH_ID:
-                cursor = db.query(DBContract.Driver_Information_Table.TABLE_NAME, projection, selection, selectionArgs, null, null, "1");
+                cursor = db.query(DBContract.Driver_Information_Table.TABLE_NAME, projection, selection, selectionArgs, null, sortOrder, "1");
                 break;
             default:
                 throw new UnsupportedOperationException("URI Not found.");

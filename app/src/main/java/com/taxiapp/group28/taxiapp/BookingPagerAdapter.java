@@ -3,11 +3,10 @@ package com.taxiapp.group28.taxiapp;
 /**
  * Created by Tom on 04/04/2017.
  */
-
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.support.v13.app.FragmentPagerAdapter;
 import android.util.Log;
 
 
@@ -15,6 +14,7 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
     private static final int PICK_UP_TAB =0;
     private static final int DEST_TAB = 1;
     private static final int CONFIRM_TAB =2;
+    public static final String USING_ROUTE = "usingRoute";
     public static final String UPDATE_BOOKING = "updateBooking";
     public static final String UPDATE_BOOKING_PICK_UP_LOCATION_NAME = "pickUpLocationName";
     public static final String UPDATE_BOOKING_PICK_UP_LATITUDE = "pickUpLatitude";

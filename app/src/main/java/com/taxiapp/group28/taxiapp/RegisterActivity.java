@@ -285,7 +285,7 @@ public class RegisterActivity extends AppCompatActivity {
         editor.putString(getString(R.string.user_preferred_driver_id_pref_key), null);
         editor.putString(getString(R.string.user_email_pref_key), null);
         editor.putString(getString(R.string.user_preferred_user_id_pref_key),new Integer(userId).toString());
-        editor.commit();
+        editor.apply();
     }
     private void loadBookingActivity(){
         // load Booking activity via intent

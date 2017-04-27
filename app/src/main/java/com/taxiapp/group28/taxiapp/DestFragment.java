@@ -1,6 +1,6 @@
 package com.taxiapp.group28.taxiapp;
 
-import android.support.v4.app.Fragment;
+import android.app.Fragment;
 import android.content.Intent;
 import android.location.Address;
 
@@ -55,7 +55,9 @@ public class DestFragment extends Fragment {
 
             }
         });
-        isUpdatingBooking();
+        if(!isUsingRoute()){
+            isUpdatingBooking();
+        }
         return view;
     }
     @Override
@@ -208,7 +210,18 @@ public class DestFragment extends Fragment {
     public String getLocation(){
         return location;
     }
-
+    private boolean isUsingRoute(){
+        Bundle argBundle = this.getArguments();
+        if(argBundle != null && argBundle.get(BookingPagerAdapter.USING_ROUTE) != null){
+            String locationName = (String)argBundle.get(DBContract.Booking_Table.COLUMN_DEST_NAME);
+            Double latitude = (Double)argBundle.get(DBContract.Booking_Table.COLUMN_DEST_LATITUDE);
+            Double longitude = (Double)argBundle.get(DBContract.Booking_Table.COLUMN_DEST_LONGITUDE);
+            setLocation(latitude,longitude,locationName);
+            return true;
+        }else{
+            return false;
+        }
+    }
     private boolean isUpdatingBooking(){
         // check if it's for updating a booking
         if(updateBooking){

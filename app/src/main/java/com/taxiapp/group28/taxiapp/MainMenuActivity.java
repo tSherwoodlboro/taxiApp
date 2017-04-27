@@ -1,9 +1,10 @@
 package com.taxiapp.group28.taxiapp;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.content.Context;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.os.Bundle;
-import android.support.v4.app.FragmentTransaction;
+import android.app.FragmentTransaction;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,11 +26,11 @@ public class MainMenuActivity extends AppCompatActivity {
     private ListView drawerListView;
     public static final int ADD_BOOKING_FRAGMENT_POSITION = 0;
     public static final int VIEW_BOOKINGS_FRAGMENT_POSITION = 1;
-    public static final int UPDATE_BOOKINGS_FRAGMENT_POSITION = 3;
-    public static final int ADD_ROUTES_FRAGMENT_POSITION = 4;
-    public static final int ROUTES_FRAGMENT_POSITION = 5;
-    public static final int GUIDE_FRAGMENT_POSITION = 6;
-    public static final int SETTINGS_FRAGMENT_POSITION = 7;
+    public static final int VIEW_ROUTES_FRAGMENT_POSITION = 2;
+    public static final int GUIDE_FRAGMENT_POSITION = 3;
+    public static final int SETTINGS_FRAGMENT_POSITION = 4;
+    public static final int ADD_ROUTES_FRAGMENT_KEY = 5;
+    public static final int UPDATE_BOOKINGS_FRAGMENT_KEY = 6;
     private Fragment currentFragment = null;
     private String key;
     @Override
@@ -44,7 +46,7 @@ public class MainMenuActivity extends AppCompatActivity {
 
         if(saveInstanceState == null) {
             key = Integer.toString(VIEW_BOOKINGS_FRAGMENT_POSITION);
-            loadFragment(new ViewBookingsFragment(), VIEW_BOOKINGS_FRAGMENT_POSITION);
+            loadFragment(new ViewBookingsFragment(), VIEW_BOOKINGS_FRAGMENT_POSITION,false);
         }
     }
     @Override
@@ -67,7 +69,7 @@ public class MainMenuActivity extends AppCompatActivity {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+        Fragment fragment = getFragmentManager().findFragmentById(R.id.content_frame);
         if(fragment!=null) {
             savedInstanceState.putString("fragmentTag", fragment.getTag());
         }
@@ -77,14 +79,14 @@ public class MainMenuActivity extends AppCompatActivity {
         super.onRestoreInstanceState(savedInstanceState);
         if(savedInstanceState !=null && savedInstanceState.getString("fragmentTag") != null) {
             int position = Integer.valueOf(savedInstanceState.getString("fragmentTag"));
-            loadFragment(getSupportFragmentManager().findFragmentByTag(savedInstanceState.getString("fragmentTag")), position);
+            loadFragment(getFragmentManager().findFragmentByTag(savedInstanceState.getString("fragmentTag")), position,false);
         }
     }
     private class DrawerItemClickListener implements ListView.OnItemClickListener{
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Log.d("ITEM_SELECTED","Item selected");
-            Fragment selectedFragment;
+            Fragment selectedFragment=null;
 
             switch(position){
                 case ADD_BOOKING_FRAGMENT_POSITION:
@@ -95,15 +97,20 @@ public class MainMenuActivity extends AppCompatActivity {
                         selectedFragment =  new ViewBookingsFragment();
                         key = Integer.toString(VIEW_BOOKINGS_FRAGMENT_POSITION);
                     break;
-             /*   case ROUTES_FRAGMENT_POSITION:return;
+               case VIEW_ROUTES_FRAGMENT_POSITION:
+                        selectedFragment =  new ViewRoutesFragment();
+                        key = Integer.toString(VIEW_ROUTES_FRAGMENT_POSITION);
                     break;
-                case SETTINGS_FRAGMENT_POSITION:return;
+                case SETTINGS_FRAGMENT_POSITION:
+                    selectedFragment = new SettingsPreferenceFragment();
+                    key = Integer.toString(SETTINGS_FRAGMENT_POSITION);
                     break;
-                case GUIDE_FRAGMENT_POSITION:return;
+                /*case GUIDE_FRAGMENT_POSITION:return;
                     break;*/
                 default : return;
             }
-            loadFragment(selectedFragment,position);
+            loadFragment(selectedFragment,position,false);
+
         }
     }
     @Override
@@ -118,9 +125,6 @@ public class MainMenuActivity extends AppCompatActivity {
         }catch(Exception e){
             position = VIEW_BOOKINGS_FRAGMENT_POSITION; // set default
         }finally {
-            if(position == UPDATE_BOOKINGS_FRAGMENT_POSITION){
-                position = VIEW_BOOKINGS_FRAGMENT_POSITION;
-            }
             try {
                 drawerListView.setItemChecked(position, true);
                 setTitle(fragmentTitles[position]);
@@ -129,26 +133,39 @@ public class MainMenuActivity extends AppCompatActivity {
             }
         }
     }
-    public void loadFragment(Fragment fragment, int position){
+    public void setDrawerPosition(int pos){
+        drawerListView.setItemChecked(pos, true);
+        setTitle(fragmentTitles[pos]);
+        drawerLayout.closeDrawer(drawerListView);
+    }
+    public void loadFragment(Fragment fragment, int position, boolean loadNewFragment){
         currentFragment = fragment;
-        if(position == UPDATE_BOOKINGS_FRAGMENT_POSITION){
-            position = VIEW_BOOKINGS_FRAGMENT_POSITION;
-        }
-        FragmentManager fragmentManager = this.getSupportFragmentManager();
-        if(fragmentManager.findFragmentByTag(key) != null){
+        FragmentManager fragmentManager = this.getFragmentManager();
+        key = String.valueOf(position);
+        if(!loadNewFragment && fragmentManager.findFragmentByTag(key) != null){
             // load fragment on stack
             fragment = fragmentManager.findFragmentByTag(key);
         }
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.content_frame, fragment,key);
-        if(fragmentManager.findFragmentByTag(key) == null){
+
+        if(loadNewFragment || fragmentManager.findFragmentByTag(key) == null){
+            if(loadNewFragment && fragmentManager.findFragmentByTag(key) != null){
+                fragmentTransaction.remove(fragmentManager.findFragmentByTag(key));
+            }
             fragmentTransaction.addToBackStack(key);
         }
+        fragmentTransaction.replace(R.id.content_frame, fragment,key);
         fragmentTransaction.commit();
         // Highlight the selected item, update the title, and close the drawer
         drawerListView.setItemChecked(position, true);
         setTitle(fragmentTitles[position]);
         drawerLayout.closeDrawer(drawerListView);
+    }
+    public static ArrayAdapter<String> getNoResultAdapter(Context context){
+        List<String> list = new ArrayList<>();
+        list.add(context.getString(R.string.items_empty_text));
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(context,R.layout.items_empty_row,R.id.item_empty_text_view,list);
+        return adapter;
     }
 }
 
