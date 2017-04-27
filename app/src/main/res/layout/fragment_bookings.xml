@@ -57,8 +57,8 @@
 
     <ListView
         android:id="@+id/live_bookings_listview"
-        android:layout_width="0dp"
-        android:layout_height="178dp"
+        android:layout_width="366dp"
+        android:layout_height="181dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
