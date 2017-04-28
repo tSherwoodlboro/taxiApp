@@ -168,7 +168,18 @@ public class PickUpFragment extends Fragment {
     @Override
     public void onStop(){
         super.onStop();
-        Bundle savedInstanceState = new Bundle();
+        //onSaveInstanceState(new Bundle());
+        Log.d("FRAGMENT_STATE_PICK_UP","Stop");
+    }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        Log.d("FRAGMENT_STATE_PICK_UP","Destroy");
+    }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        Log.d("FRAGMENT_STATE_PICK_UP","Location State: "+isLocationSet());
         savedInstanceState.putBoolean("locationSet",isLocationSet());
         savedInstanceState.putString("searchText",getSearchText());
         savedInstanceState.putString("noteText",getNoteText());
@@ -182,18 +193,6 @@ public class PickUpFragment extends Fragment {
         if(savedInstanceState == null){
             Log.d("NULL_BUNDLE","true");
         }
-        onSaveInstanceState(savedInstanceState);
-        Log.d("FRAGMENT_STATE_PICK_UP","Stop");
-
-    }
-    @Override
-    public void onDestroy(){
-        super.onDestroy();
-        Log.d("FRAGMENT_STATE_PICK_UP","Destroy");
-    }
-    @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        super.onSaveInstanceState(savedInstanceState);
         Log.d("FRAGMENT_STATE_PICK_UP","Saved");
 
     }
@@ -202,6 +201,7 @@ public class PickUpFragment extends Fragment {
         super.onViewStateRestored(savedInstanceState);
         if(savedInstanceState !=null){
             setLocationSet(savedInstanceState.getBoolean("locationSet"));
+            Log.d("FRAGMENT_STATE_PICK_UP", "Location Set: " + isLocationSet());
             useCurrentLocation = savedInstanceState.getBoolean("useCurrentLocation");
             if(isLocationSet() && !useCurrentLocation){
                 setLocation(savedInstanceState.getDouble("latitude"),savedInstanceState.getDouble("longitude"),savedInstanceState.getString("locationName"));

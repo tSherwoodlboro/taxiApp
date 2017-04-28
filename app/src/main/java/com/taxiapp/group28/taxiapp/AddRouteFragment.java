@@ -38,7 +38,7 @@ public class AddRouteFragment extends Fragment {
                     getRouteNote();
                     route.setParams();
 
-                    final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase();
+                    final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(getActivity());
                     Log.d("RESULT",route.getParams().toString());
                     conn.addRoute(route.getParams());
                     conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {

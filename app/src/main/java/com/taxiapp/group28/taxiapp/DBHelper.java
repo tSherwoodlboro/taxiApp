@@ -69,9 +69,9 @@ public class DBHelper extends SQLiteOpenHelper {
                     DBContract.Driver_Information_Table.COLUMN_FIRST_NAME+" TEXT," +
                     DBContract.Driver_Information_Table.COLUMN_LAST_NAME+" TEXT," +
                     DBContract.Driver_Information_Table.COLUMN_CONTACT_NUMBER+" INTEGER," +
-                    DBContract.Driver_Information_Table.COLUMN_LOCATION+" TEXT" +
+                    DBContract.Driver_Information_Table.COLUMN_LOCATION+" TEXT," +
                     DBContract.Driver_Information_Table.COLUMN_LATITUDE+" DOUBLE," +
-                    DBContract.Driver_Information_Table.COLUMN_LONGITUDE+" DOUBLE," +
+                    DBContract.Driver_Information_Table.COLUMN_LONGITUDE+" DOUBLE" +
                 ");";
         db.execSQL(bookingQuery);
         db.execSQL(userQuery);

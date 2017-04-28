@@ -1,15 +1,23 @@
 package com.taxiapp.group28.taxiapp;
 
+import android.content.ContentValues;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.provider.BaseColumns;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.lang.reflect.UndeclaredThrowableException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  * Created by Tom on 28/03/2017.
@@ -53,7 +61,7 @@ public class TaxiAppOnlineDatabase {
     public static final String[] DELETE_BOOKING_PARAMS = {"id"};
     public static final String[] GET_BOOKINGS_PARAMS = {"user_id"};
 
-    public static final String TYPE_GET_ROUTES = "gerRoute";
+    public static final String TYPE_GET_ROUTES = "getRoute";
     public static final String TYPE_POST_ADD_ROUTE = "addRoute";
     public static final String TYPE_POST_UPDATE_ROUTE = "editRoute";
     public static final String TYPE_POST_DELETE_ROUTE= "deleteRoute";
@@ -87,7 +95,7 @@ public class TaxiAppOnlineDatabase {
 
     private static final String ERROR_FIELD = "error";
     private static final String INSERT_ID_FIELD = "insert_id";
-
+    private Context context;
     private onGetResultListener getResultListener;
     public interface onGetResultListener{
          void onGetResult();
@@ -96,7 +104,8 @@ public class TaxiAppOnlineDatabase {
         getResultListener = listener;
 
     }
-    public TaxiAppOnlineDatabase(){
+    public TaxiAppOnlineDatabase(Context context){
+        this.context = context;
         try{
             PARAMS_INVALID = new JSONArray("[{error: 'Params Invalid'}]");
             PARAMS_VALID  = new JSONArray("[{success: 'Params Valid'}]");
@@ -249,8 +258,65 @@ public class TaxiAppOnlineDatabase {
         }
         return PARAMS_VALID;
     }
-    private void requestData(String method,String type,HashMap<String,String> params){
+    public boolean isResultSuccess(){
+        if ( getResultMessage() != null && getResultMessage().equals(Integer.valueOf(TaxiAppOnlineDatabase.SUCCESS).toString())) {
+            return true;
+        }
+        return false;
+    }
+    public boolean isResultError(){
+        if(result != null){
+            try{
+                if(!result.getJSONObject(0).keys().next().equals("error")){
+                    return false;
+                }else{
+                    return true;
+                }
 
+            }catch(Exception e){
+                return true;
+            }
+        }
+        return true;
+    }
+    public ArrayList<ContentValues> getContentValuesList(){
+        ArrayList<ContentValues> contentValuesArrayList  = new ArrayList<>();
+        if(result == null){
+            return null;
+        }
+        for(int i=0;i<result.length();++i){
+            ContentValues contentValues = new ContentValues();
+            try {
+                JSONObject rowObject = result.getJSONObject(i);
+                Log.d("ROW_OBJECT",rowObject.toString());
+                Iterator<?> keys  = rowObject.keys();
+                while(keys.hasNext()){
+                    String key = (String)keys.next();
+                    if(key.equals("id")){
+                        contentValues.put(BaseColumns._ID,(int)rowObject.get(key));
+                        continue;
+                    }
+                    String type =  rowObject.get(key).getClass().getName();
+                    if(type.equals(Integer.class.getName())){
+                        contentValues.put(key,(int)rowObject.get(key));
+                    }else if(type.equals(Double.class.getName())){
+                        contentValues.put(key,(double)rowObject.get(key));
+                    }else if(type.equals(String.class.getName())){
+                        contentValues.put(key,(String)(rowObject.get(key)));
+                    }
+                }
+            }catch(JSONException e){
+                return null;
+            }
+            Log.d("CONTENT_VALUES",contentValues.toString());
+            contentValuesArrayList.add(contentValues);
+        }
+        return contentValuesArrayList;
+    }
+    private void requestData(String method,String type,HashMap<String,String> params){
+        if(!isNetworkEnabled(context)){
+            return;
+        }
         class GetJSONData extends AsyncTask<Void,Void,String> {
             private String method;
             private String type;
@@ -338,5 +404,25 @@ public class TaxiAppOnlineDatabase {
             }
         }
         return valid;
+    }
+    public static boolean isNetworkEnabled(Context _context) {
+        try {
+            ConnectivityManager connManager = (ConnectivityManager) _context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = connManager.getActiveNetworkInfo();
+            if (networkInfo.getState() == NetworkInfo.State.CONNECTED) {
+                return true;
+            }
+        } catch (Exception e) {
+                Log.d("NETWORK_ERROR","Error " +e.getMessage());
+        }
+        return false;
+    }
+    public static boolean isNetworkEnabled(Context _context,int state) {
+        if(!isNetworkEnabled(_context)){
+            Toast toast = Toast.makeText(_context,"Network Connection Required!",Toast.LENGTH_SHORT);
+            toast.show();
+            return false;
+        }
+        return true;
     }
 }

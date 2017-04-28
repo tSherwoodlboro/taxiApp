@@ -45,7 +45,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     private String userUserName=null;
     private String userTelNo=null;
-    private String userPreferredDriverID = null;
+    private String userPreferredDriverID = "1";
     private int userId;
 
     @Override
@@ -55,6 +55,10 @@ public class RegisterActivity extends AppCompatActivity {
         isUserLoggedIn(); // checks if user logged in before
         setVerificationCode(); // create a random verification code
         // st up UI objects
+        if(!TaxiAppOnlineDatabase.isNetworkEnabled(RegisterActivity.this)){
+            Toast toast = Toast.makeText(this,"Warning Network Disabled!",Toast.LENGTH_LONG);
+            toast.show();
+        }
         mobileNum = (EditText)this.findViewById(R.id.edit_mobile_number);
         editVerificationCode = (EditText)this.findViewById(R.id.edit_verification_code);
         registerBtn=  (Button)this.findViewById(R.id.register_button);
@@ -62,22 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
         registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String message = "Mobile Number Invalid"; // default message
-                String mobileText = mobileNum.getText().toString(); // get mobile number
-                if (!mobileText.isEmpty()) {
-                    // if mobile number not empty check if it's valid
-                    if (!mobileText.matches(REGEX_MOBILE_NUMBER)) {
-                        message = "Mobile Number Valid.";
-                        if(smsPermission || isPermissions()){
-                            // if sms permission granted add user
-                            mobileNumber = mobileText;
-                            addUser();
-                        }else{
-                            message="SMS Permission required";
-                        }
-                    }
-                }
-                makeToast(message);// make toast
+             registerBtnPress();
             }
         });
         verifyButton = (Button)this.findViewById(R.id.verify_button);
@@ -97,12 +86,34 @@ public class RegisterActivity extends AppCompatActivity {
                 // If request is cancelled, the result arrays are empty. and set boolean "smsPermission"
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     smsPermission=true;
+                    registerBtnPress();
                 } else {
                     smsPermission = false;
                 }
                 return;
             }
         }
+    }
+    private void registerBtnPress(){
+        if(!TaxiAppOnlineDatabase.isNetworkEnabled(RegisterActivity.this)){
+            return;
+        }
+        String message = "Mobile Number Invalid"; // default message
+        String mobileText = mobileNum.getText().toString(); // get mobile number
+        if (!mobileText.isEmpty()) {
+            // if mobile number not empty check if it's valid
+            if (mobileText.matches(REGEX_MOBILE_NUMBER)) {
+                message = "Mobile Number Valid.";
+                if(smsPermission || isPermissions()){
+                    // if sms permission granted add user
+                    mobileNumber = mobileText;
+                    addUser();
+                }else{
+                    message="SMS Permission required";
+                }
+            }
+        }
+        makeToast(message);// make toast
     }
     private boolean isPermissions(){
         // check if the user has given permission
@@ -178,7 +189,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
     private void addUser(){
         // add a user to the database
-        final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(); // create a db instance
+        final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(this); // create a db instance
         HashMap<String,String> dataParams = new HashMap<>(); // hashmap for data
         Log.d("Mobile Number","Mobile Number "+mobileNumber);
         dataParams.put(DBContract.User_Table.COLUMN_TEL_NO,mobileNumber);
@@ -207,7 +218,7 @@ public class RegisterActivity extends AppCompatActivity {
     }
     private void verifyUser(){
         // verify the user
-        final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(); // create db instance
+        final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(this); // create db instance
         HashMap<String,String> dataParams = new HashMap<>(); // hashmap for data
         dataParams.put("tel_no",mobileNumber); // mobile number needed as it uniquely identifies the user
         Log.d("RESULT","User Message: ");
@@ -223,9 +234,10 @@ public class RegisterActivity extends AppCompatActivity {
                         String userVerified = new Integer((int)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_VERIFIED)).toString();
                         String userVerificationCode = (String)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_VERIFICATION_CODE);
                         userId = (int)result.getJSONObject(0).get("id");
+                        userPreferredDriverID = String.valueOf(result.getJSONObject(0).get(DBContract.User_Table.COLUMN_PREFERRED_DRIVER_ID));
                         userUserName = (String)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_USER_NAME);
                         userTelNo = (String)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_TEL_NO);
-                        userPreferredDriverID = "-1"; // proffered driver id NULL (-1) this value is set later in settings
+                        //userPreferredDriverID = "-1"; // proffered driver id NULL (-1) this value is set later in settings
 
                        if(!oldAccountVerified){
                            // if it's an existing account that wasn't verified send an sms and return
@@ -273,7 +285,16 @@ public class RegisterActivity extends AppCompatActivity {
         data.put(DBContract.User_Table.COLUMN_PREFERRED_DRIVER_ID,userPreferredDriverID);
         getContentResolver().insert(DBContract.User_Table.CONTENT_URI,data);
         addUserPreferences();
-        loadBookingActivity(); // load booking activity
+        // sync database with online database (Loads users bookings if they were a previous user).
+        SyncDatabases syncDatabases = new SyncDatabases(this,userId);
+        syncDatabases.syncDataBase();
+        syncDatabases.setOnSyncCompleteListener(new SyncDatabases.onSyncCompleteListener() {
+            @Override
+            public void onSyncComplete() {
+                loadBookingActivity(); // load booking activity
+            }
+        });
+
     }
     private void addUserPreferences(){
         // adds user preferences to local storage
@@ -282,7 +303,7 @@ public class RegisterActivity extends AppCompatActivity {
         SharedPreferences.Editor editor = sharedpreferences.edit();
         editor.putString(getString(R.string.user_name_pref_key), userUserName);
         editor.putString(getString(R.string.user_tel_no_pref_key), userTelNo);
-        editor.putString(getString(R.string.user_preferred_driver_id_pref_key), null);
+        editor.putString(getString(R.string.user_preferred_driver_id_pref_key), userPreferredDriverID);
         editor.putString(getString(R.string.user_email_pref_key), null);
         editor.putString(getString(R.string.user_preferred_user_id_pref_key),new Integer(userId).toString());
         editor.apply();

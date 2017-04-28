@@ -80,7 +80,7 @@ public class ConfirmBookingFragment extends Fragment {
                     if (!gotBookingDetails) {
                         return;
                     }
-                    final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase();
+                    final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(getActivity());
                     // -1 values represent empty
                     if (!updateBooking) {
                         booking.setParams();

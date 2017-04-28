@@ -63,13 +63,7 @@ public class DestFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        if(savedInstanceState !=null){
-            setLocationSet(savedInstanceState.getBoolean("locationSet"));
-            if(isLocationSet()){
-                setLocation(savedInstanceState.getDouble("latitude"),savedInstanceState.getDouble("longitude"),savedInstanceState.getString("locationName"));
-                setSearchText(savedInstanceState.getString("searchText"));
-            }
-        }
+
         Log.d("FRAGMENT_STATE_DEST","Activity Created");
     }
     @Override
@@ -91,15 +85,7 @@ public class DestFragment extends Fragment {
     public void onStop(){
         super.onStop();
         Bundle savedInstanceState = new Bundle();
-        savedInstanceState.putBoolean("locationSet",isLocationSet());
-        savedInstanceState.putString("searchText",getSearchText());
-
-        if(isLocationSet()){
-            savedInstanceState.putString("locationName",location);
-            savedInstanceState.putDouble("latitude",latitude);
-            savedInstanceState.putDouble("longitude",longitude);
-        }
-        onSaveInstanceState(savedInstanceState);
+        //onSaveInstanceState(savedInstanceState);
         Log.d("FRAGMENT_STATE_DEST","Stop");
 
     }
@@ -111,12 +97,26 @@ public class DestFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putBoolean("locationSet",isLocationSet());
+        savedInstanceState.putString("searchText",getSearchText());
+        if(isLocationSet()){
+            savedInstanceState.putString("locationName",location);
+            savedInstanceState.putDouble("latitude",latitude);
+            savedInstanceState.putDouble("longitude",longitude);
+        }
         Log.d("FRAGMENT_STATE_DEST","Saved");
 
     }
     @Override
     public void onViewStateRestored (Bundle savedInstanceState){
         super.onViewStateRestored(savedInstanceState);
+        if(savedInstanceState !=null){
+            setLocationSet(savedInstanceState.getBoolean("locationSet"));
+            if(isLocationSet()){
+                setLocation(savedInstanceState.getDouble("latitude"),savedInstanceState.getDouble("longitude"),savedInstanceState.getString("locationName"));
+                setSearchText(savedInstanceState.getString("searchText"));
+            }
+        }
         Log.d("FRAGMENT_STATE_DEST","Restored");
     }
     @Override

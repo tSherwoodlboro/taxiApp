@@ -6,8 +6,10 @@ package com.taxiapp.group28.taxiapp;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.os.Parcelable;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.util.Log;
+import android.view.ViewGroup;
 
 
 public class BookingPagerAdapter extends FragmentPagerAdapter {
@@ -47,7 +49,6 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
             Booking booking = new Booking(confirmTab.getActivity(),pickUpTab.getLocation(),destTab.getLocation(),pickUpTab.getAddress(),destTab.getAddress(),pickUpTab.getNoteText(),pickUpTab.getPickUpTime());
             confirmTab.setBooking(booking);
         }
-
     }
     public PickUpFragment getPickUpTab(){
         return pickUpTab;
@@ -58,7 +59,14 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
     public ConfirmBookingFragment getConfirmTab(){
         return confirmTab;
     }
-
+    @Override
+    public Parcelable saveState(){
+        return super.saveState();
+    }
+    @Override
+    public void restoreState(Parcelable state,ClassLoader loader){
+        super.restoreState(state,loader);
+    }
     @Override
     public Fragment getItem(int position) {
         Log.d("POSITION",new Integer(position).toString());
@@ -78,6 +86,22 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
             default:
                 return null;
         }
+    }
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
+        // restore fragment references
+        switch (position) {
+            case PICK_UP_TAB:pickUpTab = (PickUpFragment)createdFragment;
+                break;
+            case DEST_TAB:destTab = (DestFragment)createdFragment;
+                return destTab;
+            case CONFIRM_TAB:confirmTab = (ConfirmBookingFragment) createdFragment;
+                break;
+            default:
+                return null;
+        }
+        return createdFragment;
     }
 
     @Override

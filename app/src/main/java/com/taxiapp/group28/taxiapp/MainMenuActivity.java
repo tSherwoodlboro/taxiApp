@@ -3,8 +3,12 @@ package com.taxiapp.group28.taxiapp;
 import android.content.Context;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.app.FragmentTransaction;
+import android.preference.Preference;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -21,7 +25,7 @@ import java.util.List;
  */
 
 public class MainMenuActivity extends AppCompatActivity {
-    private String[] fragmentTitles = {"Add Booking","Bookings","Routes","Guide","Settings"};
+    private String[] fragmentTitles = {"Add Booking","Bookings","Routes","Guide","Settings","Call Help"};
     private DrawerLayout drawerLayout;
     private ListView drawerListView;
     public static final int ADD_BOOKING_FRAGMENT_POSITION = 0;
@@ -29,17 +33,18 @@ public class MainMenuActivity extends AppCompatActivity {
     public static final int VIEW_ROUTES_FRAGMENT_POSITION = 2;
     public static final int GUIDE_FRAGMENT_POSITION = 3;
     public static final int SETTINGS_FRAGMENT_POSITION = 4;
-    public static final int ADD_ROUTES_FRAGMENT_KEY = 5;
-    public static final int UPDATE_BOOKINGS_FRAGMENT_KEY = 6;
-    public static boolean liveBooking= false;
+    public static final int CALL_HELP_POSITION = 5;
+
     private Fragment currentFragment = null;
     private FragmentManager fragmentManager=null;
     private String key;
+    private int previousPosition=1;
     @Override
     public void onCreate(Bundle saveInstanceState){
         super.onCreate(saveInstanceState);
         setContentView(R.layout.activity_main_menu);
-
+        int themeValue = Integer.valueOf(SharedPreferencesManager.getUserPreferences(this).getString(getString(R.string.user_preferred_theme_pref_key),"0")); // get theme value from preferences
+        setTheme(getAppTheme(themeValue));
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         drawerListView = (ListView)findViewById(R.id.left_drawer);
 
@@ -109,12 +114,16 @@ public class MainMenuActivity extends AppCompatActivity {
                     selectedFragment = new SettingsPreferenceFragment();
                     key = Integer.toString(SETTINGS_FRAGMENT_POSITION);
                     break;
-                /*case GUIDE_FRAGMENT_POSITION:return;
-                    break;*/
+                case GUIDE_FRAGMENT_POSITION:
+                    selectedFragment = new GuideFragment();
+                    key = Integer.toString(GUIDE_FRAGMENT_POSITION);
+                    break;
+                case CALL_HELP_POSITION:callHelp();
+                    return;
                 default : return;
             }
             loadFragment(selectedFragment,position,false);
-
+            previousPosition = position;
         }
     }
     @Override
@@ -147,6 +156,10 @@ public class MainMenuActivity extends AppCompatActivity {
         drawerLayout.closeDrawer(drawerListView);
     }
     public void loadFragment(Fragment fragment, int position, boolean loadNewFragment){
+        if(position == ADD_BOOKING_FRAGMENT_POSITION && !TaxiAppOnlineDatabase.isNetworkEnabled(this,0)){
+            setDrawerPosition(previousPosition);
+            return;
+        }
         currentFragment = fragment; // set current fragment
         key = String.valueOf(position); // set the key/tag
         Log.d("FRAGMENT_STACK","Key: "+key);
@@ -175,6 +188,19 @@ public class MainMenuActivity extends AppCompatActivity {
         list.add(context.getString(R.string.items_empty_text));
         ArrayAdapter<String> adapter = new ArrayAdapter<>(context,R.layout.items_empty_row,R.id.item_empty_text_view,list);
         return adapter;
+    }
+    private int getAppTheme(int val){
+        // set app theme on load
+        switch(val){
+            case SettingsPreferenceFragment.LIGHT_THEME:return this.getApplicationInfo().theme;
+            case SettingsPreferenceFragment.DEFAULT_THEME:return android.R.style.Theme_DeviceDefault;
+            default: return this.getApplicationInfo().theme;
+        }
+    }
+    private void callHelp(){
+        String helpNum = "07426992220";
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", helpNum, null));
+        startActivity(intent);
     }
 }
 

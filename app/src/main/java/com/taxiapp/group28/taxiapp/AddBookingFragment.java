@@ -26,6 +26,7 @@ public class AddBookingFragment extends Fragment {
         if(view!=null){
             return view;
         }
+
         view = inflater.inflate(R.layout.fragment_add_booking, container, false);
         // if booking is being updated
         if(this.getArguments() !=  null){
@@ -101,6 +102,17 @@ public class AddBookingFragment extends Fragment {
     public void onPause(){
         super.onPause();
         Log.d("ADD_BOOKING","PAUSE");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        super.onSaveInstanceState(savedInstanceState);
+        Log.d("ADD_BOOKING","SAVED");
+    }
+    @Override
+    public void onViewStateRestored (Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.d("ADD_BOOKING","RESTORED");
     }
     public static String[] getResultTextArray(String locationInfo){
         // sort house number, street and postcode information from string in format "housenumber street,postcode,UK"

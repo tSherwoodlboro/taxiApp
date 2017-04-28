@@ -64,7 +64,7 @@ public class Booking {
         // Constructor always called to get user id.
         this.context = context;
         userId = SharedPreferencesManager.getUserPreferences(this.context).getString(context.getString(R.string.user_preferred_user_id_pref_key),"null");
-        assignedDriverId =  Integer.valueOf(SharedPreferencesManager.getUserPreferences(this.context).getString(context.getString(R.string.user_preferred_driver_id_pref_key),"null"));
+        assignedDriverId =  Integer.valueOf(SharedPreferencesManager.getUserPreferences(this.context).getString(context.getString(R.string.user_preferred_driver_id_pref_key),"1"));
     }
     public Booking(Context context, String date, String pickUpName, String destName, Double pickUpLatitude, Double pickUpLongitude, Double destLatitude, Double destLongitude,String price, int id){
         this(context);
@@ -360,7 +360,7 @@ public class Booking {
     }
     public void setBookingComplete(){
         if(id==-1){return;}
-        TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase();
+        TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(context);
         setBookingComplete(1);
         setParams();
         HashMap<String,String> params = new HashMap<>();

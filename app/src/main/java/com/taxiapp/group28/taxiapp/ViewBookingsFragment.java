@@ -5,6 +5,7 @@ import android.app.LoaderManager;
 import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Loader;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.app.Fragment;
 import android.os.Bundle;
@@ -34,7 +35,7 @@ public  class ViewBookingsFragment extends Fragment {
     private String[] args = new String[1];
     private View view;
     private boolean checkedBookings = false; // only check booking if completed at start.
-
+    private LoaderManager loaderManager;
     public ViewBookingsFragment(){
     }
 
@@ -43,8 +44,17 @@ public  class ViewBookingsFragment extends Fragment {
         if(view != null){
             return view;
         }
-        view = inflater.inflate(R.layout.fragment_bookings, container, false);
-        loadBookings();
+        Log.d("NETWORK_ENABLED", "Is enabled "+TaxiAppOnlineDatabase.isNetworkEnabled(getActivity()));
+        // load layout depending on screen orientation
+        switch (getResources().getConfiguration().orientation) {
+            case Configuration.ORIENTATION_PORTRAIT:
+                view = inflater.inflate(R.layout.fragment_bookings, container, false);
+                break;
+            case Configuration.ORIENTATION_LANDSCAPE:
+                view = inflater.inflate(R.layout.fragment_bookings_landscape, container, false);
+                break;
+        }
+
         Log.d("LOAD_VIEW_BOOKINGS","true");
         if(savedInstanceState != null && savedInstanceState.containsKey("checkedBookings")){
             checkedBookings = savedInstanceState.getBoolean("checkedBookings");
@@ -54,7 +64,8 @@ public  class ViewBookingsFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        loadBookings();
+        loaderManager = this.getLoaderManager();
+        //loadBookings();
     }
     @Override
     public void onResume(){
@@ -89,7 +100,7 @@ public  class ViewBookingsFragment extends Fragment {
         mainMenuActivity.loadFragment(addBookingFragment,MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true);
     }
     private void removeBooking(Booking selectedBooking,final int position){
-        final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase();
+        final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(getActivity());
         HashMap<String,String> params = new HashMap<>();
         params.put("id",String.valueOf(selectedBooking.getId()));
         final String[] args = {params.get("id")};
@@ -119,13 +130,16 @@ public  class ViewBookingsFragment extends Fragment {
         if(args[0] ==null) {
             args[0] = SharedPreferencesManager.getUserPreferences(ViewBookingsFragment.this.getActivity()).getString(getString(R.string.user_preferred_user_id_pref_key), null); // users id
         }
+        if(loaderManager == null){
+            loaderManager = this.getLoaderManager();
+        }
         // start loader if not started otherwise restart loader
-        if(this.getActivity().getLoaderManager().getLoader(0) == null) {
-            this.getActivity().getLoaderManager().initLoader(0, null, liveBookingLoader);
-            this.getActivity().getLoaderManager().initLoader(1, null, previousBookingLoader);
+        if(loaderManager.getLoader(0) == null) {
+            loaderManager.initLoader(0, null, liveBookingLoader);
+            loaderManager.initLoader(1, null, previousBookingLoader);
         }else{
-            this.getActivity().getLoaderManager().restartLoader(0, null, liveBookingLoader);
-            this.getActivity().getLoaderManager().restartLoader(1, null, previousBookingLoader);
+            loaderManager.restartLoader(0, null, liveBookingLoader);
+            loaderManager.restartLoader(1, null, previousBookingLoader);
         }
     }
     private class LiveBookingLoader implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -264,6 +278,9 @@ public  class ViewBookingsFragment extends Fragment {
                     popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
                         public boolean onMenuItemClick(android.view.MenuItem item) {
+                            if(!TaxiAppOnlineDatabase.isNetworkEnabled(context,0)){
+                                return false;
+                            }
                             switch(item.getItemId()){
                                 case R.id.option_booking_update:
                                     updateBooking(data.get(position));
@@ -332,6 +349,9 @@ public  class ViewBookingsFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     // to be implemented
+                    if(!TaxiAppOnlineDatabase.isNetworkEnabled(context,0)){
+                        return;
+                    }
                     Booking routeBooking = data.get(position);
                     Route newRoute = new Route(ViewBookingsFragment.this.getActivity(),null,routeBooking.getPickUpName(),routeBooking.getPickUpLatitude(),routeBooking.getPickUpLongitude(),
                             routeBooking.getDestName(),routeBooking.getDestLatitude(),routeBooking.getPickUpLongitude(),-1,null);

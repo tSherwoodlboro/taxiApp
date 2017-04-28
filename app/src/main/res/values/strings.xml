@@ -24,7 +24,7 @@
     <string name="user_email_pref_key">user@user.com</string>
     <string name="user_preferred_user_id_pref_key">null</string>
     <string name="user_preferred_driver_id_pref_key">1</string>
-
+    <string name="user_preferred_theme_pref_key">0</string>
 
     <string name="title_activity_main_menu">MainMenuActivity</string>
 

@@ -29,7 +29,7 @@ public class ViewRoutesFragment extends Fragment {
 
     private String[] args = new String[1];
     private View view;
-
+    private   LoaderManager loaderManager=null;
     public ViewRoutesFragment(){
 
     }
@@ -40,37 +40,40 @@ public class ViewRoutesFragment extends Fragment {
             return view;
         }
         view = inflater.inflate(R.layout.fragment_routes, container, false);
-        loadRoutes();
-        Log.d("LOAD_VIEW_BOOKINGS","true");
-        if(savedInstanceState != null){
-        }
+       // loadRoutes();
+        Log.d("LOAD_ROUTES","true");
         return view;
     }
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        loadRoutes();
+        loaderManager = this.getLoaderManager();
+        if(this.loaderManager == null){
+            Log.d("FRAGMENT_ROUTE","Loader manager null");
+        }
+
+        Log.d("FRAGMENT_ROUTE","Activity created");
     }
     @Override
     public void onResume(){
         super.onResume();
-        Log.d("FRAGMENT","VIEW RESUME");
+        Log.d("FRAGMENT_ROUTE","VIEW RESUME");
         loadRoutes();
     }
     @Override
     public void onPause(){
         super.onPause();
-        Log.d("FRAGMENT","VIEW PAUSE");
+        Log.d("FRAGMENT_ROUTE","VIEW PAUSE");
     }
     @Override
     public void onStart(){
         super.onStart();
-        Log.d("FRAGMENT","VIEW START");
+        Log.d("FRAGMENT_ROUTE","VIEW START");
     }
     @Override
     public void onStop(){
         super.onStop();
-        Log.d("FRAGMENT","VIEW STOP");
+        Log.d("FRAGMENT_ROUTE","VIEW STOP");
     }
     @Override
     public void onSaveInstanceState(Bundle saveInstanceState){
@@ -88,7 +91,7 @@ public class ViewRoutesFragment extends Fragment {
 
     }
     private void removeRoute(Route route, final int position){
-        final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase();
+        final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(getActivity());
         HashMap<String,String> params = new HashMap<>();
         params.put("id",String.valueOf(route.getId()));
         final String[] args = {params.get("id")};
@@ -113,15 +116,23 @@ public class ViewRoutesFragment extends Fragment {
         if(view == null){
             return;
         }
+        Log.d("FRAGMENT_ROUTE","LOAD_ROUTES");
+
         RouteLoader routeLoader = new RouteLoader();
         if(args[0] ==null) {
             args[0] = SharedPreferencesManager.getUserPreferences(ViewRoutesFragment.this.getActivity()).getString(getString(R.string.user_preferred_user_id_pref_key), null); // users id
         }
         // start loader if not started otherwise restart loader
-        if(this.getActivity().getLoaderManager().getLoader(0) == null) {
-            this.getActivity().getLoaderManager().initLoader(0, null, routeLoader);
+        if(loaderManager == null){
+            loaderManager = this.getLoaderManager();
+        }
+        if(loaderManager.getLoader(3) == null) {
+            Log.d("CURSOR","Initiated");
+            loaderManager.initLoader(3, null, routeLoader);
+
         }else {
-            this.getActivity().getLoaderManager().restartLoader(0, null, routeLoader);
+            Log.d("CURSOR","Restarted");
+            loaderManager.restartLoader(3, null, routeLoader);
         }
 
     }
