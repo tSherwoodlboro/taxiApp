@@ -9,6 +9,6 @@
         android:layout_height="wrap_content"
         android:text="@string/items_empty_text"
         android:textAlignment="center"
-        android:textColor="@color/cast_expanded_controller_background_color"
+        android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold" />
 </LinearLayout>

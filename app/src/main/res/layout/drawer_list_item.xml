@@ -9,4 +9,5 @@
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
     android:textAppearance="?android:attr/textAppearanceListItemSmall"
-    android:textColor="@color/cast_expanded_controller_background_color" />
+    android:textColor="@color/colorPrimaryDark"
+    />

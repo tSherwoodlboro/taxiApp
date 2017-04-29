@@ -16,7 +16,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="7dp"
         android:text="Routes"
-        android:textColor="@color/cast_expanded_controller_background_color"
+        android:textColor="@color/colorPrimaryDark"
         android:textStyle="bold"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toLeftOf="parent"
