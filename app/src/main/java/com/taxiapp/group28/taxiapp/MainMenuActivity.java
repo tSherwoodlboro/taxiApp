@@ -4,14 +4,19 @@ import android.content.Context;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.FragmentTransaction;
 import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -28,6 +33,7 @@ public class MainMenuActivity extends AppCompatActivity {
     private String[] fragmentTitles = {"Add Booking","Bookings","Routes","Guide","Settings","Call Help"};
     private DrawerLayout drawerLayout;
     private ListView drawerListView;
+    private ActionBarDrawerToggle drawerToggle;
     public static final int ADD_BOOKING_FRAGMENT_POSITION = 0;
     public static final int VIEW_BOOKINGS_FRAGMENT_POSITION = 1;
     public static final int VIEW_ROUTES_FRAGMENT_POSITION = 2;
@@ -43,13 +49,28 @@ public class MainMenuActivity extends AppCompatActivity {
     public void onCreate(Bundle saveInstanceState){
         super.onCreate(saveInstanceState);
         setContentView(R.layout.activity_main_menu);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        this.setSupportActionBar(toolbar);
+
         int themeValue = Integer.valueOf(SharedPreferencesManager.getUserPreferences(this).getString(getString(R.string.user_preferred_theme_pref_key),"0")); // get theme value from preferences
         setTheme(getAppTheme(themeValue));
         drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
         drawerListView = (ListView)findViewById(R.id.left_drawer);
-
         drawerListView.setAdapter(new ArrayAdapter<>(this,R.layout.drawer_list_item,fragmentTitles));
         drawerListView.setOnItemClickListener(new DrawerItemClickListener());
+        // set toggle for action bar
+        drawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.open_drawer,R.string.close_drawer){
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+            }
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+            }
+        };
+        drawerLayout.addDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+
         if(fragmentManager == null){
             fragmentManager = this.getFragmentManager();
         }
@@ -94,7 +115,6 @@ public class MainMenuActivity extends AppCompatActivity {
     private class DrawerItemClickListener implements ListView.OnItemClickListener{
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Log.d("ITEM_SELECTED","Item selected");
             Fragment selectedFragment=null;
 
             switch(position){
