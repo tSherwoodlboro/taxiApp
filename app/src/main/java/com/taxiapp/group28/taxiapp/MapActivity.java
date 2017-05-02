@@ -26,24 +26,28 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
     private int returnIntentResultCode;// for either pickUp or destination fragments
     private static String NO_LOCATION_MESSAGE = "Warning no location!";
     private String markerText; // overhead text for marker/pointer
+
+    private int type=3;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
         // get intent data
-        int type = this.getIntent().getIntExtra("type",3);
-        if(type == TaxiConstants.PICK_UP){
-            setLocationNameText(this.getIntent().getStringExtra("pickUpName").toString());
-            returnIntentResultCode= TaxiConstants.MAP_PICKUP_SET_POINT_DONE;
-            returnIntentKey = "pickUpLocation";
-            markerText = "Pick Up Point";
-        }else if(type == TaxiConstants.DEST){
-            locationName = this.getIntent().getStringExtra("destName").toString();
-            returnIntentResultCode= TaxiConstants.MAP_DEST_POINT_DONE;
-            returnIntentKey="destLocation";
-            markerText = "Destination Point";
+        if(this.getIntent() !=null) {
+            type = this.getIntent().getIntExtra("type", 3);
+            if (type == TaxiConstants.PICK_UP) {
+                setUIPickUP(this.getIntent().getStringExtra("pickUpName").toString());
+            }else if(type == TaxiConstants.DEST){
+                setUIDest(this.getIntent().getStringExtra("destName").toString());
+            }
+        }else if(savedInstanceState != null){
+            type = savedInstanceState.getInt("type");
+            if (type == TaxiConstants.PICK_UP) {
+                setUIPickUP(savedInstanceState.getString("pickUpName").toString());
+            }else if(type == TaxiConstants.DEST){
+                setUIDest(savedInstanceState.getString("destName").toString());
+            }
         }
-
 
         //start map fragment
         MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.current_map);
@@ -68,6 +72,16 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             }
 
         });
+    }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putInt("type",type);
+        if(type == TaxiConstants.PICK_UP){
+            savedInstanceState.putString("pickUpName",locationName);
+        }else if(type == TaxiConstants.DEST){
+            savedInstanceState.putString("destName",locationName);
+        }
     }
     @Override
     public void onMapReady(final GoogleMap map) {
@@ -115,6 +129,18 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         } catch (Exception e) {
             return;
         }
+    }
+    private void setUIPickUP(String _locationName){
+        setLocationNameText(_locationName);
+        returnIntentResultCode = TaxiConstants.MAP_PICKUP_SET_POINT_DONE;
+        returnIntentKey = "pickUpLocation";
+        markerText = "Pick Up Point";
+    }
+    private void setUIDest(String _locationName){
+        setLocationNameText(_locationName);
+        returnIntentResultCode = TaxiConstants.MAP_DEST_POINT_DONE;
+        returnIntentKey = "destLocation";
+        markerText = "Destination Point";
     }
     public static Address getAddress(String name, Context context) {
         // static class returns address based on search text

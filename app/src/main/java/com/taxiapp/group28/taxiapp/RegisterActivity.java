@@ -37,23 +37,39 @@ public class RegisterActivity extends AppCompatActivity {
     private String verificationCode =null; // verification code sent to user
     private boolean smsPermission= false; // boolean to check if the app has been given sms permission
     private boolean oldAccountVerified=true; // if an existing user enters their details
-    private String mobileNumber = null; // value of users mobile number
+    private String mobileNumber = null; // value of users mobile number from UI
+    // UI components
     private EditText mobileNum=null;
     private Button registerBtn =null;
     private Button verifyButton = null;
     private EditText editVerificationCode = null;
-
+    // user details from db
     private String userUserName=null;
     private String userTelNo=null;
     private String userPreferredDriverID = "1";
-    private int userId;
+    private int userId=-1;
+    private boolean verificationCodeReceived = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        isUserLoggedIn(); // checks if user logged in before
-        setVerificationCode(); // create a random verification code
+        if(savedInstanceState == null) {
+            isUserLoggedIn(); // checks if user logged in before
+            setVerificationCode(); // create a random verification code
+            Log.d("REGISTER","created null");
+        }else{
+            Log.d("REGISTER","Bundle: "+savedInstanceState.toString());
+            // restore class variables
+            oldAccountVerified = savedInstanceState.getBoolean("oldAccountVerified", true);
+            verificationCode = savedInstanceState.getString("verificationCode", null);
+            userPreferredDriverID = savedInstanceState.getString("userPreferredDriverID", "1");
+            userUserName = savedInstanceState.getString("userUserName", null);
+            userTelNo = savedInstanceState.getString("userTelNo", null);
+            userId = savedInstanceState.getInt("userId", -1);
+            mobileNumber = savedInstanceState.getString("mobileNumber",null);
+            verificationCodeReceived = savedInstanceState.getBoolean("verificationCodeReady", false);
+        }
         // st up UI objects
         if(!TaxiAppOnlineDatabase.isNetworkEnabled(RegisterActivity.this)){
             Toast toast = Toast.makeText(this,"Warning Network Disabled!",Toast.LENGTH_LONG);
@@ -61,7 +77,7 @@ public class RegisterActivity extends AppCompatActivity {
         }
         mobileNum = (EditText)this.findViewById(R.id.edit_mobile_number);
         editVerificationCode = (EditText)this.findViewById(R.id.edit_verification_code);
-        registerBtn=  (Button)this.findViewById(R.id.register_button);
+        registerBtn = (Button)this.findViewById(R.id.register_button);
         // add listeners for buttons
         registerBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +92,51 @@ public class RegisterActivity extends AppCompatActivity {
                verifyUser(); // verify user
             }
         });
-        enableVerify(false);// disable verify inputs on start up
+        if(verificationCodeReceived){
+            enableRegister(false);
+            enableVerify(true);
+        }else{
+            enableRegister(true);
+            enableVerify(false);
+        }
+        Log.d("REGISTER","Created");
+    }
+    @Override
+    public void onStart(){
+        super.onStart();
+    }
+    @Override
+    public void onStop(){
+        super.onStop();
+    }
+    @Override
+    public void onResume(){
+        super.onResume();
+    }
+    @Override
+    public void onPause(){
+        super.onPause();
+    }
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+    }
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState){
+        super.onSaveInstanceState(savedInstanceState);
+        // save the class variables
+        savedInstanceState.putBoolean("oldAccountVerified",oldAccountVerified);
+        savedInstanceState.putString("verificationCode",verificationCode);
+        savedInstanceState.putString("userPreferredDriverID",userPreferredDriverID);
+        savedInstanceState.putString("userUserName",userUserName);
+        savedInstanceState.putString("userTelNo",userTelNo);
+        savedInstanceState.putInt("userId",userId);
+        savedInstanceState.putString("mobileNumber",mobileNumber);
+        savedInstanceState.putBoolean("verificationCodeReady",verificationCodeReceived);
+    }
+    @Override
+    public void onRestoreInstanceState(Bundle bundle){
+        super.onRestoreInstanceState(bundle);
     }
     @Override
     public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
@@ -155,6 +215,7 @@ public class RegisterActivity extends AppCompatActivity {
                         //verify user
                         enableRegister(false);
                         enableVerify(true);
+                        verificationCodeReceived=true;
                     } else {
                         makeToast("Sending Verification SMS Failed.");
                         enableRegister(true);
@@ -202,10 +263,10 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onGetResult() {
 
-                if(conn != null && (conn.getResultMessage().equals(new Integer(TaxiAppOnlineDatabase.SUCCESS).toString()))) {
+                if(conn != null && (conn.getResultMessage().equals(Integer.valueOf(TaxiAppOnlineDatabase.SUCCESS).toString()))) {
                     // if the result  is successful send a verification sms
                     sendVerificationSms();
-                }else if(conn != null && conn.getResultMessage().equals(new Integer(TaxiAppOnlineDatabase.DB_UNIQUE_ERROR).toString())){
+                }else if(conn != null && conn.getResultMessage().equals(Integer.valueOf(TaxiAppOnlineDatabase.DB_UNIQUE_ERROR).toString())){
                     // The user already has an account. Therefore check that they are verified
                     oldAccountVerified = false;  // assume old account isn't verified
                     verifyUser();
@@ -221,7 +282,6 @@ public class RegisterActivity extends AppCompatActivity {
         final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(this); // create db instance
         HashMap<String,String> dataParams = new HashMap<>(); // hashmap for data
         dataParams.put("tel_no",mobileNumber); // mobile number needed as it uniquely identifies the user
-        Log.d("RESULT","User Message: ");
         conn.getUser(dataParams); //  get the users info
         // get listener for  result
         conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
@@ -231,17 +291,17 @@ public class RegisterActivity extends AppCompatActivity {
                     JSONArray result = conn.getResult(); // get the result (The user information)
                     try {
                         // store user info in local variables
-                        String userVerified = new Integer((int)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_VERIFIED)).toString();
-                        String userVerificationCode = (String)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_VERIFICATION_CODE);
+                        String userVerified = Integer.valueOf((int)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_VERIFIED)).toString(); // if the user is verified
+                        String userVerificationCode = editVerificationCode.getText().toString(); // the verification code the user entered
+                        verificationCode = (String)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_VERIFICATION_CODE);
                         userId = (int)result.getJSONObject(0).get("id");
-                        userPreferredDriverID = String.valueOf(result.getJSONObject(0).get(DBContract.User_Table.COLUMN_PREFERRED_DRIVER_ID));
+                        userPreferredDriverID = String.valueOf(result.getJSONObject(0).get(DBContract.User_Table.COLUMN_PREFERRED_DRIVER_ID)); // default 1
                         userUserName = (String)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_USER_NAME);
                         userTelNo = (String)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_TEL_NO);
                         //userPreferredDriverID = "-1"; // proffered driver id NULL (-1) this value is set later in settings
 
                        if(!oldAccountVerified){
                            // if it's an existing account that wasn't verified send an sms and return
-                           RegisterActivity.this.verificationCode = userVerificationCode;
                            sendVerificationSms();
                            oldAccountVerified=true;
                            return;
