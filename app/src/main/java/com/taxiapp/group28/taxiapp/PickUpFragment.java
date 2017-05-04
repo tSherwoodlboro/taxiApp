@@ -11,6 +11,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 
 import android.util.Log;
@@ -53,6 +55,10 @@ public class PickUpFragment extends Fragment {
     private Switch locationSwitch;
     private  View view=null;
     private boolean updateBooking=false;
+    EditText pickUpNameText= null;
+    private String pickUpNameString = "";
+    private EditText note = null;
+    private String noteString="";
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d("FRAGMENT_STATE","Created View");
@@ -61,12 +67,49 @@ public class PickUpFragment extends Fragment {
         }
 
         view = inflater.inflate(R.layout.pick_up_tab, container, false);
+        pickUpNameText = (EditText) view.findViewById(R.id.editPickUpLocation);
+        // set text change listener for search text
+        pickUpNameText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                pickUpNameString= pickUpNameText.getText().toString();
+            }
+        });
+        note = (EditText)view.findViewById(R.id.edit_note);
+        note.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                noteString = note.getText().toString();
+            }
+        });
         locationSwitch = (Switch)view.findViewById(R.id.add_booking_cLocation_switch);
         // set default pickUpTime
         Calendar calendar = Calendar.getInstance();
         calendar.set(calendar.MINUTE, calendar.get(calendar.MINUTE) + 30);
         pickUpTime = calendar;
-        setLocationSet(false);
+        if(!isLocationSet()) {
+            setLocationSet(false);
+        }
 
         // onclick listener for pick up button
         final Button pickUpButton = (Button) view.findViewById(R.id.add_booking_pick_up_button);
@@ -147,7 +190,6 @@ public class PickUpFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-
         Log.d("FRAGMENT_STATE_PICK_UP","Activity Created");
     }
     @Override
@@ -168,7 +210,6 @@ public class PickUpFragment extends Fragment {
     @Override
     public void onStop(){
         super.onStop();
-        //onSaveInstanceState(new Bundle());
         Log.d("FRAGMENT_STATE_PICK_UP","Stop");
     }
     @Override
@@ -179,12 +220,11 @@ public class PickUpFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
-        Log.d("FRAGMENT_STATE_PICK_UP","Location State: "+isLocationSet());
         savedInstanceState.putBoolean("locationSet",isLocationSet());
         savedInstanceState.putString("searchText",getSearchText());
         savedInstanceState.putString("noteText",getNoteText());
         savedInstanceState.putBoolean("useCurrentLocation",useCurrentLocation);
-
+        Log.d("FRAGMENT_STATE_PICK_UP","Bundle: "+savedInstanceState.toString());
         if(isLocationSet()){
             savedInstanceState.putString("locationName",location);
             savedInstanceState.putDouble("latitude",latitude);
@@ -199,7 +239,7 @@ public class PickUpFragment extends Fragment {
     @Override
     public void onViewStateRestored (Bundle savedInstanceState){
         super.onViewStateRestored(savedInstanceState);
-        if(savedInstanceState !=null){
+        if(savedInstanceState !=null && !isLocationSet()){
             setLocationSet(savedInstanceState.getBoolean("locationSet"));
             Log.d("FRAGMENT_STATE_PICK_UP", "Location Set: " + isLocationSet());
             useCurrentLocation = savedInstanceState.getBoolean("useCurrentLocation");
@@ -213,6 +253,7 @@ public class PickUpFragment extends Fragment {
             setNoteText(savedInstanceState.getString("noteText"));
             Log.d("FRAGMENT_STATE_PICK_UP","State Restored");
         }
+        Log.d("FRAGMENT_STATE_PICK_UP","value locationSet: "+isLocationSet());
         Log.d("FRAGMENT_STATE_PICK_UP","Restored");
     }
 
@@ -304,7 +345,7 @@ public class PickUpFragment extends Fragment {
     }
     public void setNoteText(String text){
         EditText note = (EditText)view.findViewById(R.id.edit_note);
-         note.setText(text);
+        note.setText(text);
     }
     public void setSearchText(String text){
         EditText pickUpNameText = (EditText) view.findViewById(R.id.editPickUpLocation);
@@ -405,15 +446,10 @@ public class PickUpFragment extends Fragment {
         return address;
     }
     public String getNoteText(){
-        if(view == null){
-            return null;
-        }
-        EditText note = (EditText)view.findViewById(R.id.edit_note);
-        return note.getText().toString();
+        return noteString;
     }
     public String getSearchText(){
-        EditText pickUpNameText = (EditText) view.findViewById(R.id.editPickUpLocation);
-        return pickUpNameText.getText().toString();
+        return pickUpNameString;
     }
     public boolean isLocationSet(){
         return locationSet;

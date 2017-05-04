@@ -95,7 +95,7 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
             case PICK_UP_TAB:pickUpTab = (PickUpFragment)createdFragment;
                 break;
             case DEST_TAB:destTab = (DestFragment)createdFragment;
-                return destTab;
+                break;
             case CONFIRM_TAB:confirmTab = (ConfirmBookingFragment) createdFragment;
                 break;
             default:

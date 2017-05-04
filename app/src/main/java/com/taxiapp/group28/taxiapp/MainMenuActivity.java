@@ -73,11 +73,18 @@ public class MainMenuActivity extends AppCompatActivity {
 
         if(fragmentManager == null){
             fragmentManager = this.getFragmentManager();
+            fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+                @Override
+                public void onBackStackChanged() {
+
+                }
+            });
         }
         if(saveInstanceState == null) {
             key = Integer.toString(VIEW_BOOKINGS_FRAGMENT_POSITION);
             loadFragment(new ViewBookingsFragment(), VIEW_BOOKINGS_FRAGMENT_POSITION,false);
         }
+        Log.d("MAIN_MENU_ACTIVITY","CREATED");
     }
     @Override
     public void onStart(){

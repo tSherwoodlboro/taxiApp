@@ -24,16 +24,17 @@ public class OnBootService extends IntentService {
     public void onHandleIntent(Intent intent) {
         String[] args = {"-1"};
         Log.d("Handle_LOADED","handle loaded");
-        Cursor cursor = getContentResolver().query(DBContract.Booking_Table.CONTENT_URI, null, DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE + "= ?", args, "LIMIT 1");
+        Cursor cursor = getContentResolver().query(DBContract.Booking_Table.CONTENT_URI, null, DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE + "= ?", args, null);
         while (cursor.moveToNext()) {
             cursor.getColumnIndex(DBContract.Booking_Table.COLUMN_EST_ARRIVAL_TIME);
             pickUpTime = cursor.getString(cursor.getColumnIndex(DBContract.Booking_Table.COLUMN_EST_ARRIVAL_TIME));
             createNotification();
+            break;
         }
     }
 
     private void createNotification() {
-        Intent bookingsIntent = new Intent(this,ViewBookingsFragment.class);
+        Intent bookingsIntent = new Intent(this,MainMenuActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this,0,bookingsIntent, PendingIntent.FLAG_CANCEL_CURRENT);
         NotificationManager mNotifyMgr = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder =

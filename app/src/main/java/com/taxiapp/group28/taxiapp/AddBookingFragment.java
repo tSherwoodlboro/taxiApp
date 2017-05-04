@@ -53,8 +53,8 @@ public class AddBookingFragment extends Fragment {
                         adapter.setConfirmLocations(); // set locations
                         if(!adapter.isLocationsSet()){
                             // if locations set are not valid
-                            selectDestTab();
-                            return;
+                                selectDestTab();
+                                return;
                         }
                     }
                     viewPager.setCurrentItem(tab.getPosition()); // go to selected tab
@@ -86,33 +86,33 @@ public class AddBookingFragment extends Fragment {
     @Override
     public void onStart(){
         super.onStart();
-        Log.d("ADD_BOOKING","START");
+        Log.d("ADD_BOOKING_FRAGMENT","START");
     }
     @Override
     public void onStop(){
         super.onStop();
-        Log.d("ADD_BOOKING","STOP");
+        Log.d("ADD_BOOKING_FRAGMENT","STOP");
     }
     @Override
     public void onResume(){
         super.onResume();
-        Log.d("ADD_BOOKING","RESUME");
+        Log.d("ADD_BOOKING_FRAGMENT","RESUME");
     }
     @Override
     public void onPause(){
         super.onPause();
-        Log.d("ADD_BOOKING","PAUSE");
+        Log.d("ADD_BOOKING_FRAGMENT","PAUSE");
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
         super.onSaveInstanceState(savedInstanceState);
-        Log.d("ADD_BOOKING","SAVED");
+        Log.d("ADD_BOOKING_FRAGMENT","SAVED");
     }
     @Override
     public void onViewStateRestored (Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        Log.d("ADD_BOOKING","RESTORED");
+        Log.d("ADD_BOOKING_FRAGMENT","RESTORED");
     }
     public static String[] getResultTextArray(String locationInfo){
         // sort house number, street and postcode information from string in format "housenumber street,postcode,UK"

@@ -231,7 +231,7 @@ public class Booking {
     public String getDate(){return date;}
     public String getPickUpName(){return pickUpName;}
     public String getDestName(){return destName;}
-    public String getPrice(){return price;}
+    public String getPrice(){return String.format(Locale.UK,"%.2f",Double.valueOf(price));}
     public Double getPickUpLatitude(){return pickUpLatitude;}
     public Double getPickUpLongitude(){return pickUpLongitude;}
     public Double getDestLatitude(){return destLatitude;}

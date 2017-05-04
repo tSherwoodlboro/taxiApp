@@ -1,10 +1,13 @@
 package com.taxiapp.group28.taxiapp;
 
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +15,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import java.util.zip.Inflater;
 
 
 /**
@@ -28,17 +33,37 @@ public class DestFragment extends Fragment {
     private String postcodeResult; // result postcode
     private String streetResult; // result street
     private boolean updateBooking=false;
-
-    private  View view;
+    private  EditText destNameText=null;
+    private String destNameString="";
+    private  View view=null;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if(view!=null){
             return view;
         }
         view = inflater.inflate(R.layout.destination_tab, container, false);
-        // onclick listener for destination up button
+        // set text change listener for search text
+        destNameText = (EditText) view.findViewById(R.id.editDestLocation);
+        destNameText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-        setLocationSet(false);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                destNameString = destNameText.getText().toString();
+            }
+        });
+        // onclick listener for destination up button
+        if(!isLocationSet()) {
+            setLocationSet(false);
+        }
 
         final Button destButton = (Button) view.findViewById(R.id.add_booking_destination_button);
         destButton.setOnClickListener(new View.OnClickListener() {
@@ -63,7 +88,6 @@ public class DestFragment extends Fragment {
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-
         Log.d("FRAGMENT_STATE_DEST","Activity Created");
     }
     @Override
@@ -84,8 +108,6 @@ public class DestFragment extends Fragment {
     @Override
     public void onStop(){
         super.onStop();
-        Bundle savedInstanceState = new Bundle();
-        //onSaveInstanceState(savedInstanceState);
         Log.d("FRAGMENT_STATE_DEST","Stop");
 
     }
@@ -97,6 +119,7 @@ public class DestFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         super.onSaveInstanceState(savedInstanceState);
+        Log.d("FRAGMENT_STATE_DEST","Location dest set: "+isLocationSet());
         savedInstanceState.putBoolean("locationSet",isLocationSet());
         savedInstanceState.putString("searchText",getSearchText());
         if(isLocationSet()){
@@ -110,7 +133,7 @@ public class DestFragment extends Fragment {
     @Override
     public void onViewStateRestored (Bundle savedInstanceState){
         super.onViewStateRestored(savedInstanceState);
-        if(savedInstanceState !=null){
+        if(savedInstanceState !=null && !isLocationSet()){
             setLocationSet(savedInstanceState.getBoolean("locationSet"));
             if(isLocationSet()){
                 setLocation(savedInstanceState.getDouble("latitude"),savedInstanceState.getDouble("longitude"),savedInstanceState.getString("locationName"));
@@ -187,7 +210,6 @@ public class DestFragment extends Fragment {
             setLocationSet(false);
         }
     }
-
     public String getStreetResult(){
         EditText editText = (EditText) view.findViewById(R.id.edit_dest_street);
         streetResult = editText.getText().toString();
@@ -246,9 +268,7 @@ public class DestFragment extends Fragment {
         return address;
     }
     public String getSearchText() {
-        EditText destNameText = (EditText) view.findViewById(R.id.editDestLocation);
-        return destNameText.getText().toString();
-
+        return destNameString;
     }
     private void enableResultEdit(boolean val){
         EditText editStreet = (EditText)view.findViewById(R.id.edit_dest_street);

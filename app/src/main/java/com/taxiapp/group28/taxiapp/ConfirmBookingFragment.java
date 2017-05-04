@@ -32,6 +32,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -173,7 +175,9 @@ public class ConfirmBookingFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        mapView.onDestroy();
+        if(mapView != null) {
+            mapView.onDestroy();
+        }
         super.onDestroy();
         // Log.d("FRAGMENT_STATE_CONFIRM","Destroy");
     }
