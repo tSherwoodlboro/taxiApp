@@ -119,6 +119,7 @@ public class MainMenuActivity extends AppCompatActivity {
             loadFragment(fragmentManager.findFragmentByTag(savedInstanceState.getString("fragmentTag")), position,false);
         }
     }
+
     private class DrawerItemClickListener implements ListView.OnItemClickListener{
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -209,6 +210,7 @@ public class MainMenuActivity extends AppCompatActivity {
         setTitle(fragmentTitles[position]);
         drawerLayout.closeDrawer(drawerListView);
     }
+
     public static ArrayAdapter<String> getNoResultAdapter(Context context){
         // add a no results view to listView
         List<String> list = new ArrayList<>();

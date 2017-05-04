@@ -41,6 +41,7 @@ public class DestFragment extends Fragment {
         if(view!=null){
             return view;
         }
+        Log.d("FRAGMENT_STATE_DEST","VIEW  NULL "+locationSet);
         view = inflater.inflate(R.layout.destination_tab, container, false);
         // set text change listener for search text
         destNameText = (EditText) view.findViewById(R.id.editDestLocation);
@@ -140,6 +141,14 @@ public class DestFragment extends Fragment {
                 setSearchText(savedInstanceState.getString("searchText"));
             }
         }
+        if(!isLocationSet()) {
+            EditText editStreet = (EditText) view.findViewById(R.id.edit_dest_street);
+            if (!editStreet.getText().toString().isEmpty()) {
+                enableResultEdit(true);
+                setAddressOverride();
+            }
+        }
+
         Log.d("FRAGMENT_STATE_DEST","Restored");
     }
     @Override
@@ -192,6 +201,17 @@ public class DestFragment extends Fragment {
         if(!resultArray[2].equals(resultArray[1].split(" ")[0])){
             //makes sure postcode is present
             setPostcodeResult(resultArray[2]);
+        }
+    }
+    public void setAddressOverride(){
+        String locationInfo = getHouseNumberResult()+" " + getStreetResult()+" "+getPostcodeResult();
+        address = MapActivity.getAddress(locationInfo, getActivity());
+        if(address != null) {
+            setLocation(address.getLatitude(), address.getLongitude(), MapActivity.getLocationName(address));
+        }else{
+            Toast toast = Toast.makeText(getActivity(),"Destination Location Invalid", Toast.LENGTH_SHORT);
+            toast.show();
+            setLocationSet(false);
         }
     }
     public void setAddress(){

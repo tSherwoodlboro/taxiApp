@@ -1,5 +1,6 @@
 package com.taxiapp.group28.taxiapp;
 import android.app.Fragment;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -113,6 +114,10 @@ public class AddBookingFragment extends Fragment {
     public void onViewStateRestored (Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         Log.d("ADD_BOOKING_FRAGMENT","RESTORED");
+    }
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
     }
     public static String[] getResultTextArray(String locationInfo){
         // sort house number, street and postcode information from string in format "housenumber street,postcode,UK"

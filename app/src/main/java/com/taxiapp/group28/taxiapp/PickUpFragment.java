@@ -65,7 +65,7 @@ public class PickUpFragment extends Fragment {
         if(view!=null){
             return view;
         }
-
+        Log.d("FRAGMENT_STATE_PICK_UP","VIEW NULL "+locationSet);
         view = inflater.inflate(R.layout.pick_up_tab, container, false);
         pickUpNameText = (EditText) view.findViewById(R.id.editPickUpLocation);
         // set text change listener for search text
@@ -224,24 +224,18 @@ public class PickUpFragment extends Fragment {
         savedInstanceState.putString("searchText",getSearchText());
         savedInstanceState.putString("noteText",getNoteText());
         savedInstanceState.putBoolean("useCurrentLocation",useCurrentLocation);
-        Log.d("FRAGMENT_STATE_PICK_UP","Bundle: "+savedInstanceState.toString());
         if(isLocationSet()){
             savedInstanceState.putString("locationName",location);
             savedInstanceState.putDouble("latitude",latitude);
             savedInstanceState.putDouble("longitude",longitude);
         }
-        if(savedInstanceState == null){
-            Log.d("NULL_BUNDLE","true");
-        }
         Log.d("FRAGMENT_STATE_PICK_UP","Saved");
-
     }
     @Override
     public void onViewStateRestored (Bundle savedInstanceState){
         super.onViewStateRestored(savedInstanceState);
         if(savedInstanceState !=null && !isLocationSet()){
             setLocationSet(savedInstanceState.getBoolean("locationSet"));
-            Log.d("FRAGMENT_STATE_PICK_UP", "Location Set: " + isLocationSet());
             useCurrentLocation = savedInstanceState.getBoolean("useCurrentLocation");
             if(isLocationSet() && !useCurrentLocation){
                 setLocation(savedInstanceState.getDouble("latitude"),savedInstanceState.getDouble("longitude"),savedInstanceState.getString("locationName"));
@@ -250,10 +244,17 @@ public class PickUpFragment extends Fragment {
             if(useCurrentLocation){
                 locationSwitch.setChecked(true);
             }
-            setNoteText(savedInstanceState.getString("noteText"));
-            Log.d("FRAGMENT_STATE_PICK_UP","State Restored");
+            if(!savedInstanceState.getString("noteText").isEmpty()){
+                setNoteText(savedInstanceState.getString("noteText"));
+            }
         }
-        Log.d("FRAGMENT_STATE_PICK_UP","value locationSet: "+isLocationSet());
+        if(!isLocationSet()) {
+            EditText editStreet = (EditText) view.findViewById(R.id.edit_street);
+            if (!editStreet.getText().toString().isEmpty()) {
+                enableResultEdit(true);
+                setAddressOverride();
+            }
+        }
         Log.d("FRAGMENT_STATE_PICK_UP","Restored");
     }
 
@@ -376,6 +377,16 @@ public class PickUpFragment extends Fragment {
     private void setLocationSet(boolean val){
         locationSet = val;
         enableResultEdit(val);
+    }
+    public void setAddressOverride(){
+        String locationInfo = getHouseNumberResult()+" " + getStreetResult()+" "+getPostcodeResult();
+        address = MapActivity.getAddress(locationInfo, getActivity());
+        if(address != null) {
+            setLocation(address.getLatitude(), address.getLongitude(), MapActivity.getLocationName(address));
+        }else{
+            makeToast("Pick Up Location Invalid");
+            setLocationSet(false);
+        }
     }
     public void setAddress(){
         // set location and address
