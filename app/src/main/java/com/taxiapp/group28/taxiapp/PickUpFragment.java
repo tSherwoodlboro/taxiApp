@@ -61,11 +61,9 @@ public class PickUpFragment extends Fragment {
     private String noteString="";
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        Log.d("FRAGMENT_STATE","Created View");
         if(view!=null){
             return view;
         }
-        Log.d("FRAGMENT_STATE_PICK_UP","VIEW NULL "+locationSet);
         view = inflater.inflate(R.layout.pick_up_tab, container, false);
         pickUpNameText = (EditText) view.findViewById(R.id.editPickUpLocation);
         // set text change listener for search text
@@ -184,7 +182,7 @@ public class PickUpFragment extends Fragment {
         if(!isUsingRoute()) {
             isUpdatingBooking();
         }
-
+        this.setRetainInstance(true);
         return view;
     }
     @Override
@@ -248,10 +246,11 @@ public class PickUpFragment extends Fragment {
                 setNoteText(savedInstanceState.getString("noteText"));
             }
         }
-        if(!isLocationSet()) {
+        if(view != null && !isLocationSet()) {
             EditText editStreet = (EditText) view.findViewById(R.id.edit_street);
             if (!editStreet.getText().toString().isEmpty()) {
                 enableResultEdit(true);
+                Log.d("FRAGMENT_STATE_PICK_UP", "Override");
                 setAddressOverride();
             }
         }

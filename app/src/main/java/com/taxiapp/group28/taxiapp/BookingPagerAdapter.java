@@ -26,13 +26,15 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
     public static final String UPDATE_BOOKING_DEST_LONGITUDE = "pickUpLongitude";
     public static final String UPDATE_BOOKING_NOTE = "pickUpNote";
     public static final String UPDATE_BOOKING_ID = "bookingId";
-    int mNumOfTabs;
-    PickUpFragment pickUpTab = null;
-    DestFragment destTab = null;
-    ConfirmBookingFragment confirmTab = null;
-    Bundle argsBundle=null;
+    private int mNumOfTabs;
+    private PickUpFragment pickUpTab = null;
+    private DestFragment destTab = null;
+    private ConfirmBookingFragment confirmTab = null;
+    private Bundle argsBundle=null;
+    private FragmentManager fragmentManager= null;
     public BookingPagerAdapter(FragmentManager fm, int NumOfTabs,Bundle argsBundle) {
         super(fm);
+        this.fragmentManager = fm;
         this.mNumOfTabs = NumOfTabs;
         this.argsBundle = argsBundle; // bundle for updating otherwise null
     }
@@ -100,6 +102,10 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
                 break;
             default:
                 return null;
+        }
+        if(fragmentManager != null && fragmentManager.findFragmentByTag(String.valueOf(position)) == null){
+            fragmentManager.beginTransaction().addToBackStack(String.valueOf(position)).commit();
+            Log.d("BOOKING_PAGER","Add to stack: "+position);
         }
         return createdFragment;
     }

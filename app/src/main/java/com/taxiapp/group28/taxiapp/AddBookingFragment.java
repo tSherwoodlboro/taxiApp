@@ -21,13 +21,18 @@ public class AddBookingFragment extends Fragment {
     private ViewPager viewPager=null ;
     private BookingPagerAdapter adapter=null;
     private View view;
+    private int previousTabPosition =0;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if(view!=null){
             return view;
         }
-
+        if(savedInstanceState != null){
+            if(savedInstanceState.getInt("previousTabPosition") >0){
+                previousTabPosition = savedInstanceState.getInt("previousTabPosition");
+            }
+        }
         view = inflater.inflate(R.layout.fragment_add_booking, container, false);
         // if booking is being updated
         if(this.getArguments() !=  null){
@@ -41,6 +46,7 @@ public class AddBookingFragment extends Fragment {
             // needs changing to support API level < 17 currently doesn't work correctly
             adapter = new BookingPagerAdapter(this.getFragmentManager(), tabLayout.getTabCount(), argsBundle); // adapter for pager
         }
+
         viewPager.setAdapter(adapter); // set the adapter
         viewPager.setOffscreenPageLimit(3); // increase memory for tabs to 3 tabs/pages
         // add listeners
@@ -49,7 +55,7 @@ public class AddBookingFragment extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 // if confirm tab selected when the locations (pick up and dest) are not set, switch to the previous tab(dest tab)
-                if(tab.getPosition() != CONFIRM_TAB || adapter.isLocationsSet()){
+                if(tab.getPosition() != CONFIRM_TAB  || adapter.isLocationsSet()){
                     if(tab.getPosition() == CONFIRM_TAB){
                         adapter.setConfirmLocations(); // set locations
                         if(!adapter.isLocationsSet()){
@@ -59,17 +65,24 @@ public class AddBookingFragment extends Fragment {
                         }
                     }
                     viewPager.setCurrentItem(tab.getPosition()); // go to selected tab
+                    previousTabPosition = tab.getPosition();
                 }else{
                     // locations not valid
-                    Toast toast = Toast.makeText(AddBookingFragment.this.getActivity(),"Locations Not Set Or Invalid.",Toast.LENGTH_SHORT);
-                    toast.show();
-                    selectDestTab(); // go to dest tab
+                    if(previousTabPosition != CONFIRM_TAB) {
+                        Toast toast = Toast.makeText(AddBookingFragment.this.getActivity(), "Locations Not Set Or Invalid.", Toast.LENGTH_SHORT);
+                        toast.show();
+                        selectDestTab(); // go to dest tab
+                    }else{
+                        viewPager.setCurrentItem(tab.getPosition()); // go to selected tab
+                        previousTabPosition = tab.getPosition();
+                    }
                 }
             }
             private void selectDestTab(){
                 // select the destination tab to screen
                 if(tabLayout.getTabAt(DEST_TAB) != null) {
                     tabLayout.getTabAt(DEST_TAB).select();
+                    previousTabPosition= DEST_TAB;
                 }
             }
             @Override
@@ -108,7 +121,9 @@ public class AddBookingFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState){
         super.onSaveInstanceState(savedInstanceState);
+        savedInstanceState.putInt("previousTabPosition",previousTabPosition);
         Log.d("ADD_BOOKING_FRAGMENT","SAVED");
+
     }
     @Override
     public void onViewStateRestored (Bundle savedInstanceState) {

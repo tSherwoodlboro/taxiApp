@@ -41,7 +41,6 @@ public class DestFragment extends Fragment {
         if(view!=null){
             return view;
         }
-        Log.d("FRAGMENT_STATE_DEST","VIEW  NULL "+locationSet);
         view = inflater.inflate(R.layout.destination_tab, container, false);
         // set text change listener for search text
         destNameText = (EditText) view.findViewById(R.id.editDestLocation);
@@ -84,6 +83,7 @@ public class DestFragment extends Fragment {
         if(!isUsingRoute()){
             isUpdatingBooking();
         }
+        this.setRetainInstance(true);
         return view;
     }
     @Override
@@ -141,11 +141,12 @@ public class DestFragment extends Fragment {
                 setSearchText(savedInstanceState.getString("searchText"));
             }
         }
-        if(!isLocationSet()) {
+        if(view != null && !isLocationSet()) {
             EditText editStreet = (EditText) view.findViewById(R.id.edit_dest_street);
             if (!editStreet.getText().toString().isEmpty()) {
                 enableResultEdit(true);
                 setAddressOverride();
+                Log.d("FRAGMENT_STATE_DEST","override");
             }
         }
 

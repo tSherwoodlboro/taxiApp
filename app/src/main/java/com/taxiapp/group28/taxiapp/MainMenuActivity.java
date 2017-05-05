@@ -30,12 +30,12 @@ import java.util.List;
  */
 
 public class MainMenuActivity extends AppCompatActivity {
-    private String[] fragmentTitles = {"Add Booking","Bookings","Routes","Guide","Settings","Call Help"};
+    private String[] fragmentTitles = {"Bookings","Add Booking","Routes","Guide","Settings","Call Help"};
     private DrawerLayout drawerLayout;
     private ListView drawerListView;
     private ActionBarDrawerToggle drawerToggle;
-    public static final int ADD_BOOKING_FRAGMENT_POSITION = 0;
-    public static final int VIEW_BOOKINGS_FRAGMENT_POSITION = 1;
+    public static final int VIEW_BOOKINGS_FRAGMENT_POSITION = 0;
+    public static final int ADD_BOOKING_FRAGMENT_POSITION = 1;
     public static final int VIEW_ROUTES_FRAGMENT_POSITION = 2;
     public static final int GUIDE_FRAGMENT_POSITION = 3;
     public static final int SETTINGS_FRAGMENT_POSITION = 4;

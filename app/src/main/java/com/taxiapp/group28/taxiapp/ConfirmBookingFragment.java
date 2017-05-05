@@ -132,6 +132,7 @@ public class ConfirmBookingFragment extends Fragment {
         }
         //Log.d("FRAGMENT_STATE_CONFIRM","Initialise");
         isUpdatingBooking();
+        setRetainInstance(true);
         return view;
     }
 
