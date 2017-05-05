@@ -146,7 +146,7 @@ public  class ViewBookingsFragment extends Fragment {
         @Override
         public Loader<Cursor> onCreateLoader(int id,Bundle bundle){
             Log.d("CURSOR","created");
-            return new CursorLoader(ViewBookingsFragment.this.getActivity(),DBContract.Booking_Table.CONTENT_URI,null,DBContract.Booking_Table.COLUMN_USER_ID+"= ? AND "+DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE+"= -1",args,"_id DESC");
+            return new CursorLoader(ViewBookingsFragment.this.getActivity(),DBContract.Booking_Table.CONTENT_URI,null,DBContract.Booking_Table.COLUMN_USER_ID+"= ? AND "+DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE+"= -1",args,"_id ASC");
         }
         public void onLoadFinished(Loader<Cursor> loader, Cursor data){
             Log.d("CURSOR","finished");
