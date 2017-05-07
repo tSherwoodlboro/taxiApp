@@ -162,7 +162,7 @@ public class RegisterActivity extends AppCompatActivity {
         String mobileText = mobileNum.getText().toString(); // get mobile number
         if (!mobileText.isEmpty()) {
             // if mobile number not empty check if it's valid
-            if (mobileText.matches(REGEX_MOBILE_NUMBER)) {
+            if (!mobileText.matches(REGEX_MOBILE_NUMBER)) {
                 message = "Mobile Number Valid.";
                 if(smsPermission || isPermissions()){
                     // if sms permission granted add user

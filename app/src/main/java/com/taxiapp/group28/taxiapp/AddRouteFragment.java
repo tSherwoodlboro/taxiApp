@@ -51,7 +51,9 @@ public class AddRouteFragment extends Fragment {
                                     route.setContentValues();
                                     message = "Added Route";
                                     AddRouteFragment.this.getActivity().getContentResolver().insert(DBContract.Route_Table.CONTENT_URI,route.getContentValues());
-                                    AddRouteFragment.this.getActivity().getFragmentManager().popBackStack();
+                                    ViewBookingsFragment viewBookingsFragment = new ViewBookingsFragment();
+                                    MainMenuActivity mainMenuActivity = (MainMenuActivity)AddRouteFragment.this.getActivity();
+                                    mainMenuActivity.loadFragment(viewBookingsFragment,MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true);
                                 }
                             }
                             Toast toast = Toast.makeText(AddRouteFragment.this.getActivity(),message,Toast.LENGTH_SHORT);
