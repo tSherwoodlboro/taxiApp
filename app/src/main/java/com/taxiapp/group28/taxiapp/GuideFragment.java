@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
 
 /**
  * Created by Tom on 27/04/2017.
@@ -19,6 +21,10 @@ public class GuideFragment extends Fragment {
             return view;
         }
         view = inflater.inflate(R.layout.fragment_guide, container, false);
+        WebView webView = (WebView)view.findViewById(R.id.guide_web_view);
+        WebSettings webSettings = webView.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webView.loadUrl("http://group10.sci-project.lboro.ac.uk/guide/guide.html");
         return view;
     }
 
