@@ -1,14 +1,17 @@
 package com.taxiapp.group28.taxiapp;
 
 import android.app.AlarmManager;
+import android.app.FragmentManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.location.Address;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.app.Fragment;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -48,9 +51,6 @@ import static android.content.Context.NOTIFICATION_SERVICE;
  */
 
 public class ConfirmBookingFragment extends Fragment {
-    //constants for calculating fair price
-
-
     private MapView mapView = null;
     private static final String POINTS = "PointCoords";
     private static final String PICK_UP_POINT_TEXT = "Pick Up Point";
@@ -85,14 +85,16 @@ public class ConfirmBookingFragment extends Fragment {
                     final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(getActivity());
                     // -1 values represent empty
                     if (!updateBooking) {
+                        // if the booking is not being updated create a new booking
                         booking.setParams();
                         conn.addBooking(booking.getParams()); // call the method
                     } else {
+                        // else update a booking
                         Bundle argBundle = ConfirmBookingFragment.this.getArguments();
                         if (argBundle.get(BookingPagerAdapter.UPDATE_BOOKING) != null) {
-                            booking.setId((int) argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_ID));
+                            booking.setId((int) argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_ID)); // get the booking id
                             booking.setParams();
-                            conn.updateBooking(booking.getParams());
+                            conn.updateBooking(booking.getParams()); // update the booking
                         }
                     }
                     setPickUpAlarm();
@@ -114,9 +116,10 @@ public class ConfirmBookingFragment extends Fragment {
                                         booking.setId(bookingId);
                                         message = BOOKING_UPDATED_MESSAGE;
                                     }
-                                    addBookingLocal();
-                                    MainMenuActivity mainMenuActivity = (MainMenuActivity)ConfirmBookingFragment.this.getActivity();
-                                    mainMenuActivity.loadFragment(new ViewBookingsFragment(),MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true);
+                                    addBookingLocal(); // add booking to local database
+                                    MainMenuActivity mainMenuActivity = (MainMenuActivity)ConfirmBookingFragment.this.getActivity(); // get the main menu activity instance
+                                    mainMenuActivity.removeAddBookingInstance(); // remove the this current booking instance (No longer needed)
+                                    mainMenuActivity.loadFragment(new ViewBookingsFragment(),MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true); // load the view booking fragment
                                 } else {
                                     message = BOOKING_ERROR_MESSAGE;
                                 }
@@ -192,11 +195,13 @@ public class ConfirmBookingFragment extends Fragment {
     }
 
     private boolean isUpdatingBooking() {
+        // check if the booking is being updated
         if (updateBooking) {
             return true;
         }
         Bundle argBundle = this.getArguments();
         if (argBundle != null && argBundle.get("updateBooking") != null) {
+            // if the booking is being updated get the properties of the booking
             bookingId = (int) argBundle.get("bookingId");
             updateBooking = true;
             return true;
@@ -255,12 +260,12 @@ public class ConfirmBookingFragment extends Fragment {
     }
     public void setBooking(Booking _booking) {
         this.booking = _booking;
-        booking.getRouteInfo();
+        booking.getRouteInfo(); // get the booking estimates such as price and travel distance
 
         booking.setOnGetResultListener(new Booking.onGetResultListener() {
             @Override
             public void onGetResult() {
-                // update the UI with the info
+                // update the UI with the info once
                 SimpleDateFormat dateFormat = new SimpleDateFormat("E HH:mm", Locale.UK);
                 String pickUpTimeString = dateFormat.format(booking.getEstArrivalTimeCalendar().getTime());
                 setTextUI("Price: £"+booking.getPrice(),"Estimated Travel Time: "+booking.getDuration(),"Estimated Pick Up Time: "+pickUpTimeString);
@@ -293,6 +298,7 @@ public class ConfirmBookingFragment extends Fragment {
     }
 
     private void addBookingLocal() {
+        // adds booking to the local database
         Calendar currentDate = Calendar.getInstance();
         booking.setDate(Booking.getTimestamp(currentDate));
         booking.setContentValues();
@@ -309,6 +315,7 @@ public class ConfirmBookingFragment extends Fragment {
         estPickUpTimeLabel.setText(estTime);
     }
     private void setPickUpAlarm(){
+        // set alarm to notify the user when the taxi arrives (The set pick up time)
         if(pendingIntent == null) {
             Intent intent = new Intent(this.getActivity(), PickUpTimeReceiver.class);
             int requestCode = 123456;

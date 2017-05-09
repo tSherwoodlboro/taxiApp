@@ -231,7 +231,9 @@ public class Booking {
     public String getDate(){return date;}
     public String getPickUpName(){return pickUpName;}
     public String getDestName(){return destName;}
-    public String getPrice(){return String.format(Locale.UK,"%.2f",Double.valueOf(price));}
+    public String getPrice(){
+        return String.format(Locale.UK,"%.2f",Double.valueOf(price));
+    }
     public Double getPickUpLatitude(){return pickUpLatitude;}
     public Double getPickUpLongitude(){return pickUpLongitude;}
     public Double getDestLatitude(){return destLatitude;}
@@ -344,7 +346,8 @@ public class Booking {
                         tripDistance = (String)jsonRowElements.getJSONObject("distance").get("text");
                         tripDuration = (String)jsonRowElements.getJSONObject("duration").get("text");
                         Log.d("TRIP INFORMATION",tripDistance+","+tripDuration);
-                        setPrice((Double.valueOf((Double.valueOf(tripDistance.split(" ")[0])*PRICE_PER_MILE)+FAIR_PRICE)).toString().substring(0,4)); // calculate price
+                        String tempPrice = (Double.valueOf((Double.valueOf(tripDistance.split(" ")[0])*PRICE_PER_MILE)+FAIR_PRICE)).toString();
+                        setPrice(tempPrice.substring(0,tempPrice.length()-1)); // calculate price
                         setDuration(tripDuration);
                         return tripDistance+","+tripDuration; // return info not really needed
                     }

@@ -210,7 +210,17 @@ public class MainMenuActivity extends AppCompatActivity {
         setTitle(fragmentTitles[position]);
         drawerLayout.closeDrawer(drawerListView);
     }
-
+    public void removeAddBookingInstance(){
+        // clear the stack and clear the childFragment (Instance states) stack.
+        AddBookingFragment addBookingFragment = (AddBookingFragment)(fragmentManager.findFragmentByTag(String.valueOf(ADD_BOOKING_FRAGMENT_POSITION)));
+        if(addBookingFragment !=null){
+            addBookingFragment.removeChildInstances();
+            fragmentManager.beginTransaction().remove(addBookingFragment);
+        }
+        for(int i=0;i<fragmentManager.getBackStackEntryCount();++i){
+            fragmentManager.popBackStack();
+        }
+    }
     public static ArrayAdapter<String> getNoResultAdapter(Context context){
         // add a no results view to listView
         List<String> list = new ArrayList<>();

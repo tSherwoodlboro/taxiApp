@@ -116,9 +116,15 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
         // add a marker to the map
         try {
             map.clear();
+            String title ="";
+            if(type == TaxiConstants.PICK_UP){
+                title = "Pick Up Point.";
+            }else{
+                title = "Destination Point.";
+            }
             map.addMarker(new MarkerOptions()
                     .position(location)
-                    .title("Pick Up Point"));
+                    .title(title));
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 20));
             Geocoder geoCoder = new Geocoder(this);
             // get address information for new marker

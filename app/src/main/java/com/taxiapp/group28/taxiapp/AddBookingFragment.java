@@ -1,5 +1,6 @@
 package com.taxiapp.group28.taxiapp;
 import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.support.design.widget.TabLayout;
@@ -134,6 +135,24 @@ public class AddBookingFragment extends Fragment {
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
     }
+    public void removeChildInstances(){
+        //remove child instances from child fragment manager
+        if(Build.VERSION.SDK_INT>=17) {
+            FragmentManager cFM= this.getChildFragmentManager();
+            for(int i=0;i<cFM.getBackStackEntryCount();++i){
+                cFM.popBackStack();
+            }
+             cFM.beginTransaction()
+                    .remove(adapter.getPickUpTab())
+                    .remove(adapter.getDestTab())
+                    .remove(adapter.getConfirmTab())
+                    .commit();
+                Log.d("FRAGMENT_REMOVED", "true");
+            }else{
+                Log.d("FRAGMENT_REMOVED", "false");
+            }
+    }
+
     public static String[] getResultTextArray(String locationInfo){
         // sort house number, street and postcode information from string in format "housenumber street,postcode,UK"
         String[] locationArray = locationInfo.split(",");

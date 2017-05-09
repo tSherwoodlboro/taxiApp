@@ -13,9 +13,9 @@ import android.view.ViewGroup;
 
 
 public class BookingPagerAdapter extends FragmentPagerAdapter {
-    private static final int PICK_UP_TAB =0;
-    private static final int DEST_TAB = 1;
-    private static final int CONFIRM_TAB =2;
+    public static final int PICK_UP_TAB =0;
+    public static final int DEST_TAB = 1;
+    public static final int CONFIRM_TAB =2;
     public static final String USING_ROUTE = "usingRoute";
     public static final String UPDATE_BOOKING = "updateBooking";
     public static final String UPDATE_BOOKING_PICK_UP_LOCATION_NAME = "pickUpLocationName";
@@ -40,7 +40,12 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
     }
     public boolean isLocationsSet(){
         // checks if the location is set for both pickup point and dest point
-        return (pickUpTab != null && destTab !=null && pickUpTab.isLocationSet() && destTab.isLocationSet());
+        if (pickUpTab != null && destTab !=null && pickUpTab.isLocationSet() && destTab.isLocationSet()){
+            if(pickUpTab.getLatitude() != destTab.getLatitude() && pickUpTab.getLongitude() != destTab.getLongitude()){
+                return true;
+            }
+        }
+        return false;
     }
     public void setConfirmLocations(){
         // sends information to the confirm tab once the pick up and dest tabs have been completed
