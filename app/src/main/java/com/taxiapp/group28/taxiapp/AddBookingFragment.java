@@ -154,22 +154,25 @@ public class AddBookingFragment extends Fragment {
     }
 
     public static String[] getResultTextArray(String locationInfo){
-        // sort house number, street and postcode information from string in format "housenumber street,postcode,UK"
+        // sort house number, street and postcode information from string in format "house number street,postcode,UK"
         String[] locationArray = locationInfo.split(",");
-        String[] houseStreetArray= locationArray[0].split(" ");
+        String[] houseStreetArray= locationArray[0].split(" "); // get the street number, street, city and post code individually
 
         String houseNumber;
         String street;
-        String postcode = locationArray[locationArray.length-2];
-        int i=0;
+        String postcode = locationArray[locationArray.length-2]; // postcode it always the second last entry
+        int i=0; // 0 if a house number is not present
+        // check if the the house number is valid for a list of digits, plus "-"  0 or 1 times plus a list of integers 0 or 1 times
+        // possible results 123,23,23-24,12-59 etc
         if(houseStreetArray.length >1 && houseStreetArray[0].toString().matches("\\d+(-?\\d+)?")){
             houseNumber = houseStreetArray[0];
-            i=1;
+            i=1; // house number present don't include as street part.
         }else{
-            houseNumber = "";
+            houseNumber = ""; // no house number
 
         }
         StringBuilder stringBuilder = new StringBuilder();
+        // build new street value
         for(int z=i;z<houseStreetArray.length;++z){
             stringBuilder.append(houseStreetArray[z]+" ");
         }

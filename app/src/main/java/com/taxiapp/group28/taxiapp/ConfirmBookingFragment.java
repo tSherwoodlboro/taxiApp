@@ -277,17 +277,17 @@ public class ConfirmBookingFragment extends Fragment {
     private void addMarker(GoogleMap map, LatLng location, String markerText) {
         // adds markers/points to the map
         try {
-
             map.addMarker(new MarkerOptions()
                     .position(location)
                     .title(markerText));
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(location, 20));
         } catch (Exception e) {
-            //
+            // do nothing
         }
     }
 
     private void createConfirmNotification() {
+        // build a notification to confirm the booking.
         NotificationManager mNotifyMgr = (NotificationManager) getActivity().getSystemService(NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(getActivity())

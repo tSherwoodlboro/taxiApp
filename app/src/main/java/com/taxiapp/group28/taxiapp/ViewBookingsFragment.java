@@ -94,12 +94,14 @@ public  class ViewBookingsFragment extends Fragment {
         saveInstanceState.putBoolean("checkedBookings",checkedBookings);
     }
     private void updateBooking(Booking selectedBooking){
+        // update a booking
         AddBookingFragment addBookingFragment = new AddBookingFragment();
-        addBookingFragment.setArguments(selectedBooking.getUpdateBookingBundle());
+        addBookingFragment.setArguments(selectedBooking.getUpdateBookingBundle()); // set arguments. update booking properties
         MainMenuActivity mainMenuActivity = (MainMenuActivity)ViewBookingsFragment.this.getActivity();
-        mainMenuActivity.loadFragment(addBookingFragment,MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true);
+        mainMenuActivity.loadFragment(addBookingFragment,MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true); // load add booking activity
     }
     private void removeBooking(Booking selectedBooking,final int position){
+        // removes booking from databases and list view
         final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(getActivity());
         HashMap<String,String> params = new HashMap<>();
         params.put("id",String.valueOf(selectedBooking.getId()));
@@ -122,11 +124,12 @@ public  class ViewBookingsFragment extends Fragment {
 
     }
     private void loadBookings(){
+        // load bookings into listViews
         if(view == null){
             return;
         }
-        LiveBookingLoader liveBookingLoader = new LiveBookingLoader();
-        PreviousBookingLoader previousBookingLoader = new PreviousBookingLoader();
+        LiveBookingLoader liveBookingLoader = new LiveBookingLoader(); // create a  loader for live bookings
+        PreviousBookingLoader previousBookingLoader = new PreviousBookingLoader(); // create a loader for previous bookings
         if(args[0] ==null) {
             args[0] = SharedPreferencesManager.getUserPreferences(ViewBookingsFragment.this.getActivity()).getString(getString(R.string.user_preferred_user_id_pref_key), null); // users id
         }
@@ -145,17 +148,17 @@ public  class ViewBookingsFragment extends Fragment {
     private class LiveBookingLoader implements LoaderManager.LoaderCallbacks<Cursor>{
         @Override
         public Loader<Cursor> onCreateLoader(int id,Bundle bundle){
-            Log.d("CURSOR","created");
+            Log.d("CURSOR","created"); // get data from content provider using CursorLoader.
             return new CursorLoader(ViewBookingsFragment.this.getActivity(),DBContract.Booking_Table.CONTENT_URI,null,DBContract.Booking_Table.COLUMN_USER_ID+"= ? AND "+DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE+"= -1",args,"_id ASC");
         }
         public void onLoadFinished(Loader<Cursor> loader, Cursor data){
             Log.d("CURSOR","finished");
             ListView bookingsListView = (ListView) view.findViewById(R.id.live_bookings_listview);
             if(data.getCount()>0){
-                BookingAdapterCurrent bookingAdapter = new BookingAdapterCurrent(ViewBookingsFragment.this.getActivity(), addBookings(data, 0));
-                bookingsListView.setAdapter(bookingAdapter);
+                BookingAdapterCurrent bookingAdapter = new BookingAdapterCurrent(ViewBookingsFragment.this.getActivity(), addBookings(data, 0)); // create booking adapter
+                bookingsListView.setAdapter(bookingAdapter); // set adapter
             }else{
-                bookingsListView.setAdapter(MainMenuActivity.getNoResultAdapter(ViewBookingsFragment.this.getActivity()));
+                bookingsListView.setAdapter(MainMenuActivity.getNoResultAdapter(ViewBookingsFragment.this.getActivity())); // load no results item
             }
         }
         public void onLoaderReset(Loader<Cursor> loader){
@@ -164,22 +167,17 @@ public  class ViewBookingsFragment extends Fragment {
     }
     private class PreviousBookingLoader implements LoaderManager.LoaderCallbacks<Cursor>{
         public Loader<Cursor> onCreateLoader(int id,Bundle bundle){
-            Log.d("CURSOR","created");
-
-            String[] args ={ SharedPreferencesManager.getUserPreferences(ViewBookingsFragment.this.getActivity()).getString(getString(R.string.user_preferred_user_id_pref_key),null)}; // users id
-            if(args[0] == null){
-                return null;
-            }
+            Log.d("CURSOR","created");// get data from content provider using CursorLoader.
             return new CursorLoader(ViewBookingsFragment.this.getActivity(),DBContract.Booking_Table.CONTENT_URI,null,DBContract.Booking_Table.COLUMN_USER_ID+"= ? AND "+DBContract.Booking_Table.COLUMN_BOOKING_COMPLETE+"= 1",args,"_id DESC");
         }
         public void onLoadFinished(Loader<Cursor> loader, Cursor data){
             Log.d("CURSOR","finished");
             ListView bookingsListView = (ListView)view.findViewById(R.id.previous_bookings_listview);
             if(data.getCount() >0){
-                BookingAdapterPrevious bookingAdapter = new BookingAdapterPrevious(ViewBookingsFragment.this.getActivity(),addBookings(data,1));
-                bookingsListView.setAdapter(bookingAdapter);
+                BookingAdapterPrevious bookingAdapter = new BookingAdapterPrevious(ViewBookingsFragment.this.getActivity(),addBookings(data,1)); // create booking adapter
+                bookingsListView.setAdapter(bookingAdapter); // set adapter
             }else{
-                bookingsListView.setAdapter(MainMenuActivity.getNoResultAdapter(ViewBookingsFragment.this.getActivity()));
+                bookingsListView.setAdapter(MainMenuActivity.getNoResultAdapter(ViewBookingsFragment.this.getActivity())); // load no results item
             }
         }
         public void onLoaderReset(Loader<Cursor> loader){
@@ -187,6 +185,9 @@ public  class ViewBookingsFragment extends Fragment {
         }
     }
     private ArrayList<Booking> addBookings(Cursor data,int state){
+        // add bookings to the array list for the listviews
+        // state 0 = live bookings
+        // state 1 = previous bookings
         ArrayList<Booking> bookings = new ArrayList<>();
         if(data.getCount()==0){
             // no previous bookings
@@ -206,6 +207,7 @@ public  class ViewBookingsFragment extends Fragment {
                     data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_PRICE)),
                     data.getInt(data.getColumnIndex(DBContract.Booking_Table._ID)));
             if(state ==0 && !checkedBookings) {
+                // check if the live bookings are old i.e. completed if so set them as complete.
                 currentBooking.setEstArrivalTime(data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_EST_ARRIVAL_TIME)));
                 currentBooking.setEstDestTime(data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_EST_DEST_TIME)));
                 try {
@@ -222,10 +224,10 @@ public  class ViewBookingsFragment extends Fragment {
                 }
             }
             if(state== 1 || (state == 0 && previousBooking== false)){
-                bookings.add(currentBooking);
+                bookings.add(currentBooking); // add booking to array list
             }
         }
-        checkedBookings = true;
+        checkedBookings = true; // the bookings have been checked i.e. all live bookings are actually live bookings.
         return bookings;
     }
     // adapter for current bookings
@@ -261,6 +263,7 @@ public  class ViewBookingsFragment extends Fragment {
             View vi = convertView;
             if (vi == null)
                 vi = inflater.inflate(R.layout.booking_item_row, null);
+            // set item properties
             TextView dateTextView = (TextView)vi.findViewById(R.id.row_booking_date);
             dateTextView.setText("Date: "+data.get(position).getDate());
             TextView pickUpTextView = (TextView)vi.findViewById(R.id.row_booking_pick_up_name);
@@ -269,11 +272,12 @@ public  class ViewBookingsFragment extends Fragment {
             destTextView.setText("Dest Point: "+data.get(position).getDestName());
             TextView priceTextView = (TextView)vi.findViewById(R.id.row_booking_price);
             priceTextView.setText("Price: £"+data.get(position).getPrice());
-            ImageButton optionsButton = (ImageButton)vi.findViewById(R.id.option_booking_button);
+            ImageButton optionsButton = (ImageButton)vi.findViewById(R.id.option_booking_button); // options button "Three vertical dots in listView item"
+            // set an on click listener
             optionsButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    PopupMenu popupMenu = new PopupMenu(ViewBookingsFragment.this.getActivity(),v);
+                    PopupMenu popupMenu = new PopupMenu(ViewBookingsFragment.this.getActivity(),v); // create a new pop up menu
                     MenuInflater menuInflater = popupMenu.getMenuInflater();
                     popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                         @Override
@@ -283,18 +287,18 @@ public  class ViewBookingsFragment extends Fragment {
                             }
                             switch(item.getItemId()){
                                 case R.id.option_booking_update:
-                                    updateBooking(data.get(position));
+                                    updateBooking(data.get(position)); // update booking
                                     return true;
                                 case R.id.option_booking_cancel:
-                                    removeBooking(data.get(position),position);
+                                    removeBooking(data.get(position),position); // remove booking
                                     return true;
                                 default:
                                     return false;
                             }
                         }
                     });
-                    menuInflater.inflate(R.menu.menu_current_booking_options,popupMenu.getMenu());
-                    popupMenu.show();
+                    menuInflater.inflate(R.menu.menu_current_booking_options,popupMenu.getMenu()); // inflate
+                    popupMenu.show(); // show menu
                 }
 
             });
@@ -336,6 +340,7 @@ public  class ViewBookingsFragment extends Fragment {
             View vi = convertView;
             if (vi == null)
                 vi = inflater.inflate(R.layout.booking_item_row_previous, null);
+            // set item properties
             TextView dateTextView = (TextView)vi.findViewById(R.id.row_booking_date_previous);
             dateTextView.setText("Date: "+data.get(position).getDate());
             TextView pickUpTextView = (TextView)vi.findViewById(R.id.row_booking_pick_up_name_previous);
@@ -348,18 +353,18 @@ public  class ViewBookingsFragment extends Fragment {
             addRouteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    // to be implemented
+                    // add a route
                     if(!TaxiAppOnlineDatabase.isNetworkEnabled(context,0)){
                         return;
                     }
-                    Booking routeBooking = data.get(position);
+                    Booking routeBooking = data.get(position); // get the booking
                     Route newRoute = new Route(ViewBookingsFragment.this.getActivity(),null,routeBooking.getPickUpName(),routeBooking.getPickUpLatitude(),routeBooking.getPickUpLongitude(),
-                            routeBooking.getDestName(),routeBooking.getDestLatitude(),routeBooking.getPickUpLongitude(),-1,null);
+                            routeBooking.getDestName(),routeBooking.getDestLatitude(),routeBooking.getPickUpLongitude(),-1,null); // create a new route instance
 
-                    AddRouteFragment addRouteFragment = new AddRouteFragment();
-                    addRouteFragment.setRoute(newRoute);
+                    AddRouteFragment addRouteFragment = new AddRouteFragment(); // create a route fragment
+                    addRouteFragment.setRoute(newRoute); // set the route for the route fragment
                     MainMenuActivity mainMenuActivity = (MainMenuActivity)ViewBookingsFragment.this.getActivity();
-                    mainMenuActivity.loadFragment(addRouteFragment,MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true);
+                    mainMenuActivity.loadFragment(addRouteFragment,MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true);// load the route fragment to the screen
                 }
             });
             return vi;

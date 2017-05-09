@@ -76,6 +76,7 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
     }
     @Override
     public Fragment getItem(int position) {
+        // called to initialise child fragment instances
         Log.d("POSITION",new Integer(position).toString());
         switch (position) {
             case PICK_UP_TAB:
@@ -97,7 +98,7 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         Fragment createdFragment = (Fragment) super.instantiateItem(container, position);
-        // restore fragment references
+        // restore fragment instances
         switch (position) {
             case PICK_UP_TAB:pickUpTab = (PickUpFragment)createdFragment;
                 break;
@@ -109,6 +110,7 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
                 return null;
         }
         if(fragmentManager != null && fragmentManager.findFragmentByTag(String.valueOf(position)) == null){
+            // add the fragment to the stack if it's a new fragment
             fragmentManager.beginTransaction().addToBackStack(String.valueOf(position)).commit();
             Log.d("BOOKING_PAGER","Add to stack: "+position);
         }

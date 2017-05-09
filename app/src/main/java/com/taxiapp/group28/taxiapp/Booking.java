@@ -23,6 +23,7 @@ import java.util.Locale;
  */
 
 public class Booking {
+    //properties of a booking
     private static final Double FAIR_PRICE = 5.0;
     private static final Double PRICE_PER_MILE=1.2;
     public static final String TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -57,7 +58,7 @@ public class Booking {
         void onGetResult();
     }
     public void setOnGetResultListener(Booking.onGetResultListener listener){
-        getResultListener = listener;
+        getResultListener = listener; // called when the route info has been fetched
 
     }
     public Booking(Context context){
@@ -122,6 +123,7 @@ public class Booking {
     }
 
     public boolean setParams(){
+        // HashMap format needed when the booking is updated or created in the online db.
         params = new HashMap<>();
         params.put("id",String.valueOf(id));
         params.put(DBContract.Booking_Table.COLUMN_USER_ID,userId);
@@ -142,6 +144,7 @@ public class Booking {
         return true;
     }
     public boolean setContentValues(){
+        // sets the contentValues when the booking is being updated or created in the local db.
         if(date == null && id!=-1){
             return false;
         }
@@ -166,12 +169,14 @@ public class Booking {
         return true;
     }
     private void setDuration(String _duration){
+        // set the duration of the booking. pick up to destination time
         duration = _duration;
         if(duration != null){
             setEstDestTime();
         }
     }
     private void setEstDestTime(){
+        // set the estimated destination time
         String[] durationInfo = duration.split(" ");
         Log.d("DURATION",duration+" "+estArrivalTimeCalendar.get(Calendar.HOUR));
         int addHour = 0;
@@ -212,7 +217,7 @@ public class Booking {
     public void setBookingComplete(int val) { bookingComplete=val;}
     public void setNote(String val){
         note=val;
-        if(note.isEmpty()){
+        if(note.isEmpty() || note.equals("")){
             note="-1";
     }}
     public void setPickUpAddress(Address address){
@@ -254,6 +259,7 @@ public class Booking {
     public String getDuration(){return duration;}
 
     public Bundle getUpdateBookingBundle(){
+        // return a Bundle containing  all the information needed for updating a booking
         Bundle argsBundle = new Bundle();
         argsBundle.putString(BookingPagerAdapter.UPDATE_BOOKING,"true");
         argsBundle.putInt(BookingPagerAdapter.UPDATE_BOOKING_ID,id);
@@ -269,6 +275,7 @@ public class Booking {
         return argsBundle;
     }
     public Bundle getBookingBundle(){
+        // return a bundle containing all the properties of a booking
         Bundle argsBundle = new Bundle();
         argsBundle.putString(DBContract.Booking_Table.COLUMN_PICK_UP_NAME,pickUpName);
         argsBundle.putDouble(DBContract.Booking_Table.COLUMN_PICK_UP_LATITUDE,pickUpLatitude);
@@ -293,7 +300,7 @@ public class Booking {
             // local class variables
             private String tripDistance;
             private String tripDuration;
-            private String url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=";
+            private String url = "https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins="; // using google maps api
 
             public String getTripDistance(){
                 return tripDistance;
@@ -362,15 +369,16 @@ public class Booking {
         routeInfo.execute();
     }
     public void setBookingComplete(){
+        // called when the booking is completed. When the user gets in the taxi
         if(id==-1){return;}
         TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(context);
         setBookingComplete(1);
         setParams();
         HashMap<String,String> params = new HashMap<>();
         params.put("id",String.valueOf(id));
-        conn.updateBookingComplete(params);
+        conn.updateBookingComplete(params); // update online database
         setContentValues();
-        context.getContentResolver().insert(DBContract.Booking_Table.CONTENT_URI,getContentValues());
+        context.getContentResolver().insert(DBContract.Booking_Table.CONTENT_URI,getContentValues()); // update local database
     }
     public static String getTimestamp(Calendar calendar){
         SimpleDateFormat df = new SimpleDateFormat(TIME_STAMP_FORMAT,Locale.UK);

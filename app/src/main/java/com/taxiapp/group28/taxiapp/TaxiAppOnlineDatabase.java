@@ -22,21 +22,6 @@ import java.util.Iterator;
 /**
  * Created by Tom on 28/03/2017.
  *
- * Example cde for activity classes
- *           final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase();
-             HashMap<String,String> data = new HashMap<>(); // hash map for parameters
-             data.put("user_id","1"); // add the parameter key and value
-             conn.getBookings(data); // call the method
-             // set an onclick listener for result
-             conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
-                    @Override
-                    public void onGetResult() {
-                        // check result isn't null
-                        if(conn.getResult() !=null){
-                            Log.d("RESULT",conn.getResult().toString()); // log the result
-                        }
-                    }
-             });
  */
 
 public class TaxiAppOnlineDatabase {
