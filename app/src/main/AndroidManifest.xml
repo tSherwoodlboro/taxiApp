@@ -23,7 +23,7 @@
             android:value="AIzaSyAFXdC5H5nbJXk_D77Z43pj6YgAg70EQQA" />
 
         <receiver android:name=".OnBootBroadcastReceiver">
-            <intent-filter>
+         x   <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
@@ -39,8 +39,8 @@
         </activity>
 
         <activity android:name=".MapActivity" />
-        <activity android:name=".MainActivity" />
         <activity android:name=".MainMenuActivity" >
+        <activity android:name=".RightMenuActivity" />
 
         </activity>
         <service android:name=".OnBootService" />

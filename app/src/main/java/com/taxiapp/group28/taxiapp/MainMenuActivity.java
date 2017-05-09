@@ -16,6 +16,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -240,6 +241,28 @@ public class MainMenuActivity extends AppCompatActivity {
         String helpNum = "07426992220";
         Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", helpNum, null));
         startActivity(intent);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.menu_settings) {
+
+            loadFragment(new SettingsPreferenceFragment(),SETTINGS_FRAGMENT_POSITION,true);
+            return true;
+        }
+        if (id == R.id.menu_guide) {
+            loadFragment(new GuideFragment(),GUIDE_FRAGMENT_POSITION,true);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
 
