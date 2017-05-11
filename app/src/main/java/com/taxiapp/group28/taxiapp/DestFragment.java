@@ -83,7 +83,11 @@ public class DestFragment extends Fragment {
         if(!isUsingRoute()){
             isUpdatingBooking();
         }
-        this.setRetainInstance(true);
+        try{
+            setRetainInstance(true);
+        }catch(Exception e){
+            setRetainInstance(false);
+        }
         return view;
     }
     @Override

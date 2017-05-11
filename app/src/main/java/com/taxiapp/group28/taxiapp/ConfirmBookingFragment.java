@@ -135,7 +135,12 @@ public class ConfirmBookingFragment extends Fragment {
         }
         //Log.d("FRAGMENT_STATE_CONFIRM","Initialise");
         isUpdatingBooking();
-        setRetainInstance(true);
+        try{
+            setRetainInstance(true);
+        }catch(Exception e){
+            setRetainInstance(false);
+        }
+
         return view;
     }
 

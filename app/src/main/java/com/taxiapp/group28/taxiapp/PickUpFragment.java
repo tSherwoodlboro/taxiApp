@@ -182,7 +182,11 @@ public class PickUpFragment extends Fragment {
         if(!isUsingRoute()) {
             isUpdatingBooking();
         }
-        this.setRetainInstance(true);
+        try{
+            setRetainInstance(true);
+        }catch(Exception e){
+            setRetainInstance(false);
+        }
         return view;
     }
     @Override
@@ -405,6 +409,9 @@ public class PickUpFragment extends Fragment {
 
     private void getCurrentLocation(Location location){
         // get the current location information such as street name, long and lat coords
+        if(getActivity() == null){
+            return;
+        }
         Geocoder geoCoder = new Geocoder(getActivity());
         Address currentAddress;
         List<Address> locationList;

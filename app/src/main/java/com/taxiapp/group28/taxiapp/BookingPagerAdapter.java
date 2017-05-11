@@ -77,7 +77,7 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         // called to initialise child fragment instances
-        Log.d("POSITION",new Integer(position).toString());
+        Log.d("POSITION",Integer.valueOf(position).toString());
         switch (position) {
             case PICK_UP_TAB:
                 pickUpTab = new PickUpFragment();
