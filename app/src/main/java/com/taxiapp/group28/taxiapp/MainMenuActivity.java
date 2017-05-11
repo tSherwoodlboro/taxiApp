@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,6 +85,7 @@ public class MainMenuActivity extends AppCompatActivity {
         if(saveInstanceState == null) {
             key = Integer.toString(VIEW_BOOKINGS_FRAGMENT_POSITION);
             loadFragment(new ViewBookingsFragment(), VIEW_BOOKINGS_FRAGMENT_POSITION,false);
+            Toast.makeText(this,"Welcome "+PreferenceManager.getDefaultSharedPreferences(this).getString(getString(R.string.user_name_pref_key),"User"),Toast.LENGTH_SHORT).show();
         }
         Log.d("MAIN_MENU_ACTIVITY","CREATED");
     }

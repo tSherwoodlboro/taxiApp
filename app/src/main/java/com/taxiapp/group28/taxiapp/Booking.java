@@ -5,6 +5,8 @@ import android.content.Context;
 import android.location.Address;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.Log;
 
 import org.json.JSONObject;
@@ -15,6 +17,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -22,7 +25,7 @@ import java.util.Locale;
  * Created by Tom on 25/04/2017.
  */
 
-public class Booking {
+public class Booking implements Parcelable{
     //properties of a booking
     private static final Double FAIR_PRICE = 5.0;
     private static final Double PRICE_PER_MILE=1.2;
@@ -54,6 +57,79 @@ public class Booking {
     private Calendar estDestTimeCalendar=null;
     private Booking.onGetResultListener getResultListener;
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(date);
+        parcel.writeString(pickUpName);
+        parcel.writeString(destName);
+        parcel.writeString(price);
+        parcel.writeDouble(pickUpLatitude);
+        parcel.writeDouble(pickUpLongitude);
+        parcel.writeDouble(destLatitude);
+        parcel.writeDouble(destLongitude);
+        parcel.writeInt(id);
+        parcel.writeString(estArrivalTime);
+        parcel.writeString(estDestTime);
+        parcel.writeString(confirmedArrivalTime);
+        parcel.writeString(confirmedDestTime);
+        parcel.writeInt(bookingComplete);
+        parcel.writeString(note);
+        parcel.writeString(userId);
+        parcel.writeString(duration);
+    }
+    private Booking(Parcel parcel){
+        date = parcel.readString();
+        pickUpName = parcel.readString();
+        destName = parcel.readString();
+        price = parcel.readString();
+        pickUpLatitude = parcel.readDouble();
+        pickUpLongitude = parcel.readDouble();
+        destLatitude = parcel.readDouble();
+        destLongitude = parcel.readDouble();
+        id = parcel.readInt();
+        estArrivalTime = parcel.readString();
+        estDestTime = parcel.readString();
+        confirmedArrivalTime = parcel.readString();
+        confirmedDestTime = parcel.readString();
+        bookingComplete  = parcel.readInt();
+        note = parcel.readString();
+        userId = parcel.readString();
+        duration= parcel.readString();
+        pickUpAddress  = new Address(Locale.UK);
+        pickUpAddress.setLatitude(pickUpLatitude);
+        pickUpAddress.setLongitude(pickUpLongitude);
+        destAddress  = new Address(Locale.UK);
+        destAddress.setLatitude(destLatitude);
+        destAddress.setLongitude(destLongitude);
+        try {
+            Date date = new SimpleDateFormat(TIME_STAMP_FORMAT, Locale.UK).parse(estArrivalTime);
+            estArrivalTimeCalendar = Calendar.getInstance();
+            estArrivalTimeCalendar.setTime(date);
+            date = new SimpleDateFormat(TIME_STAMP_FORMAT, Locale.UK).parse(estDestTime);
+            estDestTimeCalendar = Calendar.getInstance();
+            estDestTimeCalendar.setTime(date);
+        }catch (Exception e){
+            Log.d("TIME_ERROR","Time not valid");
+        }
+
+    }
+    public static final Parcelable.Creator<Booking> CREATOR = new Parcelable.Creator<Booking>() {
+
+        @Override
+        public Booking createFromParcel(Parcel in) {
+            return new Booking(in);
+        }
+
+        @Override
+        public Booking[] newArray(int size) {
+            return new Booking[size];
+        }
+    };
     public interface onGetResultListener{
         void onGetResult();
     }
@@ -384,4 +460,6 @@ public class Booking {
         SimpleDateFormat df = new SimpleDateFormat(TIME_STAMP_FORMAT,Locale.UK);
         return df.format(calendar.getTime());
     }
+
+
 }

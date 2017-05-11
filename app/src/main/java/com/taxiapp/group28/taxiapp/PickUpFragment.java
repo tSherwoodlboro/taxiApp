@@ -103,7 +103,7 @@ public class PickUpFragment extends Fragment {
         locationSwitch = (Switch)view.findViewById(R.id.add_booking_cLocation_switch);
         // set default pickUpTime
         Calendar calendar = Calendar.getInstance();
-        calendar.set(calendar.MINUTE, calendar.get(calendar.MINUTE) + 30);
+        calendar.set(calendar.MINUTE, calendar.get(calendar.MINUTE) + 1);
         pickUpTime = calendar;
         if(!isLocationSet()) {
             setLocationSet(false);
@@ -152,7 +152,7 @@ public class PickUpFragment extends Fragment {
                 toast = Toast.makeText(getActivity(),timeString, Toast.LENGTH_SHORT);
             }
             private String getTime(int progress){
-                progress = 30+progress*30; // times progress by 30 to represent 30 minutes add 30 for minimum pick up time of 30 minutes
+                progress = 1+progress*30; // times progress by 30 to represent 30 minutes add 30 for minimum pick up time of 30 minutes
                 Calendar calendar = Calendar.getInstance();
                 calendar.set(calendar.MINUTE,calendar.get(calendar.MINUTE)+progress);
 
@@ -419,6 +419,8 @@ public class PickUpFragment extends Fragment {
             locationList = geoCoder.getFromLocation(location.getLatitude(),location.getLongitude(),1); // get list of locations based on geoCoder search
         }catch(IOException e){
             Log.d("ERROR",e.getMessage());
+            enableSearch(true);
+            setLocationAccess(false);
             return;
         }
         if(locationList.size()>0) {
@@ -429,7 +431,7 @@ public class PickUpFragment extends Fragment {
             // if no locations returned return invalid location
             makeToast("Current Location Invalid");
             enableSearch(true);
-            setLocationAccess(true);
+            setLocationAccess(false);
         }
     }
     public String getStreetResult(){

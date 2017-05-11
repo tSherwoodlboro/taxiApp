@@ -208,6 +208,7 @@ public  class ViewBookingsFragment extends Fragment {
                     data.getInt(data.getColumnIndex(DBContract.Booking_Table._ID)));
             if(state ==0 && !checkedBookings) {
                 // check if the live bookings are old i.e. completed if so set them as complete.
+                Log.d("VIEW_BOOKINGS_FRAGMENT","Checking bookings");
                 currentBooking.setEstArrivalTime(data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_EST_ARRIVAL_TIME)));
                 currentBooking.setEstDestTime(data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_EST_DEST_TIME)));
                 try {
@@ -217,6 +218,7 @@ public  class ViewBookingsFragment extends Fragment {
 
                     if (estDestTime.getTimeInMillis() < Calendar.getInstance().getTimeInMillis()) {
                         currentBooking.setBookingComplete();
+
                         previousBooking = true;
                     }
                 } catch (Exception e) {

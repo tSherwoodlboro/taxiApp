@@ -49,7 +49,8 @@ public class RegisterActivity extends AppCompatActivity {
     private String userPreferredDriverID = "1";
     private int userId=-1;
     private boolean verificationCodeReceived = false;
-
+    private int requestCode=12345;
+    private boolean tNCAccepted=false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -161,6 +162,13 @@ public class RegisterActivity extends AppCompatActivity {
         String message = "Mobile Number Invalid"; // default message
         String mobileText = mobileNum.getText().toString(); // get mobile number
         if (!mobileText.isEmpty()) {
+
+            if(mobileText.compareTo("12345")==0){
+                //cheat code for tablet users. Used for testing, review and demo only.
+                mobileNumber="12345";
+                verificationCode="12345";
+                verifyUser();
+            }
             // if mobile number not empty check if it's valid
             if (mobileText.matches(REGEX_MOBILE_NUMBER)) {
                 message = "Mobile Number Valid.";
@@ -207,6 +215,7 @@ public class RegisterActivity extends AppCompatActivity {
         // create pending intents for sending and receiving texts
         PendingIntent sentIntent = PendingIntent.getBroadcast(RegisterActivity.this,REQUEST_CODE,new Intent(SENT),0);
         try {
+
             registerReceiver(new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context context, Intent intent) {
@@ -300,11 +309,15 @@ public class RegisterActivity extends AppCompatActivity {
                         userTelNo = (String)result.getJSONObject(0).get(DBContract.User_Table.COLUMN_TEL_NO);
                         //userPreferredDriverID = "-1"; // proffered driver id NULL (-1) this value is set later in settings
 
-                       if(!oldAccountVerified){
+                       if(verificationCode.compareTo("12345")!= 0 && !oldAccountVerified){
                            // if it's an existing account that wasn't verified send an sms and return
                            sendVerificationSms();
                            oldAccountVerified=true;
                            return;
+                       }
+                       // cheat code
+                       if(verificationCode.compareTo("12345")==0){
+                           userVerificationCode = "12345";
                        }
                        if(userVerificationCode.equals(verificationCode)){
                            // if the verification code is valid update the users details. Set verified to true
@@ -385,6 +398,9 @@ public class RegisterActivity extends AppCompatActivity {
         final String defaultValue = "null";
         if(!sharedPref.getString(getString(R.string.user_tel_no_pref_key), defaultValue).equals(defaultValue)){
             loadBookingActivity();
+        }else{
+            Intent intent = new Intent(this,TNCActivity.class);
+            startActivity(intent);
         }
         return false;
     }

@@ -23,21 +23,25 @@
             android:value="AIzaSyAFXdC5H5nbJXk_D77Z43pj6YgAg70EQQA" />
 
         <receiver android:name=".OnBootBroadcastReceiver">
-         x   <intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
         <receiver android:name=".PickUpTimeReceiver">
+            <intent-filter>
+                <action android:name="com.taxiapp.group28.taxiapp.intent.action.PICK_UP_ALARM" />
+            </intent-filter>
         </receiver>
 
-        <activity android:name=".RegisterActivity" >
+        <activity android:name=".RegisterActivity"  >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <activity android:name=".TNCActivity" android:screenOrientation="portrait">
+        </activity>
         <activity android:name=".MapActivity" />
         <activity android:name=".MainMenuActivity" >
         <activity android:name=".RightMenuActivity" />

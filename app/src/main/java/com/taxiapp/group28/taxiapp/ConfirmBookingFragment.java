@@ -66,73 +66,89 @@ public class ConfirmBookingFragment extends Fragment {
     private boolean updateBooking = false;
     private Booking booking = null;
     private int bookingId;
+    private String price=null;
+    private String estTravelTime=null;
+    private String estPickUpTime=null;
     private static PendingIntent pendingIntent = null;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // check if view set if not set up class
-        if (view == null) {
-            view = inflater.inflate(R.layout.confirm_tab, container, false); // assign view
-            initialiseMapView(); // initialise viewmap
-            final Button bookButton = (Button) view.findViewById(R.id.add_booking_button); // add on click listener to booking button
-            bookButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //add booking to database
-                    if (!gotBookingDetails) {
-                        return;
-                    }
-                    final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(getActivity());
-                    // -1 values represent empty
-                    if (!updateBooking) {
-                        // if the booking is not being updated create a new booking
-                        booking.setParams();
-                        conn.addBooking(booking.getParams()); // call the method
-                    } else {
-                        // else update a booking
-                        Bundle argBundle = ConfirmBookingFragment.this.getArguments();
-                        if (argBundle.get(BookingPagerAdapter.UPDATE_BOOKING) != null) {
-                            booking.setId((int) argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_ID)); // get the booking id
-                            booking.setParams();
-                            conn.updateBooking(booking.getParams()); // update the booking
-                        }
-                    }
-                    setPickUpAlarm();
-                    // set an onclick listener for result
-                    conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
-                        @Override
-                        public void onGetResult() {
-                            // check result isn't null
-                            if (conn.getResult() != null) {
-                                String message;
-                                // create toast of either booking complete or booking error
-                                if (conn.getResultMessage().equals(Integer.valueOf(TaxiAppOnlineDatabase.SUCCESS).toString())) {
-                                    message = BOOKING_COMPLETE_MESSAGE;
-                                    if (!updateBooking) {
-                                        createConfirmNotification();
-                                        insert_id = conn.getInsertId();
-                                        booking.setId(Integer.valueOf(insert_id));
-                                    } else {
-                                        booking.setId(bookingId);
-                                        message = BOOKING_UPDATED_MESSAGE;
-                                    }
-                                    addBookingLocal(); // add booking to local database
-                                    MainMenuActivity mainMenuActivity = (MainMenuActivity)ConfirmBookingFragment.this.getActivity(); // get the main menu activity instance
-                                    mainMenuActivity.removeAddBookingInstance(); // remove the this current booking instance (No longer needed)
-                                    mainMenuActivity.loadFragment(new ViewBookingsFragment(),MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true); // load the view booking fragment
-                                } else {
-                                    message = BOOKING_ERROR_MESSAGE;
-                                }
-                                Toast toast = Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT);
-                                toast.show();
-                            } else {
-                                Log.d("Error", "An error occurred");
-                            }
-                        }
-                    });
-                }
-            });
+        if (view != null) {
+            return view;
         }
+        view = inflater.inflate(R.layout.confirm_tab, container, false); // assign view
+        if(savedInstanceState != null && savedInstanceState.getString("price") !=null){
+            price = savedInstanceState.getString("price");
+            estTravelTime = savedInstanceState.getString("estTravelTime");
+            estPickUpTime = savedInstanceState.getString("estPickUpTime");
+            gotBookingDetails =savedInstanceState.getBoolean("gotBookingDetails");
+            updateBooking=savedInstanceState.getBoolean("updateBooking");
+            insert_id= savedInstanceState.getString("insert_id");
+            bookingId =savedInstanceState.getInt("insert_id");
+            booking =  savedInstanceState.getParcelable("booking");
+            setTextUI(price,estTravelTime,estPickUpTime);
+        }
+        initialiseMapView(); // initialise viewmap
+        final Button bookButton = (Button) view.findViewById(R.id.add_booking_button); // add on click listener to booking button
+        bookButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //add booking to database
+                if (!gotBookingDetails) {
+                    return;
+                }
+                final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(getActivity());
+                // -1 values represent empty
+                if (!updateBooking) {
+                    // if the booking is not being updated create a new booking
+                    booking.setParams();
+                    conn.addBooking(booking.getParams()); // call the method
+                } else {
+                    // else update a booking
+                    Bundle argBundle = ConfirmBookingFragment.this.getArguments();
+                    if (argBundle.get(BookingPagerAdapter.UPDATE_BOOKING) != null) {
+                        booking.setId((int) argBundle.get(BookingPagerAdapter.UPDATE_BOOKING_ID)); // get the booking id
+                        booking.setParams();
+                        conn.updateBooking(booking.getParams()); // update the booking
+                    }
+                }
+                setPickUpAlarm();
+                // set an onclick listener for result
+                conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
+                    @Override
+                    public void onGetResult() {
+                        // check result isn't null
+                        if (conn.getResult() != null) {
+                            String message;
+                            // create toast of either booking complete or booking error
+                            if (conn.getResultMessage().equals(Integer.valueOf(TaxiAppOnlineDatabase.SUCCESS).toString())) {
+                                message = BOOKING_COMPLETE_MESSAGE;
+                                if (!updateBooking) {
+                                    createConfirmNotification();
+                                    insert_id = conn.getInsertId();
+                                    booking.setId(Integer.valueOf(insert_id));
+                                } else {
+                                    booking.setId(bookingId);
+                                    message = BOOKING_UPDATED_MESSAGE;
+                                }
+                                addBookingLocal(); // add booking to local database
+                                MainMenuActivity mainMenuActivity = (MainMenuActivity)ConfirmBookingFragment.this.getActivity(); // get the main menu activity instance
+                                mainMenuActivity.removeAddBookingInstance(); // remove the this current booking instance (No longer needed)
+                                mainMenuActivity.loadFragment(new ViewBookingsFragment(),MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true); // load the view booking fragment
+                            } else {
+                                message = BOOKING_ERROR_MESSAGE;
+                            }
+                            Toast toast = Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT);
+                            toast.show();
+                        } else {
+                            Log.d("Error", "An error occurred");
+                        }
+                    }
+                });
+            }
+        });
+
         //Log.d("FRAGMENT_STATE_CONFIRM","Initialise");
         isUpdatingBooking();
         try{
@@ -197,6 +213,15 @@ public class ConfirmBookingFragment extends Fragment {
         if(mapView != null){
             mapView.onSaveInstanceState(savedInstanceState);
         }
+        savedInstanceState.putString("price",price);
+        savedInstanceState.putString("estTravelTime",estTravelTime);
+        savedInstanceState.putString("estPickUpTime",estPickUpTime);
+        savedInstanceState.putBoolean("gotBookingDetails",gotBookingDetails);
+        savedInstanceState.putBoolean("updateBooking",updateBooking);
+        savedInstanceState.putString("insert_id",insert_id);
+        savedInstanceState.putInt("insert_id",bookingId);
+        savedInstanceState.putParcelable("booking",booking);
+
     }
 
     private boolean isUpdatingBooking() {
@@ -318,16 +343,22 @@ public class ConfirmBookingFragment extends Fragment {
         priceLabel.setText(_price);
         estTimeLabel.setText(_duration);
         estPickUpTimeLabel.setText(estTime);
+        price=_price;
+        estTravelTime=_duration;
+        estPickUpTime=estTime;
+
     }
     private void setPickUpAlarm(){
         // set alarm to notify the user when the taxi arrives (The set pick up time)
         if(pendingIntent == null) {
             Intent intent = new Intent(this.getActivity(), PickUpTimeReceiver.class);
+            intent.setAction(TaxiConstants.CUSTOM_ALARM_ACTION);
             int requestCode = 123456;
             pendingIntent = PendingIntent.getBroadcast(this.getActivity(), requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             Calendar.getInstance().getTimeInMillis();
             AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(ALARM_SERVICE);
             alarmManager.set(AlarmManager.RTC_WAKEUP, booking.getEstArrivalTimeCalendar().getTimeInMillis(), pendingIntent);
+            Log.d("FRAGMENT_STATE_CONFIRM","Alarm set"+booking.getEstArrivalTimeCalendar().getTime().toString());
         }
     }
 }

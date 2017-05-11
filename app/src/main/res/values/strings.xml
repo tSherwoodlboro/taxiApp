@@ -18,7 +18,7 @@
     <string name="pick_up_time_button">Pick Up Time</string>
     <string name="pick_up_time_text">Pick Up Time</string>
     <string name="edit_verification_code">Enter code</string>
-
+    <string name="user_title_text">User: </string>
     <string name="user_tel_no_pref_key">null</string>
     <string name="user_name_pref_key">User</string>
     <string name="user_email_pref_key">user@user.com</string>

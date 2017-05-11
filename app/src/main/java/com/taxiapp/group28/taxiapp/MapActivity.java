@@ -101,6 +101,10 @@ public class MapActivity extends FragmentActivity implements OnMapReadyCallback 
             if (!locationName.isEmpty()) {
 
                 currentAddress= getAddress(locationName,this); // get first list address
+                if(currentAddress == null){
+                    setLocationNameText(""); // no location set
+                    return;
+                }
                 setLocationNameText(currentAddress.getAddressLine(0)); // set locationName
                 LatLng currentLocation = new LatLng(currentAddress.getLatitude(), currentAddress.getLongitude()); // get coords for address
                 map.addMarker(new MarkerOptions() // place new maker
