@@ -4,6 +4,7 @@ import android.content.Context;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
@@ -32,7 +33,7 @@ import java.util.List;
  */
 
 public class MainMenuActivity extends AppCompatActivity {
-    private String[] fragmentTitles = {"Bookings","Add Booking","Routes","Guide","Settings","Call Help"};
+    private String[] fragmentTitles = {"Bookings","Add Booking","Routes","Guide","Settings","Call Help","Log Out","Quit"};
     private DrawerLayout drawerLayout;
     private ListView drawerListView;
     private ActionBarDrawerToggle drawerToggle;
@@ -42,6 +43,8 @@ public class MainMenuActivity extends AppCompatActivity {
     public static final int GUIDE_FRAGMENT_POSITION = 3;
     public static final int SETTINGS_FRAGMENT_POSITION = 4;
     public static final int CALL_HELP_POSITION = 5;
+    public static final int LOG_OUT_POSITION = 6;
+    public static final int QUIT_POSITION = 7;
 
     private Fragment currentFragment = null;
     private FragmentManager fragmentManager=null;
@@ -151,6 +154,12 @@ public class MainMenuActivity extends AppCompatActivity {
                     break;
                 case CALL_HELP_POSITION:callHelp();
                     return;
+                case LOG_OUT_POSITION:
+                    logout();
+                    return;
+                case QUIT_POSITION:
+                    finish();
+                    return;
                 default : return;
             }
             loadFragment(selectedFragment,position,false);
@@ -245,6 +254,16 @@ public class MainMenuActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    private void logout(){
+        SharedPreferences sharedpreferences;
+        sharedpreferences = getSharedPreferences(TaxiConstants.USER_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedpreferences.edit();
+        editor.putString(getString(R.string.user_preferred_user_id_pref_key),"null");
+        editor.apply();
+        Intent intent = new Intent(this, RegisterActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_main, menu);
@@ -262,6 +281,10 @@ public class MainMenuActivity extends AppCompatActivity {
         }
         if (id == R.id.menu_guide) {
             loadFragment(new GuideFragment(),GUIDE_FRAGMENT_POSITION,true);
+            return true;
+        }
+        if (id == R.id.menu_quit) {
+            finish();
             return true;
         }
         return super.onOptionsItemSelected(item);

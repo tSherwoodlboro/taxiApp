@@ -7,4 +7,7 @@
     <item
         android:id="@+id/menu_guide"
         android:title="Guide" />
+    <item
+        android:id="@+id/menu_quit"
+        android:title="Quit" />
 </menu>
