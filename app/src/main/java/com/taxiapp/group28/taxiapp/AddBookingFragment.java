@@ -6,6 +6,7 @@ import android.os.Build;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,6 +42,13 @@ public class AddBookingFragment extends Fragment {
         }
         tabLayout = (TabLayout)view.findViewById(R.id.add_booking_tabLayout); // get tablayout
         viewPager = (ViewPager)view.findViewById(R.id.add_booking_pager); // get view pager (holds the fragments)
+        // set the viewPager height at runtime. TO allow scrollView to function correctly
+        ViewGroup.LayoutParams params = viewPager.getLayoutParams();
+        DisplayMetrics dm = new DisplayMetrics();
+        getActivity().getWindowManager().getDefaultDisplay().getMetrics(dm);
+        params.height = dm.heightPixels;
+        viewPager.setLayoutParams(params);
+
         if(Build.VERSION.SDK_INT>=17) {
             adapter = new BookingPagerAdapter(this.getChildFragmentManager(), tabLayout.getTabCount(), argsBundle); // adapter for pager
         }else{

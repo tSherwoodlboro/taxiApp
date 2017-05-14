@@ -218,7 +218,7 @@ public class PickUpFragment extends Fragment {
                 @Override
                 public void onProviderDisabled(String provider) {
                     Log.d("PICK_UP_FRAGMENT", "provider disabled");
-                    setLocationAccess(false);
+                    //setLocationAccess(false);
 
                 }
             };
