@@ -262,6 +262,7 @@ public class MainMenuActivity extends AppCompatActivity {
         editor.apply();
         Intent intent = new Intent(this, RegisterActivity.class);
         startActivity(intent);
+        this.finish();
     }
 
     @Override
