@@ -106,16 +106,7 @@ public class Booking implements Parcelable{
         destAddress  = new Address(Locale.UK);
         destAddress.setLatitude(destLatitude);
         destAddress.setLongitude(destLongitude);
-        try {
-            Date date = new SimpleDateFormat(TIME_STAMP_FORMAT, Locale.UK).parse(estArrivalTime);
-            estArrivalTimeCalendar = Calendar.getInstance();
-            estArrivalTimeCalendar.setTime(date);
-            date = new SimpleDateFormat(TIME_STAMP_FORMAT, Locale.UK).parse(estDestTime);
-            estDestTimeCalendar = Calendar.getInstance();
-            estDestTimeCalendar.setTime(date);
-        }catch (Exception e){
-            Log.d("TIME_ERROR","Time not valid");
-        }
+        this.setCalendars();
 
     }
     public static final Parcelable.Creator<Booking> CREATOR = new Parcelable.Creator<Booking>() {
@@ -197,7 +188,21 @@ public class Booking implements Parcelable{
             this.assignedDriverId = Integer.valueOf((String)bundle.get(DBContract.Booking_Table.COLUMN_ASSIGNED_DRIVER_ID));
         }
     }
-
+    public void setCalendars(){
+        if(estArrivalTime== null || estDestTime==null){
+            return;
+        }
+        try {
+            Date date = new SimpleDateFormat(TIME_STAMP_FORMAT, Locale.UK).parse(estArrivalTime);
+            estArrivalTimeCalendar = Calendar.getInstance();
+            estArrivalTimeCalendar.setTime(date);
+            date = new SimpleDateFormat(TIME_STAMP_FORMAT, Locale.UK).parse(estDestTime);
+            estDestTimeCalendar = Calendar.getInstance();
+            estDestTimeCalendar.setTime(date);
+        }catch (Exception e){
+            Log.d("TIME_ERROR","Time not valid");
+        }
+    }
     public boolean setParams(){
         // HashMap format needed when the booking is updated or created in the online db.
         params = new HashMap<>();

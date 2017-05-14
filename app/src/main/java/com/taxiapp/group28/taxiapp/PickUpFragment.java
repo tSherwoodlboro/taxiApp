@@ -59,6 +59,7 @@ public class PickUpFragment extends Fragment {
     private String pickUpNameString = "";
     private EditText note = null;
     private String noteString="";
+    private LocationListener locationListener=null;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         if(view!=null){
@@ -100,7 +101,6 @@ public class PickUpFragment extends Fragment {
                 noteString = note.getText().toString();
             }
         });
-        locationSwitch = (Switch)view.findViewById(R.id.add_booking_cLocation_switch);
         // set default pickUpTime
         Calendar calendar = Calendar.getInstance();
         calendar.set(calendar.MINUTE, calendar.get(calendar.MINUTE) + 1);
@@ -125,6 +125,8 @@ public class PickUpFragment extends Fragment {
                 }
             }
         });
+        locationSwitch = (Switch)view.findViewById(R.id.add_booking_cLocation_switch);
+
         // switch listener
         locationSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
@@ -138,6 +140,10 @@ public class PickUpFragment extends Fragment {
                     }else{
                         setLocationAccess(true);
                         setLocationManager();
+                    }
+                }else{
+                    if(locationManager !=null){
+                        locationManager.removeUpdates(locationListener);
                     }
                 }
             }
@@ -187,6 +193,36 @@ public class PickUpFragment extends Fragment {
         }catch(Exception e){
             setRetainInstance(false);
         }
+        if(locationListener == null) {
+            // Define a listener that responds to location updates
+            locationListener = new LocationListener() {
+                @Override
+                public void onLocationChanged(Location location) {
+                    // Called when a new location is found by the network location provider.
+                    getCurrentLocation(location);
+                    Log.d("PICK_UP_FRAGMENT", "location changed");
+                }
+
+                @Override
+                public void onStatusChanged(String provider, int status, Bundle extras) {
+                    Log.d("PICK_UP_FRAGMENT", "status changed");
+
+                }
+
+                @Override
+                public void onProviderEnabled(String provider) {
+                    Log.d("PICK_UP_FRAGMENT", "provider enabled");
+
+                }
+
+                @Override
+                public void onProviderDisabled(String provider) {
+                    Log.d("PICK_UP_FRAGMENT", "provider disabled");
+                    setLocationAccess(false);
+
+                }
+            };
+        }
         return view;
     }
     @Override
@@ -203,6 +239,9 @@ public class PickUpFragment extends Fragment {
     public void onPause(){
         super.onPause();
         Log.d("FRAGMENT_STATE_PICK_UP","Pause");
+        if(locationManager !=  null && locationListener != null){
+            locationManager.removeUpdates(locationListener);
+        }
     }
     @Override
     public void onStart(){
@@ -289,6 +328,8 @@ public class PickUpFragment extends Fragment {
     private void setLocationAccess(boolean val){
         locationAccess = val;
         locationSwitch.setChecked(val);
+        enableSearch(!val);
+
     }
     private void setStreetResult(String val){
         // set the street edit text value
@@ -318,31 +359,22 @@ public class PickUpFragment extends Fragment {
             makeToast("Location Services disabled. Please enable them");
             return;
         }
-        // Define a listener that responds to location updates
-        LocationListener locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                // Called when a new location is found by the network location provider.
-                getCurrentLocation(location);
-                Log.d("CHECKED","checked current location");
-            }
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {}
-            @Override
-            public void onProviderEnabled(String provider) {}
-            @Override
-            public void onProviderDisabled(String provider) {}
-        };
 
         try {
             if(locationManager != null){
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener); // request latest location
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 50, locationListener); // request latest location via GPS
+                locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 50, locationListener); // request latest location via network
                 if(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER) != null) {
                     // get last known location if present
                     getCurrentLocation(locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER));
+                }else{
+                    makeToast("Please wait, searching location.");
                 }
+            }else{
+                setLocationAccess(false);
             }
         }catch(SecurityException e){
+            setLocationAccess(false);
             Log.d("SECURITY_ERROR","Location permission denied");
         }
 
@@ -361,6 +393,8 @@ public class PickUpFragment extends Fragment {
         setCoords(lat,longitude);
         setResultText(name);
         setLocationSet(true);
+        Log.d("PICK_UP_FRAGMENT","location set");
+
     }
     private void setCoords(Double lat,Double longitude){
         // set lat and long for pick up point
@@ -369,6 +403,7 @@ public class PickUpFragment extends Fragment {
     }
     private void setResultText(String locationInfo){
         // set the result information
+        Log.d("PICK_UP_FRAGMENT","Location info: "+locationInfo);
         String[] resultArray = AddBookingFragment.getResultTextArray(locationInfo);
         setHouseNumberResult(resultArray[0]);
         setStreetResult(resultArray[1]);
@@ -404,6 +439,7 @@ public class PickUpFragment extends Fragment {
             }
         }else{
             setLocationSet(false);
+            Log.d("PICK_UP_FRAGMENT","location not set");
         }
     }
 
@@ -414,23 +450,21 @@ public class PickUpFragment extends Fragment {
         }
         Geocoder geoCoder = new Geocoder(getActivity());
         Address currentAddress;
-        List<Address> locationList;
+        List<Address> locationList=null;
         try{
             locationList = geoCoder.getFromLocation(location.getLatitude(),location.getLongitude(),1); // get list of locations based on geoCoder search
         }catch(IOException e){
             Log.d("ERROR",e.getMessage());
-            enableSearch(true);
             setLocationAccess(false);
             return;
         }
-        if(locationList.size()>0) {
+        if(locationList != null && locationList.size()>0) {
             // get the first value from list if any
             currentAddress = locationList.get(0);
             setLocation(location.getLatitude(), location.getLongitude(), MapActivity.getLocationName(currentAddress));
         }else{
             // if no locations returned return invalid location
             makeToast("Current Location Invalid");
-            enableSearch(true);
             setLocationAccess(false);
         }
     }

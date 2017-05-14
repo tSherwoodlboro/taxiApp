@@ -22,8 +22,8 @@ public class BookingPagerAdapter extends FragmentPagerAdapter {
     public static final String UPDATE_BOOKING_PICK_UP_LATITUDE = "pickUpLatitude";
     public static final String UPDATE_BOOKING_PICK_UP_LONGITUDE = "pickUpLongitude";
     public static final String UPDATE_BOOKING_DEST_LOCATION_NAME = "destLocationName";
-    public static final String UPDATE_BOOKING_DEST_LATITUDE = "pickUpLatitude";
-    public static final String UPDATE_BOOKING_DEST_LONGITUDE = "pickUpLongitude";
+    public static final String UPDATE_BOOKING_DEST_LATITUDE = "destLatitude";
+    public static final String UPDATE_BOOKING_DEST_LONGITUDE = "destLongitude";
     public static final String UPDATE_BOOKING_NOTE = "pickUpNote";
     public static final String UPDATE_BOOKING_ID = "bookingId";
     private int mNumOfTabs;

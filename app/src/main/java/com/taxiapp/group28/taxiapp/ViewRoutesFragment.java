@@ -105,6 +105,9 @@ public class ViewRoutesFragment extends Fragment {
                     RouteAdapter routeAdapter = (RouteAdapter)listView.getAdapter();
                     routeAdapter.getData().remove(position);
                     routeAdapter.notifyDataSetChanged();
+                    if(routeAdapter.getData().isEmpty()){
+                        listView.setAdapter(MainMenuActivity.getNoResultAdapter(ViewRoutesFragment.this.getActivity()));
+                    }
                 }else{
                     Log.d("ERROR", "An error occurred");
                 }

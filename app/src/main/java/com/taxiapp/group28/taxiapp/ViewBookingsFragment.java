@@ -9,6 +9,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -54,7 +55,17 @@ public  class ViewBookingsFragment extends Fragment {
                 view = inflater.inflate(R.layout.fragment_bookings_landscape, container, false);
                 break;
         }
-
+        final SwipeRefreshLayout currentBookingsRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipe_refresh_current_bookings);
+        if(currentBookingsRefreshLayout != null) {
+            currentBookingsRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    checkedBookings = false;
+                    loadBookings();
+                    currentBookingsRefreshLayout.setRefreshing(false);
+                }
+            });
+        }
         Log.d("LOAD_VIEW_BOOKINGS","true");
         if(savedInstanceState != null && savedInstanceState.containsKey("checkedBookings")){
             checkedBookings = savedInstanceState.getBoolean("checkedBookings");
@@ -116,6 +127,9 @@ public  class ViewBookingsFragment extends Fragment {
                     ViewBookingsFragment.BookingAdapterCurrent  currentBookingAdapter = (ViewBookingsFragment.BookingAdapterCurrent)listView.getAdapter();
                     currentBookingAdapter.getData().remove(position);
                     currentBookingAdapter.notifyDataSetChanged();
+                    if(currentBookingAdapter.getData().isEmpty()){
+                        listView.setAdapter(MainMenuActivity.getNoResultAdapter(ViewBookingsFragment.this.getActivity()));
+                    }
                 }else{
                     Log.d("ERROR", "An error occurred");
                 }
@@ -157,7 +171,8 @@ public  class ViewBookingsFragment extends Fragment {
             if(data.getCount()>0){
                 BookingAdapterCurrent bookingAdapter = new BookingAdapterCurrent(ViewBookingsFragment.this.getActivity(), addBookings(data, 0)); // create booking adapter
                 bookingsListView.setAdapter(bookingAdapter); // set adapter
-            }else{
+            }
+            if(bookingsListView.getAdapter() == null || bookingsListView.getAdapter() != null && bookingsListView.getAdapter().isEmpty()) {
                 bookingsListView.setAdapter(MainMenuActivity.getNoResultAdapter(ViewBookingsFragment.this.getActivity())); // load no results item
             }
         }
@@ -176,7 +191,8 @@ public  class ViewBookingsFragment extends Fragment {
             if(data.getCount() >0){
                 BookingAdapterPrevious bookingAdapter = new BookingAdapterPrevious(ViewBookingsFragment.this.getActivity(),addBookings(data,1)); // create booking adapter
                 bookingsListView.setAdapter(bookingAdapter); // set adapter
-            }else{
+            }
+            if(bookingsListView.getAdapter() == null || bookingsListView.getAdapter() != null && bookingsListView.getAdapter().isEmpty()) {
                 bookingsListView.setAdapter(MainMenuActivity.getNoResultAdapter(ViewBookingsFragment.this.getActivity())); // load no results item
             }
         }
@@ -211,19 +227,13 @@ public  class ViewBookingsFragment extends Fragment {
                 Log.d("VIEW_BOOKINGS_FRAGMENT","Checking bookings");
                 currentBooking.setEstArrivalTime(data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_EST_ARRIVAL_TIME)));
                 currentBooking.setEstDestTime(data.getString(data.getColumnIndex(DBContract.Booking_Table.COLUMN_EST_DEST_TIME)));
-                try {
-                    SimpleDateFormat simpleDateFormat = new SimpleDateFormat(Booking.TIME_STAMP_FORMAT, Locale.UK);
-                    Calendar estDestTime = Calendar.getInstance();
-                    estDestTime.setTime(simpleDateFormat.parse(currentBooking.getEstDestTime()));
-
-                    if (estDestTime.getTimeInMillis() < Calendar.getInstance().getTimeInMillis()) {
-                        currentBooking.setBookingComplete();
-
-                        previousBooking = true;
-                    }
-                } catch (Exception e) {
-                    Log.d("TIME", e.getMessage() + " " + currentBooking.getEstDestTime());
+                currentBooking.setCalendars();
+                if (currentBooking.getEstDestTimeCalendar().getTimeInMillis() < Calendar.getInstance().getTimeInMillis()) {
+                    // check if the if the dest time is less than the current time if so set booking as complete
+                    currentBooking.setBookingComplete();
+                    previousBooking = true;
                 }
+
             }
             if(state== 1 || (state == 0 && previousBooking== false)){
                 bookings.add(currentBooking); // add booking to array list
@@ -234,9 +244,9 @@ public  class ViewBookingsFragment extends Fragment {
     }
     // adapter for current bookings
     class BookingAdapterCurrent extends BaseAdapter{
-        private Context context;
-        private ArrayList<Booking> data;
-        private  LayoutInflater inflater = null;
+        protected Context context;
+        protected ArrayList<Booking> data;
+        protected  LayoutInflater inflater = null;
         public BookingAdapterCurrent(Context _context, ArrayList<Booking> _data){
             context = _context;
             data = _data;
@@ -287,12 +297,17 @@ public  class ViewBookingsFragment extends Fragment {
                             if(!TaxiAppOnlineDatabase.isNetworkEnabled(context,0)){
                                 return false;
                             }
-                            switch(item.getItemId()){
+                           if(data.get(position).getEstDestTimeCalendar().getTimeInMillis() < Calendar.getInstance(Locale.UK).getTimeInMillis()){
+                               checkedBookings = false;
+                               loadBookings();
+                               return false;
+                           }
+                            switch(item.getItemId()) {
                                 case R.id.option_booking_update:
                                     updateBooking(data.get(position)); // update booking
                                     return true;
                                 case R.id.option_booking_cancel:
-                                    removeBooking(data.get(position),position); // remove booking
+                                    removeBooking(data.get(position), position); // remove booking
                                     return true;
                                 default:
                                     return false;
@@ -309,33 +324,11 @@ public  class ViewBookingsFragment extends Fragment {
         }
     }
     // adapter for previous bookings
-    class BookingAdapterPrevious extends BaseAdapter{
-        private Context context;
-        private ArrayList<Booking> data;
-        private  LayoutInflater inflater = null;
+    class BookingAdapterPrevious extends BookingAdapterCurrent{
+
         public BookingAdapterPrevious(Context _context, ArrayList<Booking> _data){
-            context = _context;
-            data = _data;
-            inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            super(_context,_data);
         }
-        public ArrayList<Booking> getData(){return data;}
-        @Override
-        public int getCount(){
-            return data.size();
-        }
-        @Override
-        public Object getItem(int position) {
-            // TODO Auto-generated method stub
-
-            return data.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            // TODO Auto-generated method stub
-            return position;
-        }
-
         @Override
         public View getView(final int position, View convertView, ViewGroup parent) {
             // TODO Auto-generated method stub

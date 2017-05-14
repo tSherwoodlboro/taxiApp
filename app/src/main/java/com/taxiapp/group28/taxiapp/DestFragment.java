@@ -192,6 +192,7 @@ public class DestFragment extends Fragment {
         setResultText(name);
         location = name;
         setLocationSet(true);
+        Log.d("DEST_FRAGMENT","location set");
     }
     private void setCoords(Double lat,Double longitude){
         // sets the lat and long of dest point
@@ -233,6 +234,8 @@ public class DestFragment extends Fragment {
             }
         }else{
             setLocationSet(false);
+            Log.d("DEST_FRAGMENT","location not set");
+
         }
     }
     public String getStreetResult(){
