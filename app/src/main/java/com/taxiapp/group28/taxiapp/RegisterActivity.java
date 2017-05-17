@@ -361,6 +361,7 @@ public class RegisterActivity extends AppCompatActivity {
         // sync database with online database (Loads users bookings if they were a previous user).
         SyncDatabases syncDatabases = new SyncDatabases(this,userId);
         syncDatabases.syncDataBase();
+        Log.d("REGISTER","User id: "+userId);
         syncDatabases.setOnSyncCompleteListener(new SyncDatabases.onSyncCompleteListener() {
             @Override
             public void onSyncComplete() {

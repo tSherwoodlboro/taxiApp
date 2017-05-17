@@ -30,7 +30,6 @@ public class SyncDatabases {
     }
     public boolean syncDataBase(){
         syncBookings();
-        syncDrivers();
         return true;
     }
     private void syncBookings(){
@@ -44,13 +43,18 @@ public class SyncDatabases {
                     if(cvList==null) return;
                     for(ContentValues values : cvList){
                         context.getContentResolver().insert(DBContract.Booking_Table.CONTENT_URI,values);
+                        Log.d("REGISTER_SYNC","Data inserted");
                     }
                     syncRoutes();
+                }else{
+                    Log.d("SYNC_ERROR",conn.getResultMessage());
+                    syncDrivers();
                 }
             }
         });
     }
     private void syncRoutes(){
+        Log.d("SYNC_ROUTES","syncing routes");
         final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(context);
         conn.getRoutes(params);
         conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
@@ -63,10 +67,12 @@ public class SyncDatabases {
                         context.getContentResolver().insert(DBContract.Route_Table.CONTENT_URI,values);
                     }
                 }
+                syncDrivers();
             }
         });
     }
     private void syncDrivers(){
+        Log.d("SYNC_DRIVERS","syncing drivers");
         final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(context);
         conn.getDriversInformation(params);
         conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
