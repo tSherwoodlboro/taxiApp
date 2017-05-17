@@ -33,7 +33,7 @@ import java.util.List;
  */
 
 public class MainMenuActivity extends AppCompatActivity {
-    private String[] fragmentTitles = {"Bookings","Add Booking","Routes","Guide","Settings","Call Help","Log Out","Quit"};
+    private String[] fragmentTitles = {"Bookings","Add Booking","Routes","Guide","Settings","Call Help","Logout","Quit"};
     private DrawerLayout drawerLayout;
     private ListView drawerListView;
     private ActionBarDrawerToggle drawerToggle;
@@ -43,7 +43,7 @@ public class MainMenuActivity extends AppCompatActivity {
     public static final int GUIDE_FRAGMENT_POSITION = 3;
     public static final int SETTINGS_FRAGMENT_POSITION = 4;
     public static final int CALL_HELP_POSITION = 5;
-    public static final int LOG_OUT_POSITION = 6;
+    public static final int LOGOUT_POSITION = 6;
     public static final int QUIT_POSITION = 7;
 
     private Fragment currentFragment = null;
@@ -152,7 +152,7 @@ public class MainMenuActivity extends AppCompatActivity {
                     break;
                 case CALL_HELP_POSITION:callHelp();
                     return;
-                case LOG_OUT_POSITION:
+                case LOGOUT_POSITION:
                     logout();
                     return;
                 case QUIT_POSITION:
