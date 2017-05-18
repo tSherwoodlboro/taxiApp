@@ -34,7 +34,7 @@ public class SyncDatabases {
     }
     private void syncBookings(){
         final TaxiAppOnlineDatabase conn = new TaxiAppOnlineDatabase(context);
-        Log.d("PARAMS_VALID","PARAMS "+userId+" "+conn.getBookings(params));
+        conn.getBookings(params);
         conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
             @Override
             public void onGetResult() {
@@ -47,7 +47,7 @@ public class SyncDatabases {
                     }
                     syncRoutes();
                 }else{
-                    Log.d("SYNC_ERROR",conn.getResultMessage());
+                    Log.d("SYNC_ERROR",conn.getResult().toString());
                     syncDrivers();
                 }
             }
@@ -78,15 +78,18 @@ public class SyncDatabases {
         conn.setOnGetResultListener(new TaxiAppOnlineDatabase.onGetResultListener() {
             @Override
             public void onGetResult() {
-                if(!conn.isResultError()){
+                if(!conn.isResultError()) {
                     ArrayList<ContentValues> cvList = conn.getContentValuesList();
-                    if(cvList==null) return;
-                    for(ContentValues values : cvList){
-                        context.getContentResolver().insert(DBContract.Driver_Information_Table.CONTENT_URI,values);
+                    if (cvList == null) return;
+                    for (ContentValues values : cvList) {
+                        context.getContentResolver().insert(DBContract.Driver_Information_Table.CONTENT_URI, values);
                     }
-                    if(onSyncComplete != null){
+                    if (onSyncComplete != null) {
                         onSyncComplete.onSyncComplete();
                     }
+                }else{
+                    Log.d("SYNC_ERROR","Driver sync"+conn.getResultMessage());
+
                 }
             }
         });

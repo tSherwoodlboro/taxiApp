@@ -42,9 +42,10 @@ public class TaxiAppRequestHandler {
     }
     private String sendRequest(String method,String type, HashMap<String,String> dataParams) {
         URL url;
+        HttpURLConnection conn=null;
         try{
             url = new URL(API_URL); // create new url
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection(); // create and open connections http
+            conn = (HttpURLConnection)url.openConnection(); // create and open connections http
             // set up connection properties
             conn.setDoInput(true);
             conn.setConnectTimeout(10000);
@@ -61,7 +62,6 @@ public class TaxiAppRequestHandler {
             outputStream.close();
 
             int httpResponseCode = conn.getResponseCode(); // get response code
-            conn.disconnect(); // close connection
             if(httpResponseCode == HttpURLConnection.HTTP_OK){
                 // if response ok get results using buffer and string builder to append results
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
@@ -79,6 +79,15 @@ public class TaxiAppRequestHandler {
             Log.d("Error2", "" + e1.getMessage());
         }catch(RuntimeException e2){
            Log.d("Error3",""+e2.getMessage());
+        }finally {
+            if(conn != null) {
+                try {
+                    conn.disconnect(); // close connection
+                }catch(Exception e){
+                    Log.d("ERROR4",e.getMessage());
+                }
+            }
+
         }
         return ERROR;
     }
