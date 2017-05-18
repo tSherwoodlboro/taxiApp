@@ -93,6 +93,10 @@ public class Route {
         id = val;
     }
     public void setNote(String val){
+        if(val.isEmpty() || val.equals("")){
+            note="-1";
+            return;
+        }
         note = val;
     }
     public void setName(String val){
