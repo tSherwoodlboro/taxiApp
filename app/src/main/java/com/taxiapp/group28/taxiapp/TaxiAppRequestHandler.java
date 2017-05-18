@@ -70,6 +70,8 @@ public class TaxiAppRequestHandler {
                 while((responseData = bufferedReader.readLine()) != null){
                     responseBuilder.append(responseData);
                 }
+                bufferedReader.close();
+                conn.disconnect();
                 return responseBuilder.toString();
             }
         }catch(MalformedURLException e){
