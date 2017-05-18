@@ -297,7 +297,7 @@ public  class ViewBookingsFragment extends Fragment {
                             if(!TaxiAppOnlineDatabase.isNetworkEnabled(context,0)){
                                 return false;
                             }
-                           if(data.get(position) != null && data.get(position).getEstDestTimeCalendar().getTimeInMillis() < Calendar.getInstance(Locale.UK).getTimeInMillis()){
+                           if(data.get(position).getEstDestTimeCalendar() != null && data.get(position).getEstDestTimeCalendar().getTimeInMillis() < Calendar.getInstance(Locale.UK).getTimeInMillis()){
                                checkedBookings = false;
                                loadBookings();
                                return false;
