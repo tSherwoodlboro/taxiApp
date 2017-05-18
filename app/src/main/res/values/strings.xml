@@ -2,7 +2,7 @@
     <string name="app_name">Taxi App</string>
     <string name="login_header">Welcome, please enter your mobile number below to login.</string>
     <string name="mobile_number_text">Mobile Number</string>
-    <string name="login_button_text">Login</string>
+    <string name="login_button_text">Register</string>
     <string name="mobile_hint">Enter Mobile Number</string>
     <string name="add_booking_pick_up">Pick  up location</string>
     <string name="add_booking_dest">Destination location</string>
