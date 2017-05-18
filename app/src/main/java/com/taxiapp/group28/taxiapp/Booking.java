@@ -347,7 +347,7 @@ public class Booking implements Parcelable{
 
         argsBundle.putString(BookingPagerAdapter.UPDATE_BOOKING_PICK_UP_LOCATION_NAME,pickUpName);
         argsBundle.putDouble(BookingPagerAdapter.UPDATE_BOOKING_PICK_UP_LATITUDE,pickUpLatitude);
-        argsBundle.putDouble(BookingPagerAdapter.UPDATE_BOOKING_PICK_UP_LONGITUDE,destLatitude);
+        argsBundle.putDouble(BookingPagerAdapter.UPDATE_BOOKING_PICK_UP_LONGITUDE,pickUpLongitude);
 
         argsBundle.putString(BookingPagerAdapter.UPDATE_BOOKING_DEST_LOCATION_NAME,destName);
         argsBundle.putDouble(BookingPagerAdapter.UPDATE_BOOKING_DEST_LATITUDE,destLatitude);
@@ -360,7 +360,7 @@ public class Booking implements Parcelable{
         Bundle argsBundle = new Bundle();
         argsBundle.putString(DBContract.Booking_Table.COLUMN_PICK_UP_NAME,pickUpName);
         argsBundle.putDouble(DBContract.Booking_Table.COLUMN_PICK_UP_LATITUDE,pickUpLatitude);
-        argsBundle.putDouble(DBContract.Booking_Table.COLUMN_PICK_UP_LONGITUDE,destLatitude);
+        argsBundle.putDouble(DBContract.Booking_Table.COLUMN_PICK_UP_LONGITUDE,pickUpLongitude);
         argsBundle.putString(DBContract.Booking_Table.COLUMN_DEST_NAME,destName);
         argsBundle.putDouble(DBContract.Booking_Table.COLUMN_DEST_LATITUDE,destLatitude);
         argsBundle.putDouble(DBContract.Booking_Table.COLUMN_DEST_LONGITUDE,destLongitude);

@@ -133,9 +133,15 @@ public class ConfirmBookingFragment extends Fragment {
                                     message = BOOKING_UPDATED_MESSAGE;
                                 }
                                 addBookingLocal(); // add booking to local database
-                                MainMenuActivity mainMenuActivity = (MainMenuActivity)ConfirmBookingFragment.this.getActivity(); // get the main menu activity instance
+                                MainMenuActivity mainMenuActivity;
+                                if(Build.VERSION.SDK_INT>= 17) {
+                                     mainMenuActivity = (MainMenuActivity) ConfirmBookingFragment.this.getParentFragment().getActivity(); // get the main menu activity instance
+                                }else{
+                                     mainMenuActivity = (MainMenuActivity) ConfirmBookingFragment.this.getActivity(); // get the main menu activity instance
+                                }
                                 mainMenuActivity.removeAddBookingInstance(); // remove the this current booking instance (No longer needed)
-                                mainMenuActivity.loadFragment(new ViewBookingsFragment(),MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION,true); // load the view booking fragment
+                                mainMenuActivity.loadFragment(new ViewBookingsFragment(), MainMenuActivity.VIEW_BOOKINGS_FRAGMENT_POSITION, true); // load the view booking fragment
+
                             } else {
                                 message = BOOKING_ERROR_MESSAGE;
                             }
